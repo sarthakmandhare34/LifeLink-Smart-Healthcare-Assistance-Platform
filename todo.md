@@ -1,5 +1,10 @@
 # Liquid-Glass Redesign Checklist
 
+## Native Sign-In Clarity
+
+- [x] Make the existing patient login action explicitly read “Sign in” on the requested LifeLink page, without adding external providers or unrelated UI.
+- [x] Validate the revised native sign-in page at desktop and mobile sizes.
+
 - [x] Inspect the supplied LifeLink archive and identify its pages, shared layout, components, and assets.
 - [x] Define a reusable liquid-glass token system that fits the existing content and behavior.
 - [x] Apply the liquid-glass visual treatment across each relevant page and shared component.
@@ -75,4 +80,4 @@
 - [x] Remove the temporary validation account after the agreed no-data checks without risking user records.
 - [x] Keep all doctor accounts, profiles, dashboards, and availability explicitly mocked for this phase.
 - [x] Add and run tests, build checks, browser validation, and phase-by-phase implementation reports.
-- [ ] Save a checkpoint and deliver the completed master-specification phase.
+- [x] Save a checkpoint and deliver the completed master-specification phase.

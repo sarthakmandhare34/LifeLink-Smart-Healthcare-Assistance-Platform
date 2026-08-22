@@ -35,7 +35,7 @@ export const PatientLogin = () => {
       <Card variant="glass" style={{ width: '100%', maxWidth: '420px' }}>
         <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-5)' }}>
           <LifeLinkLogo className="lifelink-logo-auth" />
-          <p className="caption" style={{ marginTop: '4px' }}>Patient Clinical Workspace Login</p>
+          <p className="caption" style={{ marginTop: '4px' }}>Sign in to your patient account</p>
         </div>
         
         {error && (
@@ -72,7 +72,7 @@ export const PatientLogin = () => {
           </div>
 
           <Button type="submit" variant="primary" className="w-full mt-3" disabled={isLoading}>
-            {isLoading ? 'Signing In...' : 'Login to Patient Portal'}
+            {isLoading ? 'Signing in…' : 'Sign in'}
           </Button>
         </form>
 
