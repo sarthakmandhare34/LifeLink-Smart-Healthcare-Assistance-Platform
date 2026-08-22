@@ -8,6 +8,20 @@
       "when": 1787421380473,
       "tag": "0000_violet_iron_monger",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1787424024911,
+      "tag": "0001_wealthy_diamondback",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787424101109,
+      "tag": "0002_optimal_hedge_knight",
+      "breakpoints": true
     }
   ]
 }

@@ -1,10 +1,9 @@
 import React from 'react';
-import { useMockData } from '../../context/MockDataContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import type { Patient } from '../../types';
 import { useNavigate } from 'react-router-dom';
+import { trpc } from '../../lib/trpc';
 import { 
   Stethoscope, 
   FileHeart, 
@@ -22,23 +21,23 @@ import {
 } from 'lucide-react';
 
 export const PatientDashboard = () => {
-  const { currentUser, getUpcomingAppointment, getPatientMedicines, getPatientPrescriptions, assessments } = useMockData();
+  const dashboardQuery = trpc.patientDashboard.summary.useQuery();
   const navigate = useNavigate();
 
-  if (!currentUser || currentUser.role !== 'patient') {
+  if (dashboardQuery.isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <p className="caption">Loading clinical workspace...</p>
       </div>
     );
   }
+  if (!dashboardQuery.data?.profile) return null;
 
-  const patient = currentUser as Patient;
-  const upcomingAppointment = getUpcomingAppointment(patient.id);
-  const activeMedicines = getPatientMedicines(patient.id);
-  const recentPrescriptions = getPatientPrescriptions(patient.id);
-  const lowStockMeds = activeMedicines.filter(m => m.lowStock);
-  const latestAssessment = assessments.length > 0 ? assessments[assessments.length - 1] : null;
+  const { profile: patient, latestAssessment, medicines: activeMedicines, appointments, prescriptions: recentPrescriptions } = dashboardQuery.data;
+  const upcomingAppointment = appointments.find((appointment) =>
+    appointment.status === 'Requested' || appointment.status === 'Pending' || appointment.status === 'Confirmed'
+  ) ?? null;
+  const lowStockMeds: typeof activeMedicines = [];
 
   // Helper for semantic urgency styling
   const getUrgencyClass = (urgency: string) => {
@@ -103,7 +102,7 @@ export const PatientDashboard = () => {
                     <strong>Reported:</strong> {latestAssessment.symptoms}
                   </p>
                   <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                     <span className="caption text-muted">{new Date(latestAssessment.date).toLocaleDateString()}</span>
+                     <span className="caption text-muted">{new Date(latestAssessment.createdAt).toLocaleDateString()}</span>
                      <span className="caption" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Review details &rarr;</span>
                   </div>
                 </div>
@@ -135,14 +134,14 @@ export const PatientDashboard = () => {
               <div className="interactive-surface" onClick={() => navigate('/patient/appointments')} style={{ padding: 'var(--spacing-4)', background: 'var(--color-surface-white)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-border)' }}>
                 <div className="flex justify-between items-center mb-2">
                   <span className="caption" style={{ fontWeight: 600, color: 'var(--color-text)' }}>Next Appointment</span>
-                  {upcomingAppointment ? <Badge status="success">Confirmed</Badge> : <Badge status="neutral">None</Badge>}
+                  {upcomingAppointment ? <Badge status={upcomingAppointment.status === 'Confirmed' ? 'success' : 'warning'}>{upcomingAppointment.status}</Badge> : <Badge status="neutral">None</Badge>}
                 </div>
                 {upcomingAppointment ? (
                   <>
                     <div style={{ fontWeight: 600, color: 'var(--color-primary)', fontSize: '15px' }}>
-                      {new Date(upcomingAppointment.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} at {upcomingAppointment.time}
+                      {new Date(upcomingAppointment.scheduledAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(upcomingAppointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                     </div>
-                    <span className="caption">Dr. Sarah Chen, Cardiology</span>
+                    <span className="caption">Appointment with your selected doctor</span>
                   </>
                 ) : (
                   <div className="caption text-muted">No appointments scheduled</div>
@@ -217,12 +216,12 @@ export const PatientDashboard = () => {
                 <div className="interactive-surface flex items-center justify-between" style={{ padding: 'var(--spacing-4)', background: 'var(--color-surface-white)', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-border)' }} onClick={() => navigate('/patient/appointments')}>
                   <div className="flex items-center gap-3">
                     <div style={{ background: 'var(--color-primary-muted)', color: 'var(--color-primary)', padding: '10px', borderRadius: '10px', textAlign: 'center', minWidth: '55px' }}>
-                      <div style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 600 }}>{new Date(upcomingAppointment.date).toLocaleDateString(undefined, { month: 'short' })}</div>
-                      <div style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>{new Date(upcomingAppointment.date).getDate()}</div>
+                      <div style={{ fontSize: '11px', textTransform: 'uppercase', fontWeight: 600 }}>{new Date(upcomingAppointment.scheduledAt).toLocaleDateString(undefined, { month: 'short' })}</div>
+                      <div style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>{new Date(upcomingAppointment.scheduledAt).getDate()}</div>
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, color: 'var(--color-text)' }}>Dr. Sarah Chen</div>
-                      <div className="caption">Cardiology • {upcomingAppointment.time}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--color-text)' }}>Appointment requested</div>
+                      <div className="caption">{upcomingAppointment.status} • {new Date(upcomingAppointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
                     </div>
                   </div>
                 </div>
@@ -240,25 +239,25 @@ export const PatientDashboard = () => {
           <Card variant="glass" className="h-full">
             <h3 style={{ fontSize: 'var(--text-h3)', marginBottom: 'var(--spacing-4)' }}>Recent Activity</h3>
             <div className="flex-col gap-4">
-              {assessments.slice(-1).map(assessment => (
-                <div key={assessment.id} className="flex gap-3">
+              {latestAssessment ? (
+                <div key={latestAssessment.id} className="flex gap-3">
                   <div style={{ marginTop: '2px', background: 'var(--color-primary-muted)', padding: '6px', borderRadius: '8px' }}><Stethoscope size={16} color="var(--color-primary)" /></div>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)' }}>AI Assessment Completed</div>
-                    <div className="caption">{new Date(assessment.date).toLocaleDateString()} • {assessment.urgency} Urgency</div>
+                    <div className="caption">{new Date(latestAssessment.createdAt).toLocaleDateString()} • {latestAssessment.urgency} Urgency</div>
                   </div>
                 </div>
-              ))}
-              {recentPrescriptions.slice(-1).map(rx => (
+              ) : null}
+              {recentPrescriptions.slice(0, 1).map(rx => (
                 <div key={rx.id} className="flex gap-3">
                   <div style={{ marginTop: '2px', background: 'var(--color-primary-muted)', padding: '6px', borderRadius: '8px' }}><FileText size={16} color="var(--color-primary)" /></div>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text)' }}>New Prescription Issued</div>
-                    <div className="caption">{new Date(rx.date).toLocaleDateString()} • {rx.medicines.length} medicines</div>
+                    <div className="caption">{new Date(rx.issuedAt).toLocaleDateString()}</div>
                   </div>
                 </div>
               ))}
-              {assessments.length === 0 && recentPrescriptions.length === 0 && (
+              {!latestAssessment && recentPrescriptions.length === 0 && (
                 <p className="caption text-muted">No recent clinical activity recorded.</p>
               )}
             </div>

@@ -49,3 +49,21 @@
 - [x] Verify no third-party or Manus-branded sign-in route is reachable from the native login UI.
 - [x] Build and visually validate the streamlined native login pages.
 - [x] Save a checkpoint and report the login-only update.
+
+## LifeLink Master Specification Reconciliation
+
+- [x] Inspect the attached master handover content and supplied repository archive without replacing the active project.
+- [x] Produce a specification-to-code reconciliation covering patient, doctor, AI, realtime, discovery, and map requirements.
+- [x] Define database tables and secure patient ownership rules for profiles, appointments, medicines, prescriptions, assessments, and realtime events.
+- [x] Replace patient-side in-memory data operations with database-backed tRPC flows while preserving the approved interface.
+- [x] Persist patient registration, profile, dashboard summaries, appointments, medicines, prescriptions, and assessment history.
+- [x] Route specialist appointment requests through the protected appointment procedure and invalidate patient data after success.
+- [x] Remove the remaining patient assessment in-memory dependency and make the protected assessment result the sole patient history source.
+- [x] Add visible mutation-error recovery states for medicine and appointment actions.
+- [x] Persist native patient registration, profile, dashboard summary, and assessment history foundation without creating patient seed data.
+- [x] Preserve the real AI assessment backend and emergency safety override without exposing credentials.
+- [ ] Add realtime invalidation or subscriptions for patient-facing record updates.
+- [ ] Begin specialty and Mumbai Central, Harbour, and Western rail-corridor doctor discovery with a maps workflow and appointment links.
+- [ ] Keep all doctor accounts, profiles, dashboards, and availability explicitly mocked for this phase.
+- [ ] Add and run tests, build checks, browser validation, and phase-by-phase implementation reports.
+- [ ] Save a checkpoint and deliver the completed master-specification phase.

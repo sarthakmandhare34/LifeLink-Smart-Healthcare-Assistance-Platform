@@ -84,6 +84,34 @@ The secure authorization page has been reopened for the final account-scoped ver
 
 The patient and clinician experiences now keep people inside their dedicated LifeLink login pages. The UI no longer provides a button or text path to the external authorization screen, so Facebook, Microsoft, and Manus-branded options from that provider are not surfaced from within the LifeLink application.
 
+## Master Handover Reconciliation — Initial Findings
+
+The attached master handover confirms that **patient data must become real and database-backed**, while doctor accounts, dashboards, and availability remain explicitly mocked for this phase. It requires a patient journey from assessment to specialty, Mumbai geographic discovery, Central/Harbour/Western line filtering, map-based doctor selection, real appointment records, and authenticated realtime updates. It also forbids invented medical information, distances, reviews, ratings, or credentials.
+
+The active project already has the approved liquid-glass LifeLink interface, routes, mock doctor views, a tRPC/Drizzle/MySQL foundation, and database-backed assessment storage. However, the active `MockDataContext` remains the in-memory source of truth for patient registration, login, profile, appointments, medicines, prescriptions, dashboard data, and doctor discovery. Only patient assessments currently have protected database procedures.
+
+The supplied archive contains an earlier standalone Gemini assessment route. It validates input, calls Gemini server-side using `GEMINI_API_KEY`, validates the structured output, and applies a deterministic emergency override. The active project instead uses a browser-local decision-support fallback. This is the principal AI discrepancy to resolve without weakening emergency safeguards or exposing credentials.
+
+The active specialist finder currently filters a small mock list by name or specialty and creates a mock appointment. It has no repository abstraction, Mumbai locality structure, Central/Harbour/Western line logic, marker layer, or map integration. The active project does include a generic proxy-backed `MapView` component, but it defaults to San Francisco and has no LifeLink doctor-discovery wiring.
+
+## Database Migration Note
+
+The initial patient-domain migration created all new tables successfully, but the final foreign-key statement failed because MySQL rejected the generated identifier as too long. The schema and migration now use the short explicit constraint name `rx_item_prescription_fk`; the remaining operation is a non-destructive foreign-key addition to the already-created prescription-item table.
+
+## Phase 3 Entry-Flow Validation
+
+The native registration and login pages have been checked in the browser after replacing their mock actions. Both retain the approved LifeLink liquid-glass presentation and only expose the patient account fields and native LifeLink actions. The registration screen contains no prefilled clinical data, and the login screen no longer displays a demo credential cue.
+
+## Phase 3 Patient Foundation
+
+Native patient registration and login now use a server-side salted-password credential record and the existing signed-session cookie infrastructure. Profile, Health Passport, dashboard summary, and assessment history use protected server procedures that derive ownership from the session. No patient, medicine, appointment, prescription, or assessment test record was inserted during the implementation or browser checks.
+
+## Phase 4 Patient Records
+
+Patient medicines, appointment requests/cancellations, and prescription history now call protected database procedures. The appointment and prescription presentation obtains doctor display data from a clearly labeled development-only mock directory; the doctor-account system itself remains untouched. Empty records remain empty, and no fixture medicine, prescription, appointment, rating, review, or patient clinical record was added to the database.
+
+The specialist finder now creates a real patient-owned appointment request only after the patient selects a requested date and time. The application neither creates a prefilled appointment nor represents a mock directory entry as verified clinical availability.
+
 The revised patient and clinician login pages have been inspected in the browser. Each page now shows only the supplied LifeLink branding, native account fields, and its local form action; neither entry point exposes an external authorization control or third-party brand name.
 
 The pending external-account check was explicitly superseded by the native login-only direction. The database model remains in place, but the native screens no longer route users to a provider-hosted sign-in surface.
@@ -99,3 +127,11 @@ The presentation now uses a logo-focused crop of the supplied artwork rather tha
 The revised logo treatment has been visually checked on both the patient login and clinician dashboard. The patient entry point presents the full supplied mark and wordmark without the original image canvas, while the clinician sidebar retains a compact, legible version against its glass surface.
 
 The final 1280 × 720 visual pass confirms the new mark holds its contrast and hierarchy against the blue–aqua atmosphere in both contexts. The patient logo now transitions naturally into the glass card, while the clinician variant is compact enough for sidebar navigation.
+
+## Phase 05 — Server-Side Assessment Decision
+
+The prior browser-local symptom fallback has been superseded for the patient assessment route. The browser now sends only bounded form input through a protected procedure; the active server calls the injected Gemini capability with a strict JSON response schema, validates the returned result, stores the normalized assessment under the signed-in patient, and emits a patient event. No model credential, direct provider endpoint, or client-side result-authoring path is exposed in the UI.
+
+Emergency safety is deterministic rather than model-dependent. The server checks broad red-flag symptom wording—including the archived haematemesis/vomiting-blood variants—before the model call and retains the same override after response normalization. Any matching assessment is returned as `EMERGENCY` with controlled, non-diagnostic immediate-care guidance, so the model cannot lower urgency. The existing red emergency panel, accessible result popup, and decision-support disclaimer remain the patient-facing presentation.
+
+The test suite validates the input boundary plus the emergency patterns and model-bypass behavior without invoking Gemini. A full signed-in UI analysis should be performed only by the account holder using non-sensitive information; no health record or fabricated patient test data was created for this milestone.

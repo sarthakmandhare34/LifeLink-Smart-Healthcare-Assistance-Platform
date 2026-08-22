@@ -1,23 +1,35 @@
-import React, { useState } from 'react';
-import { useMockData } from '../../context/MockDataContext';
+import React, { useEffect, useState } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { User, CheckCircle2 } from 'lucide-react';
+import { trpc } from '../../lib/trpc';
 
 export const Profile = () => {
-  const { currentUser, updatePatientProfile } = useMockData();
+  const trpcUtils = trpc.useUtils();
+  const profileQuery = trpc.patientProfile.get.useQuery();
+  const updateMutation = trpc.patientProfile.update.useMutation();
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
+  const [phone, setPhone] = useState('');
 
-  if (!currentUser || currentUser.role !== 'patient') return null;
+  useEffect(() => {
+    if (!profileQuery.data) return;
+    const nameParts = profileQuery.data.name.trim().split(/\s+/);
+    setFirst(nameParts.shift() || '');
+    setLast(nameParts.join(' '));
+    setPhone(profileQuery.data.phone || '');
+  }, [profileQuery.data]);
 
-  const [firstName, lastName] = currentUser.name.split(' ');
-  const [first, setFirst] = useState(firstName || '');
-  const [last, setLast] = useState(lastName || '');
-  const [phone, setPhone] = useState(currentUser.emergencyContacts[0]?.phone || '+1 555-0100');
+  if (profileQuery.isLoading) {
+    return <div className="flex items-center justify-center h-full"><p className="caption">Loading patient profile…</p></div>;
+  }
+  if (!profileQuery.data) return null;
+  const profile = profileQuery.data;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +42,12 @@ export const Profile = () => {
     setSuccess(false);
 
     try {
-      await updatePatientProfile(currentUser.id, {
-        name: `${first.trim()} ${last.trim()}`
+      await updateMutation.mutateAsync({
+        name: `${first.trim()} ${last.trim()}`,
+        phone: phone.trim(),
       });
+      await trpcUtils.patientProfile.get.invalidate();
+      await trpcUtils.patientDashboard.summary.invalidate();
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -70,13 +85,13 @@ export const Profile = () => {
             fontSize: '1.5rem',
             boxShadow: 'var(--shadow-sm)'
           }}>
-            {currentUser.name.charAt(0)}
+            {profile.name.charAt(0) || 'P'}
           </div>
           <div>
-            <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>{currentUser.name}</h2>
+            <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>{profile.name}</h2>
             <div className="flex items-center gap-2 mt-1">
-              <Badge status="success"><CheckCircle2 size={12} /> Verified Patient</Badge>
-              <span className="caption">ID: {currentUser.id}</span>
+              <Badge status="success"><CheckCircle2 size={12} /> Patient Account</Badge>
+              <span className="caption">Private profile</span>
             </div>
           </div>
         </div>
@@ -101,7 +116,7 @@ export const Profile = () => {
 
           <div>
             <label style={{ display: 'block', marginBottom: 'var(--spacing-1)', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Registered Email Address</label>
-            <Input type="email" defaultValue={currentUser.email} readOnly style={{ background: 'var(--color-background)', color: 'var(--color-text-muted)', cursor: 'not-allowed' }} />
+            <Input type="email" value={profile.email} readOnly style={{ background: 'var(--color-background)', color: 'var(--color-text-muted)', cursor: 'not-allowed' }} />
           </div>
 
           <div>

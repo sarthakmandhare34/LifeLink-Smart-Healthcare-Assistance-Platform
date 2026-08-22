@@ -1,21 +1,21 @@
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
-import { createPatientAssessment, getPatientAssessments } from "./db";
+import { createPatientAssessment, createPatientEvent, getPatientAssessments } from "./db";
+import { analyzeAssessmentWithGemini, assessmentRequestInput } from "./assessmentService";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import {
+  patientAppointmentRouter,
+  patientAuthRouter,
+  patientDashboardRouter,
+  patientDiscoveryRouter,
+  patientMedicineRouter,
+  patientPrescriptionRouter,
+  patientProfileRouter,
+} from "./routers/patient";
 
-export const assessmentInput = z.object({
-  symptoms: z.string().trim().min(1).max(10_000),
-  age: z.number().int().min(0).max(120),
-  gender: z.string().trim().min(1).max(32),
-  conditions: z.string().trim().max(5_000).optional(),
-  duration: z.string().trim().min(1).max(64),
-  urgency: z.enum(["LOW", "MODERATE", "EMERGENCY"]),
-  reason: z.string().trim().min(1).max(10_000),
-  specialty: z.string().trim().min(1).max(160),
-  guidance: z.string().trim().min(1).max(10_000),
-});
+export { assessmentRequestInput } from "./assessmentService";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -30,22 +30,31 @@ export const appRouter = router({
       } as const;
     }),
   }),
+  patientAuth: patientAuthRouter,
+  patientProfile: patientProfileRouter,
+  patientDashboard: patientDashboardRouter,
+  patientMedicine: patientMedicineRouter,
+  patientAppointment: patientAppointmentRouter,
+  patientPrescription: patientPrescriptionRouter,
+  patientDiscovery: patientDiscoveryRouter,
   assessment: router({
     list: protectedProcedure.query(({ ctx }) => getPatientAssessments(ctx.user.id)),
-    create: protectedProcedure.input(assessmentInput).mutation(async ({ ctx, input }) => {
-      await createPatientAssessment({
+    analyze: protectedProcedure.input(assessmentRequestInput).mutation(async ({ ctx, input }) => {
+      const result = await analyzeAssessmentWithGemini(input);
+      const id = await createPatientAssessment({
         userId: ctx.user.id,
         symptoms: input.symptoms,
         age: input.age,
         gender: input.gender,
         conditions: input.conditions ?? null,
         duration: input.duration,
-        urgency: input.urgency,
-        reason: input.reason,
-        specialty: input.specialty,
-        guidance: input.guidance,
+        urgency: result.urgency,
+        reason: result.reason,
+        specialty: result.specialty,
+        guidance: result.guidance,
       });
-      return { success: true } as const;
+      await createPatientEvent(ctx.user.id, "ASSESSMENT_COMPLETED", String(id));
+      return { id, createdAt: new Date(), ...input, ...result };
     }),
   }),
 });

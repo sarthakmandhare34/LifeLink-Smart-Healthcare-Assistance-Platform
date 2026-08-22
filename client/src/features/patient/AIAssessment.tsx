@@ -1,23 +1,31 @@
 import React, { useState } from 'react';
-import { useMockData } from '../../context/MockDataContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Input } from '../../components/ui/Input';
 import { Stethoscope, AlertCircle, CheckCircle2, ArrowRight, ShieldAlert } from 'lucide-react';
-import type { Assessment } from '../../types';
 import { useNavigate } from 'react-router-dom';
-import { analyzeSymptoms } from '../../services/aiAssessmentService';
 import { Popup } from '../../components/ui/Popup';
 import { trpc } from '../../lib/trpc';
-import { useAuth } from '../../_core/hooks/useAuth';
+
+type AssessmentResult = {
+  id: number;
+  createdAt: Date;
+  symptoms: string;
+  age: number;
+  gender: string;
+  conditions?: string | null;
+  duration: string;
+  urgency: 'LOW' | 'MODERATE' | 'EMERGENCY';
+  reason: string;
+  specialty: string;
+  guidance: string;
+};
 
 export const AIAssessment = () => {
-  const { currentUser, addAssessment } = useMockData();
-  const { isAuthenticated } = useAuth();
   const trpcUtils = trpc.useUtils();
-  const savedAssessments = trpc.assessment.list.useQuery(undefined, { enabled: isAuthenticated });
-  const persistAssessment = trpc.assessment.create.useMutation();
+  const savedAssessments = trpc.assessment.list.useQuery();
+  const analyzeAssessment = trpc.assessment.analyze.useMutation();
   const navigate = useNavigate();
   
   const [step, setStep] = useState(0);
@@ -27,7 +35,7 @@ export const AIAssessment = () => {
   const [conditions, setConditions] = useState('');
   const [duration, setDuration] = useState('');
   
-  const [result, setResult] = useState<Assessment | null>(null);
+  const [result, setResult] = useState<AssessmentResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -53,14 +61,13 @@ export const AIAssessment = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser || currentUser.role !== 'patient') return;
     if (!symptoms || !age || !gender || !duration) return;
 
     setIsProcessing(true);
     setApiError(null);
     
     try {
-      const response = await analyzeSymptoms({
+      const assessment = await analyzeAssessment.mutateAsync({
         symptoms,
         age: parseInt(age, 10),
         gender,
@@ -68,37 +75,9 @@ export const AIAssessment = () => {
         duration
       });
 
-      const mockAssessment: Assessment = {
-        id: `as_${Date.now()}`,
-        patientId: currentUser.id,
-        date: new Date().toISOString(),
-        symptoms,
-        age: parseInt(age, 10),
-        gender,
-        conditions,
-        duration,
-        urgency: response.urgency,
-        reason: response.reason,
-        specialty: response.recommendedSpecialty,
-        guidance: response.guidance
-      };
-
-      await addAssessment(mockAssessment);
-      if (isAuthenticated) {
-        await persistAssessment.mutateAsync({
-          symptoms: mockAssessment.symptoms,
-          age: mockAssessment.age,
-          gender: mockAssessment.gender,
-          conditions: mockAssessment.conditions,
-          duration: mockAssessment.duration,
-          urgency: mockAssessment.urgency,
-          reason: mockAssessment.reason,
-          specialty: mockAssessment.specialty,
-          guidance: mockAssessment.guidance,
-        });
-        await trpcUtils.assessment.list.invalidate();
-      }
-      setResult(mockAssessment);
+      await trpcUtils.assessment.list.invalidate();
+      await trpcUtils.patientDashboard.summary.invalidate();
+      setResult(assessment);
       setStep(1);
       setIsPopupOpen(true);
     } catch (error) {
@@ -133,14 +112,7 @@ export const AIAssessment = () => {
         </div>
       </header>
 
-      {!isAuthenticated && (
-        <p className="assessment-save-notice">
-          Demo-mode results are available only for the current LifeLink session. This decision-support tool does not replace professional medical care.
-        </p>
-      )}
-
-      {isAuthenticated && (
-        <section className="saved-assessments-panel" aria-labelledby="saved-assessments-heading">
+      <section className="saved-assessments-panel" aria-labelledby="saved-assessments-heading">
           <div className="saved-assessments-heading">
             <div>
               <p className="caption">Private record</p>
@@ -167,8 +139,7 @@ export const AIAssessment = () => {
           ) : (
             <p className="caption">No saved assessments yet. New secure assessments will appear here.</p>
           )}
-        </section>
-      )}
+      </section>
 
       <Card variant="glass" style={{ maxWidth: '680px', width: '100%', margin: '0 auto' }}>
         {step === 0 ? (

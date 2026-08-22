@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
-import { useMockData } from '../../context/MockDataContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
 import { CheckCircle2, Clock, XCircle, Calendar as CalendarIcon, User } from 'lucide-react';
+import { trpc } from '../../lib/trpc';
 
 export const Appointments = () => {
-  const { currentUser, appointments, getDoctorById, updateAppointmentStatus } = useMockData();
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const trpcUtils = trpc.useUtils();
+  const appointmentsQuery = trpc.patientAppointment.list.useQuery();
+  const cancelMutation = trpc.patientAppointment.cancel.useMutation();
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [mutationError, setMutationError] = useState('');
 
-  if (!currentUser) return null;
+  if (appointmentsQuery.isLoading) {
+    return <div className="flex items-center justify-center h-full"><p className="caption">Loading appointments…</p></div>;
+  }
 
-  const patientAppointments = appointments.filter((a) => a.patientId === currentUser.id);
-  const upcoming = patientAppointments.filter((a) => ['Requested', 'Pending', 'Confirmed'].includes(a.status));
-  const past = patientAppointments.filter((a) => ['Completed', 'Cancelled'].includes(a.status));
+  const appointments = appointmentsQuery.data ?? [];
+  const upcoming = appointments.filter((appointment) => ['Requested', 'Pending', 'Confirmed'].includes(appointment.status));
+  const past = appointments.filter((appointment) => ['Completed', 'Cancelled'].includes(appointment.status));
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -27,20 +32,20 @@ export const Appointments = () => {
   };
 
   const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'Confirmed': return 'success';
-      case 'Requested':
-      case 'Pending': return 'neutral';
-      case 'Cancelled': return 'neutral'; // No red allowed in B.6
-      default: return 'neutral';
-    }
+    if (status === 'Confirmed') return 'success';
+    return 'neutral';
   };
 
-  const handleCancel = async (id: string) => {
+  const handleCancel = async (id: number) => {
     if (!window.confirm('Are you sure you want to cancel this appointment request?')) return;
     setCancellingId(id);
+    setMutationError('');
     try {
-      await updateAppointmentStatus(id, 'Cancelled');
+      await cancelMutation.mutateAsync({ id });
+      await trpcUtils.patientAppointment.list.invalidate();
+      await trpcUtils.patientDashboard.summary.invalidate();
+    } catch (error: unknown) {
+      setMutationError(error instanceof Error ? error.message : 'Unable to cancel this appointment. Please try again.');
     } finally {
       setCancellingId(null);
     }
@@ -58,15 +63,16 @@ export const Appointments = () => {
         </div>
       </header>
 
-      {/* Upcoming Section */}
+      {mutationError && <div className="alert-panel mb-4"><span className="caption">{mutationError}</span></div>}
+
       <div className="mb-6">
         <h2 className="mb-3" style={{ fontSize: 'var(--text-h2)' }}>Upcoming Consultations</h2>
         <BentoGrid>
-          {upcoming.map((apt) => {
-            const doctor = getDoctorById(apt.doctorId);
+          {upcoming.map((appointment) => {
+            const doctor = appointment.doctor;
             return (
-              <BentoItem key={apt.id} colSpan={2}>
-                <Card variant="glass" interactive className="h-full flex-col justify-between" style={{ opacity: cancellingId === apt.id ? 0.5 : 1 }}>
+              <BentoItem key={appointment.id} colSpan={2}>
+                <Card variant="glass" interactive className="h-full flex-col justify-between" style={{ opacity: cancellingId === appointment.id ? 0.5 : 1 }}>
                   <div>
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-center gap-3">
@@ -74,12 +80,12 @@ export const Appointments = () => {
                           {doctor?.name.charAt(0) || <User size={20} />}
                         </div>
                         <div>
-                          <h3 style={{ margin: 0 }}>{doctor?.name || 'Assigned Specialist'}</h3>
-                          <span className="caption">{doctor?.specialty} • {doctor?.hospital}</span>
+                          <h3 style={{ margin: 0 }}>{doctor?.name || 'Mock directory specialist'}</h3>
+                          <span className="caption">{doctor?.specialty || 'Specialty pending'} • {doctor?.hospital || 'Development directory'}</span>
                         </div>
                       </div>
-                      <Badge variant={getStatusVariant(apt.status) as any}>
-                        {getStatusIcon(apt.status)} {apt.status}
+                      <Badge variant={getStatusVariant(appointment.status) as any}>
+                        {getStatusIcon(appointment.status)} {appointment.status}
                       </Badge>
                     </div>
 
@@ -87,15 +93,15 @@ export const Appointments = () => {
                       <div className="flex justify-between items-center">
                         <span className="caption">Date & Time</span>
                         <strong style={{ color: 'var(--color-primary)' }}>
-                          {new Date(apt.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} at {apt.time}
+                          {new Date(appointment.scheduledAt).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(appointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                         </strong>
                       </div>
                     </div>
                   </div>
 
                   <div style={{ marginTop: 'var(--spacing-4)', textAlign: 'right' }}>
-                    <Button variant="outline" size="sm" onClick={() => handleCancel(apt.id)} disabled={cancellingId === apt.id}>
-                      {cancellingId === apt.id ? 'Cancelling...' : 'Cancel Appointment'}
+                    <Button variant="outline" size="sm" onClick={() => handleCancel(appointment.id)} disabled={cancellingId === appointment.id}>
+                      {cancellingId === appointment.id ? 'Cancelling...' : 'Cancel Appointment'}
                     </Button>
                   </div>
                 </Card>
@@ -104,38 +110,35 @@ export const Appointments = () => {
           })}
 
           {upcoming.length === 0 && (
-             <BentoItem colSpan={4}>
-               <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}>
-                 <p className="text-muted" style={{ margin: 0 }}>No upcoming appointments scheduled.</p>
-               </Card>
-             </BentoItem>
+            <BentoItem colSpan={4}>
+              <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}>
+                <p className="text-muted" style={{ margin: 0 }}>No upcoming appointments scheduled.</p>
+              </Card>
+            </BentoItem>
           )}
         </BentoGrid>
       </div>
 
-      {/* Past History Section */}
       <div>
         <h2 className="mb-3" style={{ fontSize: 'var(--text-h2)' }}>Consultation History</h2>
         <div className="flex-col gap-3">
-          {past.map((apt) => {
-            const doctor = getDoctorById(apt.doctorId);
+          {past.map((appointment) => {
+            const doctor = appointment.doctor;
             return (
-              <Card key={apt.id} variant="solid" className="flex justify-between items-center" style={{ opacity: 0.85 }}>
+              <Card key={appointment.id} variant="solid" className="flex justify-between items-center" style={{ opacity: 0.85 }}>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>{doctor?.name || 'Specialist'}</h3>
-                    <Badge variant={getStatusVariant(apt.status) as any}>
-                      {getStatusIcon(apt.status)} {apt.status}
+                    <h3 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>{doctor?.name || 'Mock directory specialist'}</h3>
+                    <Badge variant={getStatusVariant(appointment.status) as any}>
+                      {getStatusIcon(appointment.status)} {appointment.status}
                     </Badge>
                   </div>
-                  <span className="caption">{doctor?.specialty} • {new Date(apt.date).toLocaleDateString()} at {apt.time}</span>
+                  <span className="caption">{doctor?.specialty || 'Specialty pending'} • {new Date(appointment.scheduledAt).toLocaleDateString()} at {new Date(appointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
                 </div>
               </Card>
             );
           })}
-          {past.length === 0 && (
-            <p className="text-muted caption">No past appointments recorded.</p>
-          )}
+          {past.length === 0 && <p className="text-muted caption">No past appointments recorded.</p>}
         </div>
       </div>
     </div>

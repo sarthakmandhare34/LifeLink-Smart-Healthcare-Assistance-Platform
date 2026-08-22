@@ -1,45 +1,53 @@
-import React, { useState } from 'react';
-import { useMockData } from '../../context/MockDataContext';
+import React, { useEffect, useState } from 'react';
 import { Card, CardHeader } from '../../components/ui/Card';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import type { Patient } from '../../types';
 import { FileHeart, ShieldAlert, AlertTriangle, Activity } from 'lucide-react';
+import { trpc } from '../../lib/trpc';
 
 export const HealthPassport = () => {
-  const { currentUser, updatePatientProfile } = useMockData();
+  const trpcUtils = trpc.useUtils();
+  const profileQuery = trpc.patientProfile.get.useQuery();
+  const updateMutation = trpc.patientProfile.update.useMutation();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [bloodGroup, setBloodGroup] = useState('');
   const [allergies, setAllergies] = useState('');
   const [conditions, setConditions] = useState('');
 
-  if (!currentUser || currentUser.role !== 'patient') {
+  useEffect(() => {
+    if (!profileQuery.data) return;
+    setBloodGroup(profileQuery.data.bloodGroup || '');
+    setAllergies(profileQuery.data.allergies.join(', '));
+    setConditions(profileQuery.data.conditions.join(', '));
+  }, [profileQuery.data]);
+
+  if (profileQuery.isLoading) {
     return (
       <div className="flex items-center justify-center" style={{ minHeight: '50vh' }}>
         <p className="caption">Loading Health Passport...</p>
       </div>
     );
   }
-  const patient = currentUser as Patient;
+  if (!profileQuery.data) return null;
+  const patient = profileQuery.data;
 
   const handleEditClick = () => {
-    setBloodGroup(patient.bloodGroup);
-    setAllergies(patient.allergies.join(', '));
-    setConditions(patient.conditions.join(', '));
     setIsEditing(true);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await updatePatientProfile(patient.id, {
+      await updateMutation.mutateAsync({
         bloodGroup,
         allergies: allergies.split(',').map(s => s.trim()).filter(s => s),
         conditions: conditions.split(',').map(s => s.trim()).filter(s => s),
       });
+      await trpcUtils.patientProfile.get.invalidate();
+      await trpcUtils.patientDashboard.summary.invalidate();
       setIsEditing(false);
     } catch (e) {
       console.error(e);
@@ -57,7 +65,7 @@ export const HealthPassport = () => {
           </div>
           <div>
             <h1 style={{ margin: 0 }}>Health Passport</h1>
-            <p className="caption">Encrypted central medical record repository. Shared with verified specialists.</p>
+            <p className="caption">Private health information stored in your LifeLink account.</p>
           </div>
         </div>
         {!isEditing ? (
@@ -84,12 +92,12 @@ export const HealthPassport = () => {
                 {isEditing ? (
                   <Input type="text" value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} style={{ width: '120px' }} />
                 ) : (
-                  <strong style={{ color: 'var(--color-primary)', fontSize: '1.2rem' }}>{patient.bloodGroup}</strong>
+                  <strong style={{ color: 'var(--color-primary)', fontSize: '1.2rem' }}>{patient.bloodGroup || 'Not recorded'}</strong>
                 )}
               </div>
               <div className="flex justify-between items-center" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
                 <span className="text-muted">Account Status</span>
-                <Badge status="success">Verified {patient.role}</Badge>
+                <Badge status="success">Patient account</Badge>
               </div>
               <div className="flex justify-between items-center" style={{ padding: '10px 0', borderBottom: '1px solid var(--color-border)' }}>
                 <span className="text-muted">Email Reference</span>
@@ -104,7 +112,7 @@ export const HealthPassport = () => {
           <Card variant="glass" className="h-full">
             <CardHeader title="Emergency Contacts" />
             <div className="flex-col gap-2">
-              {patient.emergencyContacts.map(contact => (
+              {patient.emergencyContacts.length ? patient.emergencyContacts.map(contact => (
                 <div key={contact.id} style={{ padding: '12px var(--spacing-3)', background: 'rgba(255,255,255,0.6)', borderRadius: 'var(--border-radius-md)', border: '1px solid var(--color-border)' }}>
                   <div className="flex justify-between items-center mb-1">
                     <strong style={{ color: 'var(--color-primary)' }}>{contact.name}</strong>
@@ -112,7 +120,7 @@ export const HealthPassport = () => {
                   </div>
                   <div className="caption">Phone: {contact.phone}</div>
                 </div>
-              ))}
+              )) : <span className="text-muted caption">No emergency contacts recorded.</span>}
             </div>
           </Card>
         </BentoItem>

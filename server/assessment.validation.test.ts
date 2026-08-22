@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assessmentInput } from "./routers";
+import { assessmentRequestInput } from "./routers";
 
 describe("assessment persistence input", () => {
   const validAssessment = {
@@ -8,18 +8,14 @@ describe("assessment persistence input", () => {
     gender: "Other",
     conditions: "",
     duration: "< 24 hours",
-    urgency: "LOW" as const,
-    reason: "A local decision-support check did not detect emergency wording.",
-    specialty: "General Practice",
-    guidance: "Contact a clinician if symptoms persist or worsen.",
   };
 
   it("accepts a complete assessment record", () => {
-    expect(assessmentInput.parse(validAssessment)).toEqual(validAssessment);
+    expect(assessmentRequestInput.parse(validAssessment)).toEqual(validAssessment);
   });
 
-  it("rejects invalid assessment ages and unknown urgency values", () => {
-    expect(() => assessmentInput.parse({ ...validAssessment, age: 121 })).toThrow();
-    expect(() => assessmentInput.parse({ ...validAssessment, urgency: "UNKNOWN" })).toThrow();
+  it("rejects invalid assessment ages and missing demographic input", () => {
+    expect(() => assessmentRequestInput.parse({ ...validAssessment, age: 121 })).toThrow();
+    expect(() => assessmentRequestInput.parse({ ...validAssessment, gender: "" })).toThrow();
   });
 });

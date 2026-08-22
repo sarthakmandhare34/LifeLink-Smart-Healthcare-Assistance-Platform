@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { foreignKey, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -48,3 +48,131 @@ export const patientAssessments = mysqlTable("patientAssessments", {
 
 export type PatientAssessment = typeof patientAssessments.$inferSelect;
 export type InsertPatientAssessment = typeof patientAssessments.$inferInsert;
+
+/** Native patient credentials are stored separately from framework identities. */
+export const patientCredentials = mysqlTable("patientCredentials", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 512 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/** Existing Health Passport fields; absent clinical data remains absent rather than fabricated. */
+export const patientProfiles = mysqlTable("patientProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  bloodGroup: varchar("bloodGroup", { length: 12 }),
+  phone: varchar("phone", { length: 32 }),
+  allergiesJson: text("allergiesJson").notNull(),
+  conditionsJson: text("conditionsJson").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const patientEmergencyContacts = mysqlTable("patientEmergencyContacts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 160 }).notNull(),
+  relationship: varchar("relationship", { length: 80 }).notNull(),
+  phone: varchar("phone", { length: 32 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const patientMedicines = mysqlTable("patientMedicines", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 200 }).notNull(),
+  dosage: varchar("dosage", { length: 120 }).notNull(),
+  frequency: varchar("frequency", { length: 120 }).notNull(),
+  schedule: varchar("schedule", { length: 120 }).notNull(),
+  startDate: varchar("startDate", { length: 10 }),
+  endDate: varchar("endDate", { length: 10 }),
+  quantity: int("quantity"),
+  expiry: varchar("expiry", { length: 10 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+/** Appointment records remain real while their referenced doctors remain controlled mock directory entries. */
+export const patientAppointments = mysqlTable("patientAppointments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  doctorId: varchar("doctorId", { length: 80 }).notNull(),
+  scheduledAt: timestamp("scheduledAt").notNull(),
+  status: mysqlEnum("status", ["Requested", "Pending", "Confirmed", "Completed", "Cancelled"])
+    .default("Requested")
+    .notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const patientPrescriptions = mysqlTable("patientPrescriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  doctorId: varchar("doctorId", { length: 80 }).notNull(),
+  issuedAt: timestamp("issuedAt").defaultNow().notNull(),
+  status: mysqlEnum("status", ["UNSIGNED / DEMO", "SIGNED — DEMO STATE"])
+    .default("UNSIGNED / DEMO")
+    .notNull(),
+  clinicalNotes: text("clinicalNotes"),
+  integrityReference: varchar("integrityReference", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const patientPrescriptionItems = mysqlTable("patientPrescriptionItems", {
+  id: int("id").autoincrement().primaryKey(),
+  prescriptionId: int("prescriptionId").notNull(),
+  name: varchar("name", { length: 200 }).notNull(),
+  dosage: varchar("dosage", { length: 120 }).notNull(),
+  instructions: text("instructions").notNull(),
+}, (table) => [
+  foreignKey({
+    columns: [table.prescriptionId],
+    foreignColumns: [patientPrescriptions.id],
+    name: "rx_item_prescription_fk",
+  }).onDelete("cascade"),
+]);
+
+/** Event records are server-created and patient-scoped for authenticated realtime delivery. */
+export const patientEvents = mysqlTable("patientEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: mysqlEnum("type", [
+    "PROFILE_UPDATED",
+    "APPOINTMENT_UPDATED",
+    "PRESCRIPTION_CREATED",
+    "ASSESSMENT_COMPLETED",
+    "MEDICINE_UPDATED",
+  ]).notNull(),
+  entityId: varchar("entityId", { length: 80 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PatientCredential = typeof patientCredentials.$inferSelect;
+export type PatientProfile = typeof patientProfiles.$inferSelect;
+export type PatientEmergencyContact = typeof patientEmergencyContacts.$inferSelect;
+export type PatientMedicine = typeof patientMedicines.$inferSelect;
+export type PatientAppointment = typeof patientAppointments.$inferSelect;
+export type PatientPrescription = typeof patientPrescriptions.$inferSelect;
+export type PatientPrescriptionItem = typeof patientPrescriptionItems.$inferSelect;
+export type PatientEvent = typeof patientEvents.$inferSelect;

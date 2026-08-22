@@ -1,32 +1,58 @@
 import React, { useState } from 'react';
-import { useMockData } from '../../context/MockDataContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
 import { Badge } from '../../components/ui/Badge';
-import { Pill, AlertCircle, Plus, Edit2, Trash2 } from 'lucide-react';
-import type { Medicine } from '../../types';
+import { Pill, Plus, Edit2, Trash2 } from 'lucide-react';
+import { trpc } from '../../lib/trpc';
+
+type MedicineForm = {
+  name: string;
+  dosage: string;
+  frequency: string;
+  schedule: string;
+  startDate?: string;
+  endDate?: string;
+  quantity?: number;
+  expiry?: string;
+};
 
 export const MedicineCabinet = () => {
-  const { currentUser, getPatientMedicines, addMedicine, updateMedicine, removeMedicine } = useMockData();
+  const trpcUtils = trpc.useUtils();
+  const medicinesQuery = trpc.patientMedicine.list.useQuery();
+  const createMedicine = trpc.patientMedicine.create.useMutation();
+  const updateMedicine = trpc.patientMedicine.update.useMutation();
+  const removeMedicine = trpc.patientMedicine.remove.useMutation();
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<Medicine>>({});
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [formData, setFormData] = useState<MedicineForm>({ name: '', dosage: '', frequency: '', schedule: '' });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [processingId, setProcessingId] = useState<number | null>(null);
+  const [mutationError, setMutationError] = useState('');
 
-  if (!currentUser) return null;
-  const activeMedicines = getPatientMedicines(currentUser.id);
+  if (medicinesQuery.isLoading) return <div className="flex items-center justify-center h-full"><p className="caption">Loading medicines…</p></div>;
+  const activeMedicines = medicinesQuery.data ?? [];
 
   const handleOpenAdd = () => {
-    setFormData({ name: '', dosage: '', schedule: '' });
+    setMutationError('');
+    setFormData({ name: '', dosage: '', frequency: '', schedule: '' });
     setEditingId(null);
     setShowForm(true);
   };
 
-  const handleOpenEdit = (med: Medicine) => {
-    setFormData(med);
+  const handleOpenEdit = (med: (typeof activeMedicines)[number]) => {
+    setMutationError('');
+    setFormData({
+      name: med.name,
+      dosage: med.dosage,
+      frequency: med.frequency,
+      schedule: med.schedule,
+      startDate: med.startDate ?? undefined,
+      endDate: med.endDate ?? undefined,
+      quantity: med.quantity ?? undefined,
+      expiry: med.expiry ?? undefined,
+    });
     setEditingId(med.id);
     setShowForm(true);
   };
@@ -34,35 +60,33 @@ export const MedicineCabinet = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
+    setMutationError('');
     try {
       if (editingId) {
-        await updateMedicine(editingId, formData);
+        await updateMedicine.mutateAsync({ id: editingId, values: formData });
       } else {
-        await addMedicine({
-          id: `m_${Date.now()}`,
-          patientId: currentUser.id,
-          name: formData.name || '',
-          dosage: formData.dosage || '',
-          schedule: formData.schedule || '',
-          frequency: formData.frequency || 'Daily',
-          startDate: new Date().toISOString(),
-          endDate: '2026-12-31',
-          quantity: 30,
-          expiry: '2027-01-01',
-          lowStock: false
-        });
+        await createMedicine.mutateAsync(formData);
       }
+      await trpcUtils.patientMedicine.list.invalidate();
+      await trpcUtils.patientDashboard.summary.invalidate();
       setShowForm(false);
+    } catch (error: unknown) {
+      setMutationError(error instanceof Error ? error.message : 'Unable to save this medicine. Please try again.');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleRemove = async (id: string) => {
+  const handleRemove = async (id: number) => {
     if (!window.confirm('Are you sure you want to remove this medication from your cabinet?')) return;
     setProcessingId(id);
+    setMutationError('');
     try {
-      await removeMedicine(id);
+      await removeMedicine.mutateAsync({ id });
+      await trpcUtils.patientMedicine.list.invalidate();
+      await trpcUtils.patientDashboard.summary.invalidate();
+    } catch (error: unknown) {
+      setMutationError(error instanceof Error ? error.message : 'Unable to remove this medicine. Please try again.');
     } finally {
       setProcessingId(null);
     }
@@ -87,6 +111,8 @@ export const MedicineCabinet = () => {
         )}
       </header>
 
+      {mutationError && <div className="alert-panel mb-4"><span className="caption">{mutationError}</span></div>}
+
       {showForm && (
         <Card variant="glass" className="mb-4">
           <form onSubmit={handleSubmit} className="flex-col gap-3">
@@ -105,6 +131,10 @@ export const MedicineCabinet = () => {
                 <Input type="text" value={formData.schedule || ''} onChange={e => setFormData({...formData, schedule: e.target.value})} placeholder="e.g. Morning, Daily" required />
               </div>
             </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Frequency</label>
+              <Input type="text" value={formData.frequency || ''} onChange={e => setFormData({...formData, frequency: e.target.value})} placeholder="e.g. Once daily" required />
+            </div>
             <div className="flex gap-2 mt-2">
               <Button type="button" variant="outline" onClick={() => setShowForm(false)} disabled={isProcessing}>Cancel</Button>
               <Button type="submit" variant="primary" disabled={isProcessing}>
@@ -117,14 +147,14 @@ export const MedicineCabinet = () => {
 
       {/* Bento Grid layout for Medicine Cards */}
       <BentoGrid>
-        {activeMedicines.map((med: Medicine) => (
+        {activeMedicines.map((med) => (
           <BentoItem key={med.id} colSpan={2}>
             <Card 
               variant="solid" 
               interactive 
               style={{ 
                 height: '100%', 
-                borderLeft: med.lowStock ? '4px solid var(--color-secondary)' : '4px solid var(--color-success)',
+                borderLeft: '4px solid var(--color-success)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -137,11 +167,7 @@ export const MedicineCabinet = () => {
                     <Pill color="var(--color-primary)" size={20} />
                     <h3 style={{ margin: 0 }}>{med.name}</h3>
                   </div>
-                  {med.lowStock ? (
-                    <Badge status="warning"><AlertCircle size={12} /> Low Stock</Badge>
-                  ) : (
-                    <Badge status="success">Active</Badge>
-                  )}
+                  <Badge status="success">Active</Badge>
                 </div>
 
                 <div className="flex gap-4 mt-3" style={{ background: 'var(--color-background)', padding: 'var(--spacing-2) var(--spacing-3)', borderRadius: 'var(--border-radius-sm)' }}>

@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
-import { useMockData } from '../../context/MockDataContext';
 import { LifeLinkMark } from '../../components/brand/LifeLinkMark';
+import { trpc } from '../../lib/trpc';
 
 export const PatientRegistration = () => {
   const navigate = useNavigate();
-  const { register } = useMockData();
+  const trpcUtils = trpc.useUtils();
+  const registerMutation = trpc.patientAuth.register.useMutation();
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -25,8 +26,8 @@ export const PatientRegistration = () => {
       setError('Passwords do not match.');
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
       return;
     }
     
@@ -34,14 +35,15 @@ export const PatientRegistration = () => {
     setError('');
     
     try {
-      await register({
+      await registerMutation.mutateAsync({
         name: `${firstName} ${lastName}`,
         email,
-        bloodGroup: 'Unknown'
+        password,
       });
+      await trpcUtils.auth.me.invalidate();
       navigate('/patient/dashboard');
-    } catch (err) {
-      setError('Registration failed. Please verify form details.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Registration failed. Please verify your form details.');
       setIsLoading(false);
     }
   };

@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
-import { useMockData } from '../../context/MockDataContext';
 import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
+import { trpc } from '../../lib/trpc';
 
 export const PatientLogin = () => {
   const navigate = useNavigate();
-  const { login } = useMockData();
+  const trpcUtils = trpc.useUtils();
+  const loginMutation = trpc.patientAuth.login.useMutation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,10 +21,11 @@ export const PatientLogin = () => {
     setError('');
     
     try {
-      await login(email, password);
+      await loginMutation.mutateAsync({ email, password });
+      await trpcUtils.auth.me.invalidate();
       navigate('/patient/dashboard');
-    } catch (err) {
-      setError('Invalid credentials. Please verify your email and password.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unable to sign in. Please try again.');
       setIsLoading(false);
     }
   };
@@ -34,11 +36,6 @@ export const PatientLogin = () => {
         <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-5)' }}>
           <LifeLinkLogo className="lifelink-logo-auth" />
           <p className="caption" style={{ marginTop: '4px' }}>Patient Clinical Workspace Login</p>
-          <div style={{ marginTop: 'var(--spacing-3)', padding: '6px 12px', background: 'rgba(0,27,48,0.05)', borderRadius: 'var(--border-radius-sm)', display: 'inline-block' }}>
-            <span className="caption" style={{ color: 'var(--color-primary)' }}>
-              DEMO Account: <strong>patient@demo.com</strong>
-            </span>
-          </div>
         </div>
         
         {error && (
@@ -56,7 +53,7 @@ export const PatientLogin = () => {
               type="email" 
               value={email} 
               onChange={e => setEmail(e.target.value)} 
-              placeholder="patient@demo.com" 
+              placeholder="patient@example.com" 
               required 
             />
           </div>
@@ -75,7 +72,7 @@ export const PatientLogin = () => {
           </div>
 
           <Button type="submit" variant="primary" className="w-full mt-3" disabled={isLoading}>
-            {isLoading ? 'Authenticating Credentials...' : 'Login to Patient Portal'}
+            {isLoading ? 'Signing In...' : 'Login to Patient Portal'}
           </Button>
         </form>
 

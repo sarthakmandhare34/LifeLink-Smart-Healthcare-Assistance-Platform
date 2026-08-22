@@ -1,7 +1,21 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertPatientAssessment, InsertUser, patientAssessments, users } from "../drizzle/schema";
+import {
+  InsertPatientAssessment,
+  InsertUser,
+  patientAppointments,
+  patientAssessments,
+  patientCredentials,
+  patientEmergencyContacts,
+  patientEvents,
+  patientMedicines,
+  patientPrescriptionItems,
+  patientPrescriptions,
+  patientProfiles,
+  users,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { randomUUID } from "node:crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -93,7 +107,8 @@ export async function createPatientAssessment(assessment: InsertPatientAssessmen
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
 
-  await db.insert(patientAssessments).values(assessment);
+  const result = await db.insert(patientAssessments).values(assessment);
+  return Number(result[0].insertId);
 }
 
 export async function getPatientAssessments(userId: number) {
@@ -105,4 +120,235 @@ export async function getPatientAssessments(userId: number) {
     .from(patientAssessments)
     .where(eq(patientAssessments.userId, userId))
     .orderBy(desc(patientAssessments.createdAt));
+}
+
+export async function createNativePatient(input: { name: string; email: string; passwordHash: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const existing = await getNativePatientByEmail(input.email);
+  if (existing) return null;
+
+  const openId = `native:${randomUUID()}`;
+  await db.insert(users).values({
+    openId,
+    name: input.name,
+    email: input.email,
+    loginMethod: "native-patient",
+    role: "user",
+    lastSignedIn: new Date(),
+  });
+
+  const user = await getUserByOpenId(openId);
+  if (!user) throw new Error("Patient account could not be created");
+
+  await db.insert(patientCredentials).values({
+    userId: user.id,
+    email: input.email,
+    passwordHash: input.passwordHash,
+  });
+  await db.insert(patientProfiles).values({
+    userId: user.id,
+    allergiesJson: "[]",
+    conditionsJson: "[]",
+  });
+  return user;
+}
+
+export async function getNativePatientByEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const rows = await db
+    .select({ user: users, credential: patientCredentials })
+    .from(patientCredentials)
+    .innerJoin(users, eq(patientCredentials.userId, users.id))
+    .where(eq(patientCredentials.email, email))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+function parseList(value: string | null | undefined) {
+  if (!value) return [] as string[];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [] as string[];
+  }
+}
+
+export async function getPatientProfile(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const rows = await db
+    .select({ user: users, profile: patientProfiles })
+    .from(users)
+    .leftJoin(patientProfiles, eq(patientProfiles.userId, users.id))
+    .where(eq(users.id, userId))
+    .limit(1);
+  const row = rows[0];
+  if (!row) return null;
+
+  const contacts = await db
+    .select()
+    .from(patientEmergencyContacts)
+    .where(eq(patientEmergencyContacts.userId, userId))
+    .orderBy(desc(patientEmergencyContacts.createdAt));
+
+  return {
+    id: row.user.id,
+    name: row.user.name ?? "",
+    email: row.user.email ?? "",
+    bloodGroup: row.profile?.bloodGroup ?? "",
+    phone: row.profile?.phone ?? "",
+    allergies: parseList(row.profile?.allergiesJson),
+    conditions: parseList(row.profile?.conditionsJson),
+    emergencyContacts: contacts.map((contact) => ({
+      id: String(contact.id),
+      name: contact.name,
+      relationship: contact.relationship,
+      phone: contact.phone,
+    })),
+  };
+}
+
+export async function updatePatientProfile(
+  userId: number,
+  input: { name?: string; bloodGroup?: string; phone?: string; allergies?: string[]; conditions?: string[] }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  if (input.name !== undefined) {
+    await db.update(users).set({ name: input.name }).where(eq(users.id, userId));
+  }
+
+  const values: Record<string, string | null> = {};
+  if (input.bloodGroup !== undefined) values.bloodGroup = input.bloodGroup || null;
+  if (input.phone !== undefined) values.phone = input.phone || null;
+  if (input.allergies !== undefined) values.allergiesJson = JSON.stringify(input.allergies);
+  if (input.conditions !== undefined) values.conditionsJson = JSON.stringify(input.conditions);
+  if (Object.keys(values).length > 0) {
+    await db.update(patientProfiles).set(values).where(eq(patientProfiles.userId, userId));
+  }
+
+  return getPatientProfile(userId);
+}
+
+export async function getPatientDashboard(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const [profile, assessments, medicines, appointments, prescriptions] = await Promise.all([
+    getPatientProfile(userId),
+    db.select().from(patientAssessments).where(eq(patientAssessments.userId, userId)).orderBy(desc(patientAssessments.createdAt)).limit(1),
+    db.select().from(patientMedicines).where(eq(patientMedicines.userId, userId)).orderBy(desc(patientMedicines.updatedAt)),
+    db.select().from(patientAppointments).where(eq(patientAppointments.userId, userId)).orderBy(desc(patientAppointments.scheduledAt)),
+    db.select().from(patientPrescriptions).where(eq(patientPrescriptions.userId, userId)).orderBy(desc(patientPrescriptions.issuedAt)),
+  ]);
+
+  return {
+    profile,
+    latestAssessment: assessments[0] ?? null,
+    medicines,
+    appointments,
+    prescriptions,
+  };
+}
+
+export async function createPatientEvent(
+  userId: number,
+  type: "PROFILE_UPDATED" | "APPOINTMENT_UPDATED" | "PRESCRIPTION_CREATED" | "ASSESSMENT_COMPLETED" | "MEDICINE_UPDATED",
+  entityId?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(patientEvents).values({ userId, type, entityId: entityId ?? null });
+}
+
+export async function getPatientEventsSince(userId: number, lastEventId?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const where = lastEventId
+    ? and(eq(patientEvents.userId, userId), gt(patientEvents.id, lastEventId))
+    : eq(patientEvents.userId, userId);
+  return db.select().from(patientEvents).where(where).orderBy(desc(patientEvents.createdAt));
+}
+
+export async function listPatientMedicines(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(patientMedicines).where(eq(patientMedicines.userId, userId)).orderBy(desc(patientMedicines.updatedAt));
+}
+
+export async function createPatientMedicine(
+  userId: number,
+  input: Omit<typeof patientMedicines.$inferInsert, "id" | "userId" | "createdAt" | "updatedAt">
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(patientMedicines).values({ userId, ...input });
+  return Number(result[0].insertId);
+}
+
+export async function updateOwnedPatientMedicine(
+  userId: number,
+  medicineId: number,
+  input: Partial<Omit<typeof patientMedicines.$inferInsert, "id" | "userId" | "createdAt" | "updatedAt">>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.update(patientMedicines).set(input).where(and(eq(patientMedicines.id, medicineId), eq(patientMedicines.userId, userId)));
+  return Number(result[0].affectedRows) > 0;
+}
+
+export async function removeOwnedPatientMedicine(userId: number, medicineId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.delete(patientMedicines).where(and(eq(patientMedicines.id, medicineId), eq(patientMedicines.userId, userId)));
+  return Number(result[0].affectedRows) > 0;
+}
+
+export async function listPatientAppointments(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.select().from(patientAppointments).where(eq(patientAppointments.userId, userId)).orderBy(desc(patientAppointments.scheduledAt));
+}
+
+export async function createPatientAppointment(userId: number, doctorId: string, scheduledAt: Date) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(patientAppointments).values({ userId, doctorId, scheduledAt, status: "Requested" });
+  return Number(result[0].insertId);
+}
+
+export async function cancelOwnedPatientAppointment(userId: number, appointmentId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db
+    .update(patientAppointments)
+    .set({ status: "Cancelled" })
+    .where(and(eq(patientAppointments.id, appointmentId), eq(patientAppointments.userId, userId)));
+  return Number(result[0].affectedRows) > 0;
+}
+
+export async function listPatientPrescriptions(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const prescriptions = await db
+    .select()
+    .from(patientPrescriptions)
+    .where(eq(patientPrescriptions.userId, userId))
+    .orderBy(desc(patientPrescriptions.issuedAt));
+  const ids = prescriptions.map((prescription) => prescription.id);
+  const items = ids.length
+    ? await db.select().from(patientPrescriptionItems).where(inArray(patientPrescriptionItems.prescriptionId, ids))
+    : [];
+
+  return prescriptions.map((prescription) => ({
+    ...prescription,
+    items: items.filter((item) => item.prescriptionId === prescription.id),
+  }));
 }

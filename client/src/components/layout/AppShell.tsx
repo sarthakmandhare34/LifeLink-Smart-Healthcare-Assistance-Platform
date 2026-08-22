@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, Navigate, useNavigate } from 'react-router-dom';
-import { useMockData } from '../../context/MockDataContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../_core/hooks/useAuth';
 import { LifeLinkMark } from '../brand/LifeLinkMark';
 import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 import { 
@@ -21,17 +21,21 @@ import {
 } from 'lucide-react';
 
 export const AppShell = () => {
-  const { currentUser, logout } = useMockData();
+  const { user, loading, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  if (!currentUser) {
+  if (loading) {
+    return <div className="flex items-center justify-center h-full"><p className="caption">Loading your LifeLink workspace…</p></div>;
+  }
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  const handleLogout = (e: React.MouseEvent) => {
+  const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
-    logout();
+    await logout();
     navigate('/login');
   };
 
