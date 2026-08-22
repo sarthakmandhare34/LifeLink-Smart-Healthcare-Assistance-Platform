@@ -3,6 +3,7 @@ import { Outlet, NavLink, Navigate, useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import { useTheme } from '../../context/ThemeContext';
 import { LifeLinkMark } from '../brand/LifeLinkMark';
+import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 import { 
   LayoutDashboard, 
   FileHeart, 
@@ -39,8 +40,7 @@ export const AppShell = () => {
       {/* Persistent Vertical Sidebar */}
       <aside className="app-sidebar">
         <div className="app-sidebar-header">
-          <LifeLinkMark size="md" />
-          <span className="app-sidebar-brand">LifeLink</span>
+          <LifeLinkLogo className="lifelink-logo-sidebar" />
         </div>
         
         <nav className="app-sidebar-nav">

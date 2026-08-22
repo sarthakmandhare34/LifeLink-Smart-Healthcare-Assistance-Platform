@@ -6,6 +6,7 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { Calendar, LayoutDashboard, FileText, Users, Activity, Stethoscope, Settings, User } from 'lucide-react';
 import { LifeLinkMark } from '../brand/LifeLinkMark';
+import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 
 const navItems = [
   { path: '/doctor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -20,11 +21,7 @@ export const DoctorAppShell = () => (
   <div className="doctor-layout">
     <aside className="doctor-sidebar">
       <div className="doctor-sidebar-brand">
-        <LifeLinkMark size="md" />
-        <div>
-          <h2>LifeLink</h2>
-          <span className="caption">Clinical Portal</span>
-        </div>
+        <LifeLinkLogo className="lifelink-logo-sidebar" />
       </div>
       <nav className="doctor-sidebar-nav">
         {navItems.map(({ path, label, icon: Icon }) => (

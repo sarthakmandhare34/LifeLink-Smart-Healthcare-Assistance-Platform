@@ -9,9 +9,15 @@ import type { Assessment } from '../../types';
 import { useNavigate } from 'react-router-dom';
 import { analyzeSymptoms } from '../../services/aiAssessmentService';
 import { Popup } from '../../components/ui/Popup';
+import { trpc } from '../../lib/trpc';
+import { useAuth } from '../../_core/hooks/useAuth';
 
 export const AIAssessment = () => {
   const { currentUser, addAssessment } = useMockData();
+  const { isAuthenticated } = useAuth();
+  const trpcUtils = trpc.useUtils();
+  const savedAssessments = trpc.assessment.list.useQuery(undefined, { enabled: isAuthenticated });
+  const persistAssessment = trpc.assessment.create.useMutation();
   const navigate = useNavigate();
   
   const [step, setStep] = useState(0);
@@ -78,6 +84,20 @@ export const AIAssessment = () => {
       };
 
       await addAssessment(mockAssessment);
+      if (isAuthenticated) {
+        await persistAssessment.mutateAsync({
+          symptoms: mockAssessment.symptoms,
+          age: mockAssessment.age,
+          gender: mockAssessment.gender,
+          conditions: mockAssessment.conditions,
+          duration: mockAssessment.duration,
+          urgency: mockAssessment.urgency,
+          reason: mockAssessment.reason,
+          specialty: mockAssessment.specialty,
+          guidance: mockAssessment.guidance,
+        });
+        await trpcUtils.assessment.list.invalidate();
+      }
       setResult(mockAssessment);
       setStep(1);
       setIsPopupOpen(true);
@@ -112,6 +132,43 @@ export const AIAssessment = () => {
           <p className="caption">Intelligent clinical triage decision-support tool.</p>
         </div>
       </header>
+
+      {!isAuthenticated && (
+        <p className="assessment-save-notice">
+          Demo-mode results are not retained after this session. Use secure LifeLink sign-in to save assessments to your private account.
+        </p>
+      )}
+
+      {isAuthenticated && (
+        <section className="saved-assessments-panel" aria-labelledby="saved-assessments-heading">
+          <div className="saved-assessments-heading">
+            <div>
+              <p className="caption">Private record</p>
+              <h2 id="saved-assessments-heading">Saved assessments</h2>
+            </div>
+            <span className="caption">Stored in your secure LifeLink account</span>
+          </div>
+          {savedAssessments.isLoading ? (
+            <p className="caption">Loading your saved assessments…</p>
+          ) : savedAssessments.data?.length ? (
+            <div className="saved-assessment-list">
+              {savedAssessments.data.slice(0, 3).map((assessment) => (
+                <article className="saved-assessment-item" key={assessment.id}>
+                  <div>
+                    <strong>{assessment.specialty}</strong>
+                    <p className="caption">{new Date(assessment.createdAt).toLocaleString()}</p>
+                  </div>
+                  <Badge status={assessment.urgency === 'EMERGENCY' ? 'danger' : assessment.urgency === 'MODERATE' ? 'warning' : 'success'}>
+                    {assessment.urgency}
+                  </Badge>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="caption">No saved assessments yet. New secure assessments will appear here.</p>
+          )}
+        </section>
+      )}
 
       <Card variant="glass" style={{ maxWidth: '680px', width: '100%', margin: '0 auto' }}>
         {step === 0 ? (

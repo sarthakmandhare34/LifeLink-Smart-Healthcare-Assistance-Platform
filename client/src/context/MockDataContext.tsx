@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Patient, Doctor, Appointment, Medicine, Prescription, Assessment } from '../types';
+import { useAuth } from '../_core/hooks/useAuth';
 
 interface MockDataState {
   currentUser: Patient | Doctor | null;
@@ -116,6 +117,7 @@ const initialAssessments: Assessment[] = [];
 const MockDataContext = createContext<MockDataContextType | undefined>(undefined);
 
 export const MockDataProvider = ({ children }: { children: ReactNode }) => {
+  const { user: authenticatedUser, isAuthenticated } = useAuth();
   const [currentUser, setCurrentUser] = useState<Patient | Doctor | null>(null);
   const [patients, setPatients] = useState<Patient[]>(mockPatients);
   const [doctors] = useState<Doctor[]>(mockDoctors);
@@ -123,6 +125,25 @@ export const MockDataProvider = ({ children }: { children: ReactNode }) => {
   const [medicines, setMedicines] = useState<Medicine[]>(initialMedicines);
   const [prescriptions] = useState<Prescription[]>(initialPrescriptions);
   const [assessments, setAssessments] = useState<Assessment[]>(initialAssessments);
+
+  useEffect(() => {
+    if (!isAuthenticated || !authenticatedUser) return;
+    const securePatient: Patient = {
+      id: `secure-${authenticatedUser.id}`,
+      role: 'patient',
+      name: authenticatedUser.name || 'LifeLink Patient',
+      email: authenticatedUser.email || '',
+      bloodGroup: 'Not provided',
+      allergies: [],
+      conditions: [],
+      emergencyContacts: [],
+    };
+    setPatients((previous) => {
+      const withoutSecureRecord = previous.filter((patient) => patient.id !== securePatient.id);
+      return [...withoutSecureRecord, securePatient];
+    });
+    setCurrentUser(securePatient);
+  }, [authenticatedUser, isAuthenticated]);
 
   const getUpcomingAppointment = (patientId: string) => {
     return appointments.find(a => a.patientId === patientId && a.status === 'Confirmed') || null;

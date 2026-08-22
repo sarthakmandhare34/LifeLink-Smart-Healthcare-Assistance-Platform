@@ -4,6 +4,8 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import { LifeLinkMark } from '../../components/brand/LifeLinkMark';
+import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
+import { startLogin } from '../../const';
 
 export const DoctorLogin = () => {
   const navigate = useNavigate();
@@ -17,8 +19,7 @@ export const DoctorLogin = () => {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--color-background)' }}>
       <Card style={{ width: '100%', maxWidth: '400px' }}>
         <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-4)' }}>
-          <LifeLinkMark size="lg" className="auth-brand-mark" />
-          <h1 style={{ color: 'var(--color-primary)' }}>LifeLink</h1>
+          <LifeLinkLogo className="lifelink-logo-auth" />
           <p className="caption">Clinical Portal Login</p>
         </div>
         
@@ -32,6 +33,9 @@ export const DoctorLogin = () => {
             <Input type="password" placeholder="Enter password" required />
           </div>
           <Button type="submit" variant="primary" style={{ marginTop: 'var(--spacing-2)' }}>Secure Login</Button>
+          <button type="button" className="secure-sign-in" onClick={() => startLogin()}>
+            Sign in with your secure LifeLink account
+          </button>
         </form>
       </Card>
     </div>

@@ -65,3 +65,27 @@ The browser test uses a non-sensitive demonstration entry solely to verify the a
 The completed browser submission returned a visible LOW-urgency decision-support result and opened the existing assessment-result presentation without a fetch failure. The result retains explicit non-diagnostic language and guidance to seek clinician review if symptoms persist or worsen.
 
 The final browser view confirms the result dialog, urgency badge, reasoning, disclaimer-aligned guidance, and follow-up actions remain visible after submission. The browser console contains no new output from the repaired flow.
+
+## Persistent Data and Supplied Branding
+
+LifeLink now stores signed-in users’ assessment records through protected database procedures. Demo-mode data remains visibly identified as session-only so simulated data is not mistaken for persistent private records. The user-supplied LifeLink artwork is stored as a managed project asset and used at the patient and clinician entry points and portal headers, while the existing compact pulse-link mark remains for small account contexts.
+
+Browser inspection confirms the managed logo asset is referenced from the patient entry point through `/manus-storage/lifelink-logo_58814cff.jpg`; the supplied visual identity is therefore served by the project’s deployment-safe asset path rather than a local browser file.
+
+The production build and test suite pass after the full-stack upgrade. The database verification query confirms both the `users` and `patientAssessments` tables exist. Browser checks confirm the supplied logo is visible at the patient entry point and clinician sidebar, and no browser-console errors were recorded on the clinician dashboard.
+
+The secure sign-in action successfully routes from the patient entry point to the configured OAuth authorization endpoint. No assessment or other health record was submitted during validation, so the project database contains no agent-created test health data.
+
+The authorization endpoint requires an authenticated account session before private assessment history can be viewed. The project-side routing and database tables have been validated; completing that account-specific view requires the account holder to sign in.
+
+## Refined Supplied Logo Integration
+
+The updated blue–aqua artwork now replaces the prior logo throughout the shared brand component. Its pale image field uses a restrained multiply blend with the existing blue–aqua liquid-glass atmosphere, allowing the background texture and color to continue through the mark without adding a separate framed image panel.
+
+The blend treatment was refined to a feathered edge mask after visual inspection: it keeps the blue–aqua LifeLink mark and wordmark fully legible while softening the artwork’s pale border into the application background.
+
+The presentation now uses a logo-focused crop of the supplied artwork rather than displaying the full background canvas. The cropped mark and wordmark retain a soft horizontal fade at their edges, which preserves the supplied branding while eliminating the separate-rectangle impression.
+
+The revised logo treatment has been visually checked on both the patient login and clinician dashboard. The patient entry point presents the full supplied mark and wordmark without the original image canvas, while the clinician sidebar retains a compact, legible version against its glass surface.
+
+The final 1280 × 720 visual pass confirms the new mark holds its contrast and hierarchy against the blue–aqua atmosphere in both contexts. The patient logo now transitions naturally into the glass card, while the clinician variant is compact enough for sidebar navigation.

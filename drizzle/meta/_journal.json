@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1787421380473,
+      "tag": "0000_violet_iron_monger",
+      "breakpoints": true
+    }
+  ]
+}

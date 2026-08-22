@@ -5,6 +5,8 @@ import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import { useMockData } from '../../context/MockDataContext';
 import { LifeLinkMark } from '../../components/brand/LifeLinkMark';
+import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
+import { startLogin } from '../../const';
 
 export const PatientLogin = () => {
   const navigate = useNavigate();
@@ -32,8 +34,7 @@ export const PatientLogin = () => {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: 'var(--spacing-4)' }}>
       <Card variant="glass" style={{ width: '100%', maxWidth: '420px' }}>
         <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-5)' }}>
-          <LifeLinkMark size="lg" className="auth-brand-mark" />
-          <h1 style={{ color: 'var(--color-primary)', margin: 0, fontSize: '1.75rem' }}>LifeLink</h1>
+          <LifeLinkLogo className="lifelink-logo-auth" />
           <p className="caption" style={{ marginTop: '4px' }}>Patient Clinical Workspace Login</p>
           <div style={{ marginTop: 'var(--spacing-3)', padding: '6px 12px', background: 'rgba(0,27,48,0.05)', borderRadius: 'var(--border-radius-sm)', display: 'inline-block' }}>
             <span className="caption" style={{ color: 'var(--color-primary)' }}>
@@ -81,6 +82,9 @@ export const PatientLogin = () => {
         </form>
 
         <div style={{ marginTop: 'var(--spacing-5)', textAlign: 'center', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--spacing-4)' }}>
+          <button type="button" className="secure-sign-in" onClick={() => startLogin()}>
+            Use secure LifeLink sign-in to save your data
+          </button>
           <span className="caption">Don't have a patient account? </span>
           <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }} style={{ fontWeight: 600, color: 'var(--color-primary)' }}>
             Register New Account

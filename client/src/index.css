@@ -939,6 +939,24 @@ dialog.popup::backdrop {
 .lifelink-avatar { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.54); box-shadow: 0 6px 15px rgba(52, 60, 143, 0.1), inset 0 1px 0 rgba(255,255,255,.78); }
 .doctor-avatar .lifelink-mark { box-shadow: none; }
 
+/* Crop out the supplied image’s surrounding field and feather the retained mark into the blue–aqua atmosphere. */
+.lifelink-logo-crop { position: relative; display: block; width: 100%; aspect-ratio: 3.17 / 1; overflow: hidden; isolation: isolate; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%); }
+.lifelink-logo { position: absolute; display: block; width: 137.5%; max-width: none; height: auto; left: -18.75%; top: -61%; opacity: .99; filter: saturate(1.08) contrast(1.03) drop-shadow(0 7px 14px rgba(38, 101, 145, .08)); }
+.lifelink-logo-auth { width: min(310px, 100%); margin: 0 auto var(--spacing-4); }
+.lifelink-logo-sidebar { width: 202px; max-width: 100%; }
+.app-sidebar-header { min-height: 112px; justify-content: center; }
+.doctor-sidebar-brand { min-height: 112px; justify-content: center; }
+.secure-sign-in { display: block; width: 100%; margin: 0 0 var(--spacing-3); padding: 8px 10px; border: 1px solid rgba(99,102,241,0.22); border-radius: 10px; color: var(--color-primary); background: rgba(255,255,255,0.38); font: inherit; font-size: var(--text-caption); font-weight: 600; cursor: pointer; }
+.secure-sign-in:hover { background: rgba(99,102,241,0.1); }
+.assessment-save-notice { max-width: 680px; margin: 0 auto var(--spacing-4); padding: 10px 12px; border: 1px solid rgba(99,102,241,0.18); border-radius: var(--border-radius-sm); background: rgba(255,255,255,0.35); color: var(--color-text-muted); font-size: var(--text-caption); }
+.saved-assessments-panel { max-width: 680px; margin: 0 auto var(--spacing-4); padding: var(--spacing-4); border: 1px solid transparent; border-radius: var(--border-radius-md); background: linear-gradient(145deg, rgba(255,255,255,.61), rgba(230,240,255,.42)) padding-box, linear-gradient(117deg, rgba(255,255,255,.88), rgba(103,135,225,.28), rgba(255,255,255,.7)) border-box; box-shadow: var(--liquid-shadow), var(--liquid-inset); backdrop-filter: blur(18px); }
+.saved-assessments-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--spacing-3); margin-bottom: var(--spacing-3); }
+.saved-assessments-heading h2 { margin: 2px 0 0; font-size: var(--text-h3); }
+.saved-assessment-list { display: grid; gap: var(--spacing-2); }
+.saved-assessment-item { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); padding: var(--spacing-3); border-radius: var(--border-radius-sm); background: rgba(255,255,255,.4); box-shadow: inset 0 1px 0 rgba(255,255,255,.66); }
+.saved-assessment-item p { margin: 3px 0 0; }
+@media (max-width: 520px) { .saved-assessments-heading { flex-direction: column; } }
+
 @media (max-width: 768px) {
   .doctor-layout { flex-direction: column; }
   .doctor-sidebar { width: 100%; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid transparent; }

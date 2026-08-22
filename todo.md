@@ -14,3 +14,22 @@
 - [x] Replace the unreachable request with a reliable, safety-conscious client-side fallback.
 - [x] Build and submit an assessment in the browser to confirm a visible result is returned.
 - [x] Save a checkpoint and report the fix.
+
+## Persistent Data and Logo Integration
+
+- [x] Upgrade the project to support database-backed persistent data.
+- [x] Inspect the upgraded full-stack structure and model the patient data to persist.
+- [x] Implement database storage and retrieval for the patient assessment workflow.
+- [ ] Confirm the secure account flow can display database-backed assessment history without inserting test health records.
+- [x] Prepare and upload the supplied LifeLink logo as a deployment-safe static asset.
+- [x] Apply the supplied logo to the primary patient and clinician branding locations.
+- [x] Build and validate persistence plus visual logo rendering in the browser.
+- [x] Save a checkpoint and report the completed enhancement.
+
+## Refined Logo Integration
+
+- [x] Upload the newly supplied blue–aqua LifeLink logo as a managed static asset.
+- [x] Replace the existing logo references with the new artwork across patient and clinician brand surfaces.
+- [x] Blend the logo’s white artwork field into the liquid-glass background using an integrated presentation treatment.
+- [x] Build and visually validate the refined logo on patient and clinician pages.
+- [x] Save a checkpoint and report the refined branding update.

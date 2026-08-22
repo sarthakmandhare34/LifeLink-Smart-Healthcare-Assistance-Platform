@@ -1,15 +1,32 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import { MockDataProvider } from './context/MockDataContext.tsx'
-import { ThemeProvider } from './context/ThemeContext.tsx'
-ReactDOM.createRoot(document.getElementById('root')!).render(
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { httpBatchLink } from "@trpc/client";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import superjson from "superjson";
+import App from "./App.tsx";
+import { MockDataProvider } from "./context/MockDataContext.tsx";
+import { ThemeProvider } from "./context/ThemeContext.tsx";
+import "./index.css";
+import { trpc } from "./lib/trpc";
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
+});
+
+const trpcClient = trpc.createClient({
+  links: [httpBatchLink({ url: "/api/trpc", transformer: superjson })],
+});
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <MockDataProvider>
-        <App />
-      </MockDataProvider>
-    </ThemeProvider>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <MockDataProvider>
+            <App />
+          </MockDataProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </trpc.Provider>
   </React.StrictMode>,
-)
+);
