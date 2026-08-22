@@ -51,3 +51,17 @@ The AI assessment page has been inspected through in-app navigation. Its custom 
 ## Final Validation Notes
 
 The refined doctor dashboard and patient login have been rechecked in the browser. The pulse-link mark is visible in clinician navigation, account contexts, and the patient entry point. A 375 × 812 clinician screenshot confirms that the compact navigation remains horizontally accessible, content cards stack without clipping, and the liquid-glass contrast remains legible.
+
+## Assessment Reliability Decision
+
+The previous assessment service called `localhost:3001`, which is unreachable from the deployed browser and caused a fetch failure. The service now uses a transparent, in-browser decision-support fallback that returns the existing result shape without external network access. It does not diagnose conditions; possible red-flag wording is directed to emergency guidance, and other responses explicitly retain the clinician-review disclaimer.
+
+Browser validation uses the project’s supplied demo patient account in a fresh session; no real personal or health data is introduced for testing.
+
+The assessment form has been reopened through in-app navigation in the authenticated demo session, with all required inputs available for the repaired submission check.
+
+The browser test uses a non-sensitive demonstration entry solely to verify the application flow; it is not clinical advice, a diagnosis, or a representation of a real person’s health information.
+
+The completed browser submission returned a visible LOW-urgency decision-support result and opened the existing assessment-result presentation without a fetch failure. The result retains explicit non-diagnostic language and guidance to seek clinician review if symptoms persist or worsen.
+
+The final browser view confirms the result dialog, urgency badge, reasoning, disclaimer-aligned guidance, and follow-up actions remain visible after submission. The browser console contains no new output from the repaired flow.
