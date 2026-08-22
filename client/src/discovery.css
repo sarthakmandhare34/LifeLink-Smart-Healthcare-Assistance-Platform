@@ -71,3 +71,16 @@
   .discovery-filter-grid { grid-template-columns: 1fr; }
   .discovery-results-heading { align-items: flex-start; flex-direction: column; }
 }
+
+:root[data-theme="dark"] .mock-directory-notice {
+  background: rgba(52, 54, 125, 0.28);
+  border-color: rgba(151, 165, 255, 0.28);
+}
+
+:root[data-theme="dark"] .discovery-filter-select,
+:root[data-theme="dark"] .discovery-city-lock {
+  background: rgba(19, 27, 63, 0.9);
+  color: var(--color-text);
+}
+
+:root[data-theme="dark"] .mumbai-map-error { background: rgba(14, 20, 48, 0.94); }

@@ -144,17 +144,17 @@ export const AIAssessment = () => {
       <Card variant="glass" style={{ maxWidth: '680px', width: '100%', margin: '0 auto' }}>
         {step === 0 ? (
           <form onSubmit={handleSubmit} className="flex-col gap-4">
-            <div style={{ display: 'flex', gap: 'var(--spacing-3)', background: 'rgba(255, 159, 128, 0.12)', padding: 'var(--spacing-3)', borderRadius: 'var(--border-radius-md)', border: '1px solid rgba(255, 159, 128, 0.3)' }}>
-              <AlertCircle color="#8C391B" style={{ flexShrink: 0 }} size={20} />
-              <p className="caption" style={{ margin: 0, color: '#8C391B' }}>
+            <div className="assessment-disclaimer">
+              <AlertCircle color="var(--color-semantic-warning)" style={{ flexShrink: 0 }} size={20} />
+              <p className="caption" style={{ margin: 0 }}>
                 <strong>Medical Triage Disclaimer:</strong> The AI assessment is decision support only and is not a substitute for professional medical diagnosis, treatment, or emergency medical care.
               </p>
             </div>
             
             {apiError && (
-              <div style={{ display: 'flex', gap: 'var(--spacing-3)', background: 'rgba(255, 159, 128, 0.12)', padding: 'var(--spacing-3)', borderRadius: 'var(--border-radius-md)', border: '1px solid rgba(255, 159, 128, 0.3)' }}>
-                <AlertCircle color="#8C391B" style={{ flexShrink: 0 }} size={20} />
-                <p className="caption" style={{ margin: 0, color: '#8C391B', fontWeight: 600 }}>
+              <div className="assessment-disclaimer assessment-disclaimer-error">
+                <AlertCircle color="var(--color-semantic-warning)" style={{ flexShrink: 0 }} size={20} />
+                <p className="caption" style={{ margin: 0, fontWeight: 600 }}>
                   {apiError}
                 </p>
               </div>
@@ -210,7 +210,7 @@ export const AIAssessment = () => {
             </div>
 
             <Button type="submit" variant="primary" className="w-full" disabled={isProcessing}>
-              {isProcessing ? 'Analyzing Symptoms with AI Engine...' : 'Analyze Symptoms'}
+              {isProcessing ? 'Analyzing your symptoms…' : 'Analyze Symptoms'}
             </Button>
           </form>
         ) : (

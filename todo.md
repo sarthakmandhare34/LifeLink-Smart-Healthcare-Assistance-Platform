@@ -5,6 +5,21 @@
 - [x] Make the existing patient login action explicitly read “Sign in” on the requested LifeLink page, without adding external providers or unrelated UI.
 - [x] Validate the revised native sign-in page at desktop and mobile sizes.
 
+## Dark Theme, Motion, and Gemini Configuration
+
+- [x] Audit and correct inconsistent dark-theme tokens across patient and clinician surfaces.
+- [x] Add restrained slide-in interface motion while respecting reduced-motion preferences.
+- [x] Replace misleading or fake loading treatments with only real pending-state feedback.
+- [x] Securely configure and validate the supplied Gemini credential server-side without exposing it to the client.
+- [x] Add the server-only Gemini environment key to the backend configuration and use it only from the assessment service.
+- [x] Verify the existing protected AI Assessment frontend mutation reaches the configured backend without a direct browser key or provider request.
+- [x] Verify dark and light themes at desktop and mobile breakpoints.
+- [x] Validate the protected AI Assessment submission through a user-approved no-data native account after the Gemini backend change.
+- [x] Create the user-approved temporary native patient account for the no-data Gemini assessment validation.
+- [x] Submit one non-clinical assessment through the protected frontend API and confirm a persisted backend response.
+- [x] Remove the temporary account and its test assessment after validation.
+- [x] Review a clinician route in dark mode at the mobile breakpoint to confirm shared tokens and contrast remain consistent.
+
 - [x] Inspect the supplied LifeLink archive and identify its pages, shared layout, components, and assets.
 - [x] Define a reusable liquid-glass token system that fits the existing content and behavior.
 - [x] Apply the liquid-glass visual treatment across each relevant page and shared component.

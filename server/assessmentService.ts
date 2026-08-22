@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { invokeLLM } from "./_core/llm";
+import { ENV } from "./_core/env";
 
 export const assessmentRequestInput = z.object({
   symptoms: z.string().trim().min(1).max(10_000),
@@ -30,6 +31,20 @@ const EMERGENCY_PATTERNS = [
   /suicid(?:al|e)|self[- ]harm/i,
 ];
 
+const ASSESSMENT_RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    urgency: { type: "string", enum: ["LOW", "MODERATE", "EMERGENCY"] },
+    specialty: { type: "string" },
+    reason: { type: "string" },
+    guidance: { type: "string" },
+  },
+  required: ["urgency", "specialty", "reason", "guidance"],
+  additionalProperties: false,
+} as const;
+
+const ASSESSMENT_SYSTEM_INSTRUCTION = "You are LifeLink's health-triage decision-support assistant. Do not diagnose, prescribe, claim certainty, or replace professional care. Return only the requested JSON. Use short, calm, non-diagnostic reasoning. If potentially urgent, choose MODERATE or EMERGENCY and direct the person to appropriate in-person care. For EMERGENCY, guidance must say to seek emergency care or contact a local emergency number now.";
+
 export function hasEmergencyPattern(symptoms: string) {
   return EMERGENCY_PATTERNS.some((pattern) => pattern.test(symptoms.trim().toLowerCase()));
 }
@@ -48,52 +63,76 @@ function parseModelContent(content: string | unknown[]) {
   return assessmentResultSchema.parse(JSON.parse(content));
 }
 
-/**
- * Server-only decision support. A deterministic red-flag override always takes
- * precedence over Gemini, including after a successful model response.
- */
-export async function analyzeAssessmentWithGemini(input: AssessmentRequest): Promise<AssessmentResult> {
-  if (hasEmergencyPattern(input.symptoms)) return emergencyOverride();
+function assessmentPrompt(input: AssessmentRequest) {
+  return JSON.stringify({
+    symptoms: input.symptoms,
+    age: input.age,
+    gender: input.gender,
+    existingConditions: input.conditions ?? "",
+    symptomDuration: input.duration,
+  });
+}
 
+async function invokeConfiguredGemini(input: AssessmentRequest) {
+  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-goog-api-key": ENV.geminiApiKey,
+    },
+    body: JSON.stringify({
+      model: "gemini-3.6-flash",
+      input: `${ASSESSMENT_SYSTEM_INSTRUCTION}\n\nPatient-provided information:\n${assessmentPrompt(input)}`,
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: ASSESSMENT_RESPONSE_SCHEMA,
+      },
+      generation_config: {
+        thinking_level: "minimal",
+      },
+    }),
+  });
+
+  if (!response.ok) throw new Error("Gemini assessment request was unavailable.");
+  const payload = await response.json() as {
+    steps?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+  };
+  const content = payload.steps
+    ?.filter((step) => step.type === "model_output")
+    .flatMap((step) => step.content ?? [])
+    .filter((part) => part.type === "text")
+    .map((part) => part.text ?? "")
+    .join("") ?? "";
+  return parseModelContent(content);
+}
+
+async function invokePlatformGeminiFallback(input: AssessmentRequest) {
   const response = await invokeLLM({
     model: "gemini-3-flash-preview",
     max_tokens: 700,
     response_format: {
       type: "json_schema",
-      json_schema: {
-        name: "lifelink_assessment_result",
-        strict: true,
-        schema: {
-          type: "object",
-          properties: {
-            urgency: { type: "string", enum: ["LOW", "MODERATE", "EMERGENCY"] },
-            specialty: { type: "string" },
-            reason: { type: "string" },
-            guidance: { type: "string" },
-          },
-          required: ["urgency", "specialty", "reason", "guidance"],
-          additionalProperties: false,
-        },
-      },
+      json_schema: { name: "lifelink_assessment_result", strict: true, schema: ASSESSMENT_RESPONSE_SCHEMA },
     },
     messages: [
-      {
-        role: "system",
-        content: "You are LifeLink's health-triage decision-support assistant. Do not diagnose, prescribe, claim certainty, or replace professional care. Return only the requested JSON. Use short, calm, non-diagnostic reasoning. If potentially urgent, choose MODERATE or EMERGENCY and direct the person to appropriate in-person care. For EMERGENCY, guidance must say to seek emergency care or contact a local emergency number now.",
-      },
-      {
-        role: "user",
-        content: JSON.stringify({
-          symptoms: input.symptoms,
-          age: input.age,
-          gender: input.gender,
-          existingConditions: input.conditions ?? "",
-          symptomDuration: input.duration,
-        }),
-      },
+      { role: "system", content: ASSESSMENT_SYSTEM_INSTRUCTION },
+      { role: "user", content: assessmentPrompt(input) },
     ],
   });
+  return parseModelContent(response.choices[0]?.message.content ?? "");
+}
 
-  const parsed = parseModelContent(response.choices[0]?.message.content ?? "");
+/**
+ * Server-only decision support. The configured Gemini credential is used only
+ * on the backend. A deterministic red-flag override always outranks model output.
+ */
+export async function analyzeAssessmentWithGemini(input: AssessmentRequest): Promise<AssessmentResult> {
+  if (hasEmergencyPattern(input.symptoms)) return emergencyOverride();
+
+  const parsed = ENV.geminiApiKey
+    ? await invokeConfiguredGemini(input)
+    : await invokePlatformGeminiFallback(input);
+
   return hasEmergencyPattern(input.symptoms) && parsed.urgency !== "EMERGENCY" ? emergencyOverride() : parsed;
 }
