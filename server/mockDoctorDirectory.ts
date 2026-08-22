@@ -15,6 +15,14 @@ export type MockDoctorDirectoryEntry = {
   isMock: true;
 };
 
+export type MockDoctorDirectoryFilters = {
+  city?: "Mumbai";
+  specialty?: string;
+  railLine?: MockDoctorDirectoryEntry["railLine"];
+  locality?: string;
+  query?: string;
+};
+
 export const mockDoctorDirectory: MockDoctorDirectoryEntry[] = [
   {
     id: "mock-mumbai-central-cardiology",
@@ -53,6 +61,35 @@ export const mockDoctorDirectory: MockDoctorDirectoryEntry[] = [
     isMock: true,
   },
 ];
+
+function normalized(value?: string) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+/** Filters only the controlled development directory; no external provider data is queried. */
+export function filterMockDoctorDirectory(filters: MockDoctorDirectoryFilters = {}) {
+  const specialty = normalized(filters.specialty);
+  const locality = normalized(filters.locality);
+  const query = normalized(filters.query);
+
+  return mockDoctorDirectory.filter((doctor) => {
+    if (filters.city && doctor.city !== filters.city) return false;
+    if (filters.railLine && doctor.railLine !== filters.railLine) return false;
+    if (specialty && doctor.specialty.toLowerCase() !== specialty) return false;
+    if (locality && doctor.locality.toLowerCase() !== locality) return false;
+    if (query && ![doctor.name, doctor.specialty, doctor.hospital, doctor.locality, doctor.railLine].some((field) => field.toLowerCase().includes(query))) return false;
+    return true;
+  });
+}
+
+export function getMockDoctorDirectoryFacets() {
+  return {
+    city: "Mumbai" as const,
+    specialties: Array.from(new Set(mockDoctorDirectory.map((doctor) => doctor.specialty))).sort(),
+    localities: Array.from(new Set(mockDoctorDirectory.map((doctor) => doctor.locality))).sort(),
+    railLines: ["Central", "Harbour", "Western"] as const,
+  };
+}
 
 export function getMockDoctorById(id: string) {
   return mockDoctorDirectory.find((doctor) => doctor.id === id) ?? null;

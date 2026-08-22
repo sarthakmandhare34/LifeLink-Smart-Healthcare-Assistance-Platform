@@ -257,7 +257,7 @@ export const AIAssessment = () => {
                   Start New Assessment
                 </Button>
                 {result?.urgency !== 'EMERGENCY' && (
-                  <Button variant="primary" style={{ flex: 1 }} onClick={() => navigate('/patient/specialists')}>
+                  <Button variant="primary" style={{ flex: 1 }} onClick={() => navigate(`/patient/specialists?specialty=${encodeURIComponent(result?.specialty ?? '')}`)}>
                     Find {result?.specialty} <ArrowRight size={14} />
                   </Button>
                 )}
@@ -322,7 +322,7 @@ export const AIAssessment = () => {
                 <Button variant="outline" className="w-full" onClick={handleCloseResult}>
                   Dismiss
                 </Button>
-                <Button variant="primary" className="w-full" onClick={() => { handleCloseResult(); navigate('/patient/specialists'); }}>
+                <Button variant="primary" className="w-full" onClick={() => { handleCloseResult(); navigate(`/patient/specialists?specialty=${encodeURIComponent(result?.specialty ?? '')}`); }}>
                   Find {result?.specialty}
                 </Button>
               </>

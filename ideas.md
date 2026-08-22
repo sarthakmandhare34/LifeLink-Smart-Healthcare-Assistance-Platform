@@ -135,3 +135,15 @@ The prior browser-local symptom fallback has been superseded for the patient ass
 Emergency safety is deterministic rather than model-dependent. The server checks broad red-flag symptom wording—including the archived haematemesis/vomiting-blood variants—before the model call and retains the same override after response normalization. Any matching assessment is returned as `EMERGENCY` with controlled, non-diagnostic immediate-care guidance, so the model cannot lower urgency. The existing red emergency panel, accessible result popup, and decision-support disclaimer remain the patient-facing presentation.
 
 The test suite validates the input boundary plus the emergency patterns and model-bypass behavior without invoking Gemini. A full signed-in UI analysis should be performed only by the account holder using non-sensitive information; no health record or fabricated patient test data was created for this milestone.
+
+## Phase 06 — Controlled Mumbai Discovery and Maps
+
+Patient discovery now derives from one repository-owned development-only Mumbai directory. The user can filter the fixed city scope by specialty, locality, or Central/Harbour/Western rail corridor; a search parameter from the non-emergency assessment result preselects its recommended specialty. The UI labels every entry as a development mock and makes no claim that any entry is a verified clinician, a recommendation, actually available, or geographically near the patient.
+
+The supplied map component is centred on Mumbai and creates markers only from the controlled directory coordinates. Marker clicks and cards share the same selected-doctor state, while selection pans the map. The workflow deliberately does not request browser location, calculate travel distance, or describe an entry as “nearby.” The local preview renderer is not an approved maps-proxy origin, so its transparent unavailable state is expected; the hosted LifeLink preview origin was independently accepted by the proxy.
+
+## Phase 07 — Always-On Patient Realtime
+
+With the user’s approval of always-on hosting, LifeLink now exposes one authenticated SSE stream per signed-in patient shell. The endpoint obtains the patient identity exclusively from the signed server session, replays that patient’s persisted events after the standard SSE resume identifier, and delivers only event metadata. New persisted events are then published to a process-local channel keyed by the same patient identifier. The browser uses the event type only to refresh relevant patient queries; it does not poll, receive clinical content over the stream, or share events between users.
+
+The implementation was verified with a temporary native account that the user expressly approved. No health fields or records were created. It authenticated the protected Mumbai specialty response, rejected a deliberately incomplete appointment request without persistence, and opened the SSE stream. The account, its credential, its cookie jar, and its local credential record were removed immediately after validation. Doctor login remains a mock navigation flow and does not use the patient realtime system.

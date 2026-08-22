@@ -16,7 +16,7 @@ import {
   updateOwnedPatientMedicine,
   updatePatientProfile,
 } from "../db";
-import { getMockDoctorById, mockDoctorDirectory } from "../mockDoctorDirectory";
+import { filterMockDoctorDirectory, getMockDoctorById, getMockDoctorDirectoryFacets } from "../mockDoctorDirectory";
 import { hashPatientPassword, verifyPatientPassword } from "../nativePatientAuth";
 import { getSessionCookieOptions } from "../_core/cookies";
 import { sdk } from "../_core/sdk";
@@ -177,6 +177,15 @@ export const patientPrescriptionRouter = router({
   }),
 });
 
+const discoveryInput = z.object({
+  city: z.literal("Mumbai").optional(),
+  specialty: z.string().trim().min(1).max(160).optional(),
+  railLine: z.enum(["Central", "Harbour", "Western"]).optional(),
+  locality: z.string().trim().min(1).max(160).optional(),
+  query: z.string().trim().min(1).max(160).optional(),
+}).optional();
+
 export const patientDiscoveryRouter = router({
-  list: protectedProcedure.query(() => mockDoctorDirectory),
+  facets: protectedProcedure.query(() => getMockDoctorDirectoryFacets()),
+  list: protectedProcedure.input(discoveryInput).query(({ input }) => filterMockDoctorDirectory(input)),
 });

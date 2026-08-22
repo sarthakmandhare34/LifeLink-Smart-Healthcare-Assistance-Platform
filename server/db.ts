@@ -16,6 +16,7 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { randomUUID } from "node:crypto";
+import { publishPatientEvent, type PatientEventType } from "./patientEventBus";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -260,12 +261,21 @@ export async function getPatientDashboard(userId: number) {
 
 export async function createPatientEvent(
   userId: number,
-  type: "PROFILE_UPDATED" | "APPOINTMENT_UPDATED" | "PRESCRIPTION_CREATED" | "ASSESSMENT_COMPLETED" | "MEDICINE_UPDATED",
+  type: PatientEventType,
   entityId?: string
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.insert(patientEvents).values({ userId, type, entityId: entityId ?? null });
+  const result = await db.insert(patientEvents).values({ userId, type, entityId: entityId ?? null });
+  const event = {
+    id: Number(result[0].insertId),
+    userId,
+    type,
+    entityId: entityId ?? null,
+    createdAt: new Date(),
+  };
+  publishPatientEvent(event);
+  return event;
 }
 
 export async function getPatientEventsSince(userId: number, lastEventId?: number) {
@@ -274,7 +284,7 @@ export async function getPatientEventsSince(userId: number, lastEventId?: number
   const where = lastEventId
     ? and(eq(patientEvents.userId, userId), gt(patientEvents.id, lastEventId))
     : eq(patientEvents.userId, userId);
-  return db.select().from(patientEvents).where(where).orderBy(desc(patientEvents.createdAt));
+  return db.select().from(patientEvents).where(where).orderBy(patientEvents.id);
 }
 
 export async function listPatientMedicines(userId: number) {

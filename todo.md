@@ -62,8 +62,17 @@
 - [x] Add visible mutation-error recovery states for medicine and appointment actions.
 - [x] Persist native patient registration, profile, dashboard summary, and assessment history foundation without creating patient seed data.
 - [x] Preserve the real AI assessment backend and emergency safety override without exposing credentials.
-- [ ] Add realtime invalidation or subscriptions for patient-facing record updates.
-- [ ] Begin specialty and Mumbai Central, Harbour, and Western rail-corridor doctor discovery with a maps workflow and appointment links.
-- [ ] Keep all doctor accounts, profiles, dashboards, and availability explicitly mocked for this phase.
-- [ ] Add and run tests, build checks, browser validation, and phase-by-phase implementation reports.
+- [x] Add realtime invalidation or subscriptions for patient-facing record updates.
+- [x] Add an authenticated patient SSE endpoint backed by the persisted patient event log and a process-local event bus.
+- [x] Mount a single patient-side EventSource that invalidates only the current patient’s affected query caches.
+- [x] Add realtime ownership and reconnect-contract regression tests without inserting patient records.
+- [x] Begin specialty and Mumbai Central, Harbour, and Western rail-corridor doctor discovery with a maps workflow and appointment links.
+- [x] Add protected directory filter and facet contracts sourced only from the controlled Mumbai mock directory.
+- [x] Add assessment-specialty URL handoff, Mumbai locality and rail-corridor filters, and selection-synchronised map markers without GPS or fabricated distances.
+- [x] Validate the filtered discovery layout at desktop and mobile breakpoints; map-proxy local-renderer fallback remains explicit and non-misleading.
+- [x] Validate the authenticated specialty filter, a non-persisting appointment input error, and the realtime connection through the user-approved disposable native patient session without entering real health data.
+- [x] Create the user-approved temporary native patient account and use no clinical fields or records during protected-flow validation.
+- [x] Remove the temporary validation account after the agreed no-data checks without risking user records.
+- [x] Keep all doctor accounts, profiles, dashboards, and availability explicitly mocked for this phase.
+- [x] Add and run tests, build checks, browser validation, and phase-by-phase implementation reports.
 - [ ] Save a checkpoint and deliver the completed master-specification phase.

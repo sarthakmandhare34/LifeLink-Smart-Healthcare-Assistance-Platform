@@ -4,6 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../_core/hooks/useAuth';
 import { LifeLinkMark } from '../brand/LifeLinkMark';
 import { LifeLinkLogo } from '../brand/LifeLinkLogo';
+import { usePatientRealtime } from '../../hooks/usePatientRealtime';
 import { 
   LayoutDashboard, 
   FileHeart, 
@@ -24,6 +25,7 @@ export const AppShell = () => {
   const { user, loading, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  usePatientRealtime(Boolean(user));
 
   if (loading) {
     return <div className="flex items-center justify-center h-full"><p className="caption">Loading your LifeLink workspace…</p></div>;

@@ -1,30 +1,65 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
-import { UserCheck, Search, MapPin, Building } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trpc } from '../../lib/trpc';
+import { MumbaiDoctorMap } from '../../components/MumbaiDoctorMap';
+import '../../discovery.css';
+
+const ALL_FILTER = 'all';
 
 export const SpecialistFinder = () => {
   const trpcUtils = trpc.useUtils();
-  const directoryQuery = trpc.patientDiscovery.list.useQuery();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSpecialty = searchParams.get('specialty') || ALL_FILTER;
+  const [specialty, setSpecialty] = useState(initialSpecialty);
+  const [railLine, setRailLine] = useState(ALL_FILTER);
+  const [locality, setLocality] = useState(ALL_FILTER);
+  const [searchTerm, setSearchTerm] = useState('');
+  const discoveryFilters = useMemo(() => ({
+    city: 'Mumbai' as const,
+    specialty: specialty === ALL_FILTER ? undefined : specialty,
+    railLine: railLine === ALL_FILTER ? undefined : railLine as 'Central' | 'Harbour' | 'Western',
+    locality: locality === ALL_FILTER ? undefined : locality,
+    query: searchTerm.trim() || undefined,
+  }), [locality, railLine, searchTerm, specialty]);
+  const directoryQuery = trpc.patientDiscovery.list.useQuery(discoveryFilters);
+  const facetsQuery = trpc.patientDiscovery.facets.useQuery();
   const requestMutation = trpc.patientAppointment.request.useMutation();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
   const [requestedAt, setRequestedAt] = useState('');
   const [requestedDocId, setRequestedDocId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [requestError, setRequestError] = useState('');
 
-  if (directoryQuery.isLoading) return <div className="flex items-center justify-center h-full"><p className="caption">Loading specialist directory…</p></div>;
+  useEffect(() => {
+    const requestedSpecialty = searchParams.get('specialty') || ALL_FILTER;
+    if (requestedSpecialty !== specialty) setSpecialty(requestedSpecialty);
+  }, [searchParams, specialty]);
 
-  const filteredDoctors = (directoryQuery.data ?? []).filter(
-    (doctor) => doctor.specialty.toLowerCase().includes(searchTerm.toLowerCase()) || doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    if (selectedDocId && !directoryQuery.data?.some((doctor) => doctor.id === selectedDocId)) setSelectedDocId(null);
+  }, [directoryQuery.data, selectedDocId]);
+
+  const updateSpecialty = (nextSpecialty: string) => {
+    setSpecialty(nextSpecialty);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (nextSpecialty === ALL_FILTER) next.delete('specialty');
+      else next.set('specialty', nextSpecialty);
+      return next;
+    }, { replace: true });
+  };
+
+  const selectDoctor = useCallback((doctorId: string) => {
+    setSelectedDocId(doctorId);
+    setRequestError('');
+  }, []);
 
   const handleRequest = async (doctorId: string, event: React.MouseEvent) => {
     event.stopPropagation();
@@ -48,6 +83,11 @@ export const SpecialistFinder = () => {
     }
   };
 
+  if (directoryQuery.isLoading || facetsQuery.isLoading) return <div className="flex items-center justify-center h-full"><p className="caption">Loading the controlled Mumbai development directory…</p></div>;
+
+  const filteredDoctors = directoryQuery.data ?? [];
+  const facets = facetsQuery.data;
+
   return (
     <div className="container" style={{ padding: 0 }}>
       <header className="mb-4 flex items-center gap-3">
@@ -56,15 +96,46 @@ export const SpecialistFinder = () => {
         </div>
         <div>
           <h1 style={{ margin: 0 }}>Specialist Finder</h1>
-          <p className="caption">Browse the LifeLink development directory and send a patient-owned appointment request.</p>
+          <p className="caption">Browse controlled Mumbai development entries, select a map marker or card, and send a patient-owned appointment request.</p>
         </div>
       </header>
 
       <Card variant="glass" className="mb-4">
         <div className="flex-col gap-3">
+          <div className="mock-directory-notice" role="note">
+            <MapIcon size={18} aria-hidden="true" />
+            <span><strong>Development directory only.</strong> These are controlled mock entries, not verified clinicians, availability, ratings, or medical recommendations.</span>
+          </div>
           <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center' }}>
             <Search size={20} color="var(--color-primary)" style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}><Input placeholder="Search by specialty or directory name…" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></div>
+          </div>
+          <div className="discovery-filter-grid">
+            <div>
+              <label className="discovery-filter-label">City</label>
+              <div className="discovery-city-lock">Mumbai <span>Current scope</span></div>
+            </div>
+            <div>
+              <label className="discovery-filter-label" htmlFor="specialty-filter">Specialty</label>
+              <select id="specialty-filter" className="discovery-filter-select" value={specialty} onChange={(event) => updateSpecialty(event.target.value)}>
+                <option value={ALL_FILTER}>All specialties</option>
+                {facets?.specialties.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="discovery-filter-label" htmlFor="rail-filter">Rail corridor</label>
+              <select id="rail-filter" className="discovery-filter-select" value={railLine} onChange={(event) => setRailLine(event.target.value)}>
+                <option value={ALL_FILTER}>All corridors</option>
+                {facets?.railLines.map((value) => <option key={value} value={value}>{value} line</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="discovery-filter-label" htmlFor="locality-filter">Locality</label>
+              <select id="locality-filter" className="discovery-filter-select" value={locality} onChange={(event) => setLocality(event.target.value)}>
+                <option value={ALL_FILTER}>All localities</option>
+                {facets?.localities.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+            </div>
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }}>Requested visit date and time</label>
@@ -74,14 +145,21 @@ export const SpecialistFinder = () => {
         </div>
       </Card>
 
-      <div>
-        <h2 className="mb-3" style={{ fontSize: 'var(--text-h2)' }}>Development Directory Specialists</h2>
-        <BentoGrid>
+      <div className="discovery-workspace">
+        <section>
+          <div className="discovery-results-heading">
+            <div>
+              <h2 style={{ fontSize: 'var(--text-h2)', margin: 0 }}>Mumbai Development Directory</h2>
+              <p className="caption">{filteredDoctors.length} controlled {filteredDoctors.length === 1 ? 'entry' : 'entries'} match the current filters.</p>
+            </div>
+            <Badge status="neutral">Mumbai only</Badge>
+          </div>
+          <BentoGrid>
           {filteredDoctors.map((doctor) => {
             const isSelected = selectedDocId === doctor.id;
             return (
               <BentoItem key={doctor.id} colSpan={2}>
-                <Card variant="glass" interactive selected={isSelected} className="h-full flex-col justify-between" onClick={() => setSelectedDocId(isSelected ? null : doctor.id)}>
+                <Card variant="glass" interactive selected={isSelected} className="h-full flex-col justify-between" onClick={() => selectDoctor(doctor.id)}>
                   <div>
                     <div className="flex justify-between items-start mb-2">
                       <div>
@@ -113,10 +191,22 @@ export const SpecialistFinder = () => {
 
           {filteredDoctors.length === 0 && (
             <BentoItem colSpan={4}>
-              <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}><p className="text-muted" style={{ margin: 0 }}>No directory entries match &ldquo;{searchTerm}&rdquo;.</p></Card>
+              <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}><p className="text-muted" style={{ margin: 0 }}>No controlled directory entries match the selected Mumbai filters. Clear a filter to view the available development entries.</p></Card>
             </BentoItem>
           )}
-        </BentoGrid>
+          </BentoGrid>
+        </section>
+
+        <aside className="discovery-map-pane">
+          <Card variant="glass" className="directory-map-card">
+            <div className="flex items-center gap-2 mb-3">
+              <Route size={20} color="var(--color-primary)" />
+              <div><h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Map selection</h2><p className="caption">Marker and card selection stay in sync.</p></div>
+            </div>
+            <MumbaiDoctorMap doctors={filteredDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} />
+            <p className="caption discovery-map-note">Map locations identify only the controlled directory entries. LifeLink does not collect your location here, so no distance or “nearby” claim is shown.</p>
+          </Card>
+        </aside>
       </div>
     </div>
   );
