@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
-import { LifeLinkMark } from '../../components/brand/LifeLinkMark';
 import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
-import { startLogin } from '../../const';
 
 export const DoctorLogin = () => {
   const navigate = useNavigate();
@@ -33,9 +31,6 @@ export const DoctorLogin = () => {
             <Input type="password" placeholder="Enter password" required />
           </div>
           <Button type="submit" variant="primary" style={{ marginTop: 'var(--spacing-2)' }}>Secure Login</Button>
-          <button type="button" className="secure-sign-in" onClick={() => startLogin()}>
-            Sign in with your secure LifeLink account
-          </button>
         </form>
       </Card>
     </div>

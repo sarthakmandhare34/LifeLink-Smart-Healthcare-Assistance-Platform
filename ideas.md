@@ -78,6 +78,16 @@ The secure sign-in action successfully routes from the patient entry point to th
 
 The authorization endpoint requires an authenticated account session before private assessment history can be viewed. The project-side routing and database tables have been validated; completing that account-specific view requires the account holder to sign in.
 
+The secure authorization page has been reopened for the final account-scoped verification. No health data has been submitted by the agent while awaiting account authentication.
+
+## Native Login-Only Decision
+
+The patient and clinician experiences now keep people inside their dedicated LifeLink login pages. The UI no longer provides a button or text path to the external authorization screen, so Facebook, Microsoft, and Manus-branded options from that provider are not surfaced from within the LifeLink application.
+
+The revised patient and clinician login pages have been inspected in the browser. Each page now shows only the supplied LifeLink branding, native account fields, and its local form action; neither entry point exposes an external authorization control or third-party brand name.
+
+The pending external-account check was explicitly superseded by the native login-only direction. The database model remains in place, but the native screens no longer route users to a provider-hosted sign-in surface.
+
 ## Refined Supplied Logo Integration
 
 The updated blue–aqua artwork now replaces the prior logo throughout the shared brand component. Its pale image field uses a restrained multiply blend with the existing blue–aqua liquid-glass atmosphere, allowing the background texture and color to continue through the mark without adding a separate framed image panel.

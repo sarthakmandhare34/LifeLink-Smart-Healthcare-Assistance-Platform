@@ -4,9 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import { useMockData } from '../../context/MockDataContext';
-import { LifeLinkMark } from '../../components/brand/LifeLinkMark';
 import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
-import { startLogin } from '../../const';
 
 export const PatientLogin = () => {
   const navigate = useNavigate();
@@ -82,9 +80,6 @@ export const PatientLogin = () => {
         </form>
 
         <div style={{ marginTop: 'var(--spacing-5)', textAlign: 'center', borderTop: '1px solid var(--color-border)', paddingTop: 'var(--spacing-4)' }}>
-          <button type="button" className="secure-sign-in" onClick={() => startLogin()}>
-            Use secure LifeLink sign-in to save your data
-          </button>
           <span className="caption">Don't have a patient account? </span>
           <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }} style={{ fontWeight: 600, color: 'var(--color-primary)' }}>
             Register New Account

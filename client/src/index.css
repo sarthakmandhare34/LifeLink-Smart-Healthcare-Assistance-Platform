@@ -946,8 +946,6 @@ dialog.popup::backdrop {
 .lifelink-logo-sidebar { width: 202px; max-width: 100%; }
 .app-sidebar-header { min-height: 112px; justify-content: center; }
 .doctor-sidebar-brand { min-height: 112px; justify-content: center; }
-.secure-sign-in { display: block; width: 100%; margin: 0 0 var(--spacing-3); padding: 8px 10px; border: 1px solid rgba(99,102,241,0.22); border-radius: 10px; color: var(--color-primary); background: rgba(255,255,255,0.38); font: inherit; font-size: var(--text-caption); font-weight: 600; cursor: pointer; }
-.secure-sign-in:hover { background: rgba(99,102,241,0.1); }
 .assessment-save-notice { max-width: 680px; margin: 0 auto var(--spacing-4); padding: 10px 12px; border: 1px solid rgba(99,102,241,0.18); border-radius: var(--border-radius-sm); background: rgba(255,255,255,0.35); color: var(--color-text-muted); font-size: var(--text-caption); }
 .saved-assessments-panel { max-width: 680px; margin: 0 auto var(--spacing-4); padding: var(--spacing-4); border: 1px solid transparent; border-radius: var(--border-radius-md); background: linear-gradient(145deg, rgba(255,255,255,.61), rgba(230,240,255,.42)) padding-box, linear-gradient(117deg, rgba(255,255,255,.88), rgba(103,135,225,.28), rgba(255,255,255,.7)) border-box; box-shadow: var(--liquid-shadow), var(--liquid-inset); backdrop-filter: blur(18px); }
 .saved-assessments-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--spacing-3); margin-bottom: var(--spacing-3); }

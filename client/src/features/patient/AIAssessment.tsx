@@ -135,7 +135,7 @@ export const AIAssessment = () => {
 
       {!isAuthenticated && (
         <p className="assessment-save-notice">
-          Demo-mode results are not retained after this session. Use secure LifeLink sign-in to save assessments to your private account.
+          Demo-mode results are available only for the current LifeLink session. This decision-support tool does not replace professional medical care.
         </p>
       )}
 
