@@ -1,0 +1,63 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Card } from '../../components/ui/Card';
+import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
+import { trpc } from '../../lib/trpc';
+
+export const PatientLogin = () => {
+  const navigate = useNavigate();
+  const trpcUtils = trpc.useUtils();
+  const loginMutation = trpc.patientAuth.login.useMutation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    try {
+      await loginMutation.mutateAsync({ email, password });
+      await trpcUtils.auth.me.invalidate();
+      navigate('/patient/dashboard');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unable to sign in. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <main className="auth-page" aria-labelledby="patient-login-heading">
+      <Card variant="glass" className="auth-card">
+        <header className="auth-card-header">
+          <LifeLinkLogo className="lifelink-logo-auth" />
+          <p className="caption">Patient workspace</p>
+          <h1 id="patient-login-heading">Welcome back</h1>
+          <p>Sign in to your health workspace.</p>
+        </header>
+
+        {error && <div className="alert-panel auth-message" role="alert">{error}</div>}
+
+        <form onSubmit={handleLogin} className="auth-form">
+          <label className="auth-field">
+            <span>Email</span>
+            <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="patient@example.com" autoComplete="email" required />
+          </label>
+          <label className="auth-field">
+            <span>Password</span>
+            <Input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password" autoComplete="current-password" required />
+          </label>
+          <Button type="submit" variant="primary" className="w-full" disabled={isLoading}>{isLoading ? 'Signing in…' : 'Sign In'}</Button>
+        </form>
+
+        <footer className="auth-card-footer">
+          <span className="caption">Don&apos;t have an account?</span>
+          <button type="button" className="auth-link-button" onClick={() => navigate('/register')}>Register</button>
+        </footer>
+      </Card>
+    </main>
+  );
+};

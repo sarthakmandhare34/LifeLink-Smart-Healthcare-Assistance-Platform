@@ -13,7 +13,7 @@ import {
   patientPrescriptions,
   patientProfiles,
   users,
-} from "../drizzle/schema";
+} from "../database/schema";
 import { ENV } from './_core/env';
 import { randomUUID } from "node:crypto";
 import { publishPatientEvent, type PatientEventType } from "./patientEventBus";

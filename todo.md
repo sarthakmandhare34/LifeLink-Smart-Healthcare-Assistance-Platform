@@ -20,6 +20,18 @@
 - [x] Remove the temporary account and its test assessment after validation.
 - [x] Review a clinician route in dark mode at the mobile breakpoint to confirm shared tokens and contrast remain consistent.
 
+## Project Boundaries and Layout Architecture
+
+- [x] Inventory current frontend, backend, database, shared, build, and test files against the requested frontend/backend/database boundary structure.
+- [x] Create a safe target structure and update all build, import, API, environment, database, and test paths before moving implementation files.
+- [x] Move frontend-owned source, backend-owned source, and database schema/migration source into logical project boundaries without breaking runtime behavior.
+- [x] Refine the responsive patient shell, login, registration, dashboard, and assessment layout to the supplied page architecture while preserving real backend flows.
+- [x] Run type checking, tests, production build, and responsive route verification after reorganization.
+- [x] Document the final structure, changed path contracts, layout reconciliation, and verification results.
+- [x] Align the existing native patient login and registration information hierarchy to the supplied entry-page architecture without changing their real tRPC flows.
+- [x] Align the AI Assessment workflow heading, form hierarchy, and result context to the supplied dedicated workflow architecture without changing its protected Gemini mutation.
+- [x] Re-verify the completed Phase 09 report after the final entry/workflow layout checks.
+
 - [x] Inspect the supplied LifeLink archive and identify its pages, shared layout, components, and assets.
 - [x] Define a reusable liquid-glass token system that fits the existing content and behavior.
 - [x] Apply the liquid-glass visual treatment across each relevant page and shared component.
