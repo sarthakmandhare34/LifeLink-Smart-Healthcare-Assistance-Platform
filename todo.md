@@ -155,3 +155,4 @@
 - [x] Expand the clearly labeled controlled Mumbai development directory across more specialty categories and areas, and add an optional browser-only location permission flow that sorts and centers controlled map entries without storing precise location or claiming real doctors/availability.
 - [x] Redo and independently re-verify the controlled specialty and browser-only location update before assigning its rebuilt version to the permanent domain.
 - [x] Restrict the Specialist Finder free-text search to specialty names only and update its placeholder and guidance.
+- [ ] Diagnose and fix the reported interactive Mumbai map loading failure while preserving controlled-directory and browser-location privacy safeguards.

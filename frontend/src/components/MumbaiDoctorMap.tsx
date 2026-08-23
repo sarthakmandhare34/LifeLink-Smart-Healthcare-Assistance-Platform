@@ -33,12 +33,19 @@ const MUMBAI_CENTER = { lat: 19.076, lng: 72.8777 };
 export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor, browserLocation = null }: MumbaiDoctorMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [mapFailed, setMapFailed] = useState(false);
+  const [mapAttempt, setMapAttempt] = useState(0);
   const markersRef = useRef<Array<{ marker: google.maps.marker.AdvancedMarkerElement; listener: google.maps.MapsEventListener }>>([]);
   const browserLocationMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
 
   const onMapReady = useCallback((readyMap: google.maps.Map) => {
     setMapFailed(false);
     setMap(readyMap);
+  }, []);
+
+  const retryMap = useCallback(() => {
+    setMap(null);
+    setMapFailed(false);
+    setMapAttempt((attempt) => attempt + 1);
   }, []);
 
   useEffect(() => {
@@ -113,6 +120,7 @@ export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor, bro
   return (
     <div className="mumbai-directory-map-wrap">
       <MapView
+        key={mapAttempt}
         className="mumbai-directory-map"
         initialCenter={MUMBAI_CENTER}
         initialZoom={11}
@@ -120,7 +128,10 @@ export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor, bro
         onMapError={() => setMapFailed(true)}
       />
       {map && <p className="mumbai-map-status" role="status">{browserLocation ? 'Interactive map centered on your browser location for this page only. Your location is not stored.' : 'Interactive Google Maps view is ready. Select a directory card or marker to focus its controlled location.'}</p>}
-      {mapFailed && <p className="mumbai-map-error" role="status">The interactive map is unavailable in this session. Directory filters and appointment requests remain available; no location or distance is inferred.</p>}
+      {mapFailed && <div className="mumbai-map-error" role="status">
+        <p>The interactive map is unavailable in this session. Directory filters and appointment requests remain available; no location or distance is inferred.</p>
+        <button type="button" className="mumbai-map-retry" onClick={retryMap}>Retry interactive map</button>
+      </div>}
     </div>
   );
 }

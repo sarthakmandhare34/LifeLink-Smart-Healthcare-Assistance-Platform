@@ -91,6 +91,7 @@ const FORGE_BASE_URL =
   import.meta.env.VITE_FRONTEND_FORGE_API_URL ||
   "https://forge.butterfly-effect.dev";
 const MAPS_PROXY_URL = `${FORGE_BASE_URL}/v1/maps/proxy`;
+export const MAPS_SCRIPT_CROSS_ORIGIN = "anonymous";
 
 let mapScriptPromise: Promise<void> | null = null;
 
@@ -102,9 +103,17 @@ function loadMapScript() {
     const script = document.createElement("script");
     script.src = `${MAPS_PROXY_URL}/maps/api/js?key=${API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
     script.async = true;
+    // The managed proxy authorizes browser script requests by their Origin header.
+    // Anonymous CORS preserves that header without sending cookies or credentials.
+    script.crossOrigin = MAPS_SCRIPT_CROSS_ORIGIN;
     script.onload = () => {
-      resolve();
       script.remove(); // Clean up immediately
+      if (window.google?.maps) {
+        resolve();
+        return;
+      }
+      mapScriptPromise = null;
+      reject(new Error("Google Maps script loaded without the Maps namespace"));
     };
     script.onerror = () => {
       console.error("Failed to load Google Maps script");

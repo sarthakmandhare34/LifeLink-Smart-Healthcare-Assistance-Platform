@@ -59,7 +59,10 @@
 .directory-map-card { position: sticky; top: var(--spacing-4); overflow: hidden; }
 .mumbai-directory-map-wrap { position: relative; }
 .mumbai-directory-map { height: 420px !important; border: 1px solid var(--color-border); border-radius: var(--border-radius-md); overflow: hidden; }
-.mumbai-map-error { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; padding: var(--spacing-5); border: 1px solid var(--color-border); border-radius: var(--border-radius-md); background: rgba(247, 248, 255, 0.94); color: var(--color-text-muted); font-size: var(--text-caption); text-align: center; }
+.mumbai-map-error { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; padding: var(--spacing-5); border: 1px solid var(--color-border); border-radius: var(--border-radius-md); background: rgba(247, 248, 255, 0.94); color: var(--color-text-muted); font-size: var(--text-caption); text-align: center; }
+.mumbai-map-error p { margin: 0; }
+.mumbai-map-retry { margin-top: 8px; border: 1px solid rgba(79, 70, 229, .34); border-radius: 999px; background: rgba(255, 255, 255, .72); color: var(--color-primary); cursor: pointer; font: inherit; font-size: var(--text-caption); font-weight: 700; padding: 6px 10px; }
+.mumbai-map-retry:hover { background: rgba(79, 70, 229, .08); }
 .mumbai-map-status { margin: var(--spacing-2) 0 0; padding: 8px 10px; border-radius: 9px; background: rgba(83, 192, 165, 0.1); color: var(--color-text-muted); font-size: var(--text-caption); }
 .discovery-map-note { margin: var(--spacing-3) 0 0; }
 
@@ -95,3 +98,4 @@
 }
 
 :root[data-theme="dark"] .mumbai-map-error { background: rgba(14, 20, 48, 0.94); }
+:root[data-theme="dark"] .mumbai-map-retry { background: rgba(14, 24, 52, .72); color: #a8ddff; border-color: rgba(168, 221, 255, .32); }
