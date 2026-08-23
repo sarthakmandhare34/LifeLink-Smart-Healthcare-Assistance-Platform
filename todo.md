@@ -42,6 +42,7 @@
 - [x] Increase dark-mode contrast and separation for the reusable LifeLink logo without changing its light-mode presentation.
 - [x] Replace every temporary emoji-style or synthetic LifeLink brand mark with the newly supplied official logo artwork across public, patient, clinician, and map-related surfaces.
 - [ ] Fix the public delivery route for the new official LifeLink logo asset; the permanent domain currently renders its image as broken despite the current deployment.
+- [ ] Enlarge and reframe the official LifeLink artwork so the icon, name, and tagline are clearly legible on every branded surface.
 
 ## Dark Theme, Motion, and Gemini Configuration
 
@@ -147,3 +148,4 @@
 - [x] Add and run tests, build checks, browser validation, and phase-by-phase implementation reports.
 - [x] Save a checkpoint and deliver the completed master-specification phase.
 - [x] Update the Mumbai discovery and maps area with the user-supplied Western, Central, and Harbour railway station corridors, branches, and shared-station associations.
+- [ ] Remove the long visible Mumbai station-reference guide and locality filter; reword railway prompts around where the patient lives, retain requested visit date/time, and refine the controlled-directory live-map presentation.

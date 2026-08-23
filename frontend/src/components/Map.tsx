@@ -102,7 +102,6 @@ function loadMapScript() {
     const script = document.createElement("script");
     script.src = `${MAPS_PROXY_URL}/maps/api/js?key=${API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
     script.async = true;
-    script.crossOrigin = "anonymous";
     script.onload = () => {
       resolve();
       script.remove(); // Clean up immediately

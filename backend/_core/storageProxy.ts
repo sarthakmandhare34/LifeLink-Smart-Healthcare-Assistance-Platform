@@ -1,8 +1,11 @@
 import type { Express } from "express";
+import type { Request, Response } from "express";
 import { ENV } from "./env";
 
 export const LIFELINK_OFFICIAL_LOGO_STORAGE_KEY = "lifelink-official-logo_71a0ddff.jpg";
 export const LIFELINK_OFFICIAL_LOGO_ROUTE = "/assets/branding/lifelink-logo.jpg";
+export const LIFELINK_OFFICIAL_LOGO_LOCKUP_STORAGE_KEY = "lifelink-official-logo-lockup_f75be2e5.jpg";
+export const LIFELINK_OFFICIAL_LOGO_LOCKUP_ROUTE = "/assets/branding/lifelink-logo-lockup.jpg";
 
 async function getStorageDownloadUrl(key: string) {
   if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
@@ -33,9 +36,9 @@ async function getStorageDownloadUrl(key: string) {
 }
 
 export function registerStorageProxy(app: Express) {
-  app.get(LIFELINK_OFFICIAL_LOGO_ROUTE, async (_req, res) => {
+  const serveBrandAsset = (storageKey: string) => async (_req: Request, res: Response) => {
     try {
-      const signedUrl = await getStorageDownloadUrl(LIFELINK_OFFICIAL_LOGO_STORAGE_KEY);
+      const signedUrl = await getStorageDownloadUrl(storageKey);
       const assetResponse = await fetch(signedUrl);
 
       if (!assetResponse.ok) {
@@ -55,7 +58,10 @@ export function registerStorageProxy(app: Express) {
       console.error("[BrandAsset] failed to serve the official LifeLink logo:", err);
       res.status(502).send("Brand asset unavailable");
     }
-  });
+  };
+
+  app.get(LIFELINK_OFFICIAL_LOGO_ROUTE, serveBrandAsset(LIFELINK_OFFICIAL_LOGO_STORAGE_KEY));
+  app.get(LIFELINK_OFFICIAL_LOGO_LOCKUP_ROUTE, serveBrandAsset(LIFELINK_OFFICIAL_LOGO_LOCKUP_STORAGE_KEY));
 
   app.get("/manus-storage/*", async (req, res) => {
     const key = (req.params as Record<string, string>)[0];

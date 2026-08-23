@@ -12,6 +12,8 @@ import type { MumbaiRailLine } from '@shared/mumbaiRailNetwork';
 import '../../discovery.css';
 
 const ALL_FILTER = 'all';
+export const RESIDENCE_CORRIDOR_LABEL = 'Which part of Mumbai do you live in?';
+export const RESIDENCE_STATION_LABEL = 'Which station is closest to where you live?';
 
 export const SpecialistFinder = () => {
   const trpcUtils = trpc.useUtils();
@@ -20,16 +22,14 @@ export const SpecialistFinder = () => {
   const [specialty, setSpecialty] = useState(initialSpecialty);
   const [railLine, setRailLine] = useState(ALL_FILTER);
   const [station, setStation] = useState(ALL_FILTER);
-  const [locality, setLocality] = useState(ALL_FILTER);
   const [searchTerm, setSearchTerm] = useState('');
   const discoveryFilters = useMemo(() => ({
     city: 'Mumbai' as const,
     specialty: specialty === ALL_FILTER ? undefined : specialty,
     railLine: railLine === ALL_FILTER ? undefined : railLine as MumbaiRailLine,
     station: station === ALL_FILTER ? undefined : station,
-    locality: locality === ALL_FILTER ? undefined : locality,
     query: searchTerm.trim() || undefined,
-  }), [locality, railLine, searchTerm, specialty, station]);
+  }), [railLine, searchTerm, specialty, station]);
   const directoryQuery = trpc.patientDiscovery.list.useQuery(discoveryFilters);
   const facetsQuery = trpc.patientDiscovery.facets.useQuery();
   const availableStations = useMemo(() => (
@@ -111,7 +111,7 @@ export const SpecialistFinder = () => {
         </div>
         <div>
           <h1 style={{ margin: 0 }}>Specialist Finder</h1>
-          <p className="caption">Browse controlled Mumbai development entries, use the supplied suburban rail station guide, and send a patient-owned appointment request.</p>
+          <p className="caption">Browse controlled Mumbai development entries by specialty and the Mumbai area closest to where you live, then send a patient-owned appointment request.</p>
         </div>
       </header>
 
@@ -127,10 +127,6 @@ export const SpecialistFinder = () => {
           </div>
           <div className="discovery-filter-grid">
             <div>
-              <label className="discovery-filter-label">City</label>
-              <div className="discovery-city-lock">Mumbai <span>Current scope</span></div>
-            </div>
-            <div>
               <label className="discovery-filter-label" htmlFor="specialty-filter">Specialty</label>
               <select id="specialty-filter" className="discovery-filter-select" value={specialty} onChange={(event) => updateSpecialty(event.target.value)}>
                 <option value={ALL_FILTER}>All specialties</option>
@@ -138,24 +134,17 @@ export const SpecialistFinder = () => {
               </select>
             </div>
             <div>
-              <label className="discovery-filter-label" htmlFor="rail-filter">Rail corridor</label>
+              <label className="discovery-filter-label" htmlFor="rail-filter">{RESIDENCE_CORRIDOR_LABEL}</label>
               <select id="rail-filter" className="discovery-filter-select" value={railLine} onChange={(event) => updateRailLine(event.target.value)}>
-                <option value={ALL_FILTER}>All corridors</option>
+                <option value={ALL_FILTER}>Choose a rail corridor</option>
                 {facets?.railLines.map((value) => <option key={value} value={value}>{value} line</option>)}
               </select>
             </div>
             <div>
-              <label className="discovery-filter-label" htmlFor="station-filter">Railway station</label>
+              <label className="discovery-filter-label" htmlFor="station-filter">{RESIDENCE_STATION_LABEL}</label>
               <select id="station-filter" className="discovery-filter-select" value={station} onChange={(event) => setStation(event.target.value)}>
-                <option value={ALL_FILTER}>All stations</option>
+                <option value={ALL_FILTER}>Choose a station</option>
                 {availableStations.map((value) => <option key={value.id} value={value.name}>{value.name}{value.lines.length > 1 ? ` · ${value.lines.join(" + ")}` : ""}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="discovery-filter-label" htmlFor="locality-filter">Locality</label>
-              <select id="locality-filter" className="discovery-filter-select" value={locality} onChange={(event) => setLocality(event.target.value)}>
-                <option value={ALL_FILTER}>All localities</option>
-                {facets?.localities.map((value) => <option key={value} value={value}>{value}</option>)}
               </select>
             </div>
           </div>
@@ -221,10 +210,10 @@ export const SpecialistFinder = () => {
           <Card variant="glass" className="directory-map-card">
             <div className="flex items-center gap-2 mb-3">
               <Route size={20} color="var(--color-primary)" />
-              <div><h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Map & rail guide</h2><p className="caption">Markers, cards, stations, and corridor filters stay in sync.</p></div>
+              <div><h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Interactive Mumbai map</h2><p className="caption">Google Maps base map and controlled directory markers stay in sync.</p></div>
             </div>
-            <MumbaiDoctorMap doctors={filteredDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} railLine={railLine === ALL_FILTER ? null : railLine as MumbaiRailLine} selectedStation={station === ALL_FILTER ? null : station} onSelectStation={setStation} />
-            <p className="caption discovery-map-note">Map markers identify only controlled directory entries. The rail guide uses the supplied station reference, not live train status, travel times, GPS, or “nearby” claims.</p>
+            <MumbaiDoctorMap doctors={filteredDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} />
+            <p className="caption discovery-map-note">The interactive map identifies only controlled directory entries. It does not claim verified clinicians, live availability, travel time, GPS, or “nearby” results.</p>
           </Card>
         </aside>
       </div>

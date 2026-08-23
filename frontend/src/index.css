@@ -942,13 +942,15 @@ dialog.popup::backdrop {
 .lifelink-avatar { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.54); box-shadow: 0 6px 15px rgba(52, 60, 143, 0.1), inset 0 1px 0 rgba(255,255,255,.78); }
 .doctor-avatar .lifelink-mark { box-shadow: none; }
 
-/* Preserve the full supplied wordmark at primary brand locations, with a compact crop of that same artwork for avatars. */
+/* Full wordmarks are reframed around the visible lockup so the icon, name, and tagline remain legible; avatar crops retain the same supplied artwork. */
 .lifelink-logo-crop { position: relative; display: block; width: 100%; aspect-ratio: 1024 / 559; overflow: hidden; isolation: isolate; border-radius: 10px; background: #f8fcff; }
 .lifelink-logo { position: absolute; display: block; width: 100%; max-width: none; height: 100%; left: 0; top: 0; object-fit: contain; opacity: 1; filter: saturate(1.03) contrast(1.02) drop-shadow(0 7px 14px rgba(38, 101, 145, .08)); }
+.lifelink-logo-full { aspect-ratio: 3 / 1; }
+.lifelink-logo-full .lifelink-logo { width: 100%; height: 100%; left: 0; top: 0; object-fit: contain; }
 .lifelink-logo-symbol { aspect-ratio: 1 / 1; border-radius: inherit; }
 .lifelink-logo-symbol .lifelink-logo { width: auto; height: 137%; max-width: none; left: -12%; top: -18%; object-fit: initial; }
-.lifelink-logo-auth { width: min(310px, 100%); margin: 0 auto var(--spacing-4); }
-.lifelink-logo-sidebar { width: 202px; max-width: 100%; }
+.lifelink-logo-auth { width: min(360px, 100%); margin: 0 auto var(--spacing-4); }
+.lifelink-logo-sidebar { width: 238px; max-width: 100%; }
 .app-sidebar-header { min-height: 112px; justify-content: center; }
 .doctor-sidebar-brand { min-height: 112px; justify-content: center; }
 .assessment-save-notice { max-width: 680px; margin: 0 auto var(--spacing-4); padding: 10px 12px; border: 1px solid rgba(99,102,241,0.18); border-radius: var(--border-radius-sm); background: rgba(255,255,255,0.35); color: var(--color-text-muted); font-size: var(--text-caption); }
