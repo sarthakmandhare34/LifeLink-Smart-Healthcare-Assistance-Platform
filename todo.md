@@ -41,6 +41,7 @@
 - [x] Save a dedicated checkpoint for the verified reusable LifeLink logo white-background adjustment.
 - [x] Increase dark-mode contrast and separation for the reusable LifeLink logo without changing its light-mode presentation.
 - [x] Replace every temporary emoji-style or synthetic LifeLink brand mark with the newly supplied official logo artwork across public, patient, clinician, and map-related surfaces.
+- [ ] Fix the public delivery route for the new official LifeLink logo asset; the permanent domain currently renders its image as broken despite the current deployment.
 
 ## Dark Theme, Motion, and Gemini Configuration
 

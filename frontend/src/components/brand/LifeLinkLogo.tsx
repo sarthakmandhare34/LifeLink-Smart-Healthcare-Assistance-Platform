@@ -1,5 +1,5 @@
 /** Uses the user-supplied LifeLink brand artwork stored in project-managed storage. */
-export const LIFELINK_OFFICIAL_LOGO_URL = "/manus-storage/lifelink-official-logo_71a0ddff.jpg";
+export const LIFELINK_OFFICIAL_LOGO_URL = "/assets/branding/lifelink-logo.jpg";
 
 type LifeLinkLogoProps = {
   className?: string;

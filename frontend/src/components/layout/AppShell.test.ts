@@ -8,6 +8,6 @@ describe('patient sidebar branding', () => {
   });
 
   it('uses the owner-supplied official LifeLink artwork instead of a synthetic mark', () => {
-    expect(LIFELINK_OFFICIAL_LOGO_URL).toBe('/manus-storage/lifelink-official-logo_71a0ddff.jpg');
+    expect(LIFELINK_OFFICIAL_LOGO_URL).toBe('/assets/branding/lifelink-logo.jpg');
   });
 });
