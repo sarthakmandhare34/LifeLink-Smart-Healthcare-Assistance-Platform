@@ -20,6 +20,7 @@
 - [ ] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable.
 - [ ] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try.
 - [ ] Verify the protected public session after that first-attempt callback without exposing personal data.
+- [x] Require explicit registration for a new Google account, while allowing Google sign-in only for an existing registered LifeLink account.
 - [x] Confirm the verified provider flow created a new Google provider identity rather than triggering a native-account conflict; secure signed-in linking is not required for this completed path.
 - [x] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
 - [x] Change the permanent LifeLink deployment from reserved access to public access so Google can reach the callback without a platform sign-in wall.

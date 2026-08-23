@@ -16,6 +16,7 @@ describe("Google provider availability", () => {
 
   it("starts authorization at the permanent public origin so its state cookie returns to the same host", () => {
     expect(googleAuthorizationStartUrlFromConfig(completeConfig)).toBe("https://lifelink.example/api/auth/google");
+    expect(googleAuthorizationStartUrlFromConfig(completeConfig, "register")).toBe("https://lifelink.example/api/auth/google?intent=register");
     expect(googleAuthorizationStartUrlFromConfig({ ...completeConfig, authPublicBaseUrl: "http://localhost:3000" })).toBeNull();
   });
 

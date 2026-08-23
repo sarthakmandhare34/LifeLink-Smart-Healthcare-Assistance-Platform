@@ -114,6 +114,13 @@ export class ProviderAccountConflictError extends Error {
   }
 }
 
+export class ProviderRegistrationRequiredError extends Error {
+  constructor() {
+    super("No LifeLink account is linked to this Google account. Please register first.");
+    this.name = "ProviderRegistrationRequiredError";
+  }
+}
+
 function normalizeProviderEmail(email: string) {
   return email.trim().toLowerCase();
 }
@@ -142,7 +149,7 @@ export async function resolveProviderPatient(input: {
   subject: string;
   email: string;
   name: string | null;
-}) {
+}, options: { allowNewProviderAccount: boolean }) {
   const existingIdentityUser = await getUserByProviderIdentity(input.provider, input.subject);
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -153,6 +160,7 @@ export async function resolveProviderPatient(input: {
 
   const email = normalizeProviderEmail(input.email);
   if (await findUserByEmail(email)) throw new ProviderAccountConflictError();
+  if (!options.allowNewProviderAccount) throw new ProviderRegistrationRequiredError();
   const openId = `provider:${randomUUID()}`;
   await db.insert(users).values({
     openId,

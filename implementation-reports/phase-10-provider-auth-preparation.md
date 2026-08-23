@@ -54,6 +54,10 @@ The three values below are held only in server configuration. They must never be
 
 The permanent redirect URI has been accepted by Google. The owner confirmed the user-consented flow returns successfully to LifeLink, and the backend shows one Google provider identity through an aggregate-only query. Existing native accounts are deliberately not silently linked by email; any required linking must occur from an already authenticated native LifeLink session.
 
+## Explicit Registration Policy
+
+Google **Sign In** now admits only an existing LifeLink Google identity. A verified Google account with no LifeLink identity is redirected back to the login page with a clear instruction to register first; the provider callback does not silently create a patient account. The Google action on **Create Account** starts the same secure flow with a signed registration intent, which is the sole permitted path for creating a new Google-backed LifeLink account.
+
 ## First-Attempt Reliability Fix
 
 The first attempt could fail when a user opened the app on a temporary preview hostname. The previous relative Google-start URL wrote the host-only OAuth state cookie to that preview host, while Google returned to the configured permanent domain; the callback therefore could not read the state cookie. LifeLink now exposes a safe, non-secret `googleAuthorizationStartUrl` through the provider-availability endpoint. Both patient entry pages navigate to that permanent origin before authorization begins, keeping the state cookie and callback on the same host from the first attempt.

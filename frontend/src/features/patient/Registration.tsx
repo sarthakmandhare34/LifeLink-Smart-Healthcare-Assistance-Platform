@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
@@ -11,6 +11,7 @@ import { PATIENT_DASHBOARD_PATH } from './patientAuthRoutes';
 
 export const PatientRegistration = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const trpcUtils = trpc.useUtils();
   const registerMutation = trpc.patientAuth.register.useMutation();
   const providerQuery = trpc.auth.providers.useQuery();
@@ -20,6 +21,11 @@ export const PatientRegistration = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const providerError = searchParams.get('authError') === 'account_exists'
+    ? 'This email already has a LifeLink account. Sign in with its existing method before linking Google.'
+    : searchParams.get('authError') === 'provider_sign_in_failed'
+      ? 'Google registration could not be completed. Please try again.'
+      : '';
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +60,7 @@ export const PatientRegistration = () => {
           <p>Your Health Passport details can be completed privately after account creation.</p>
         </header>
 
-        {error && <div className="alert-panel auth-message" role="alert">{error}</div>}
+        {(error || providerError) && <div className="alert-panel auth-message" role="alert">{error || providerError}</div>}
 
         <form onSubmit={handleRegister} className="auth-form">
           <fieldset className="auth-fieldset">
@@ -75,11 +81,12 @@ export const PatientRegistration = () => {
         <div className="social-auth" aria-label="Alternative account creation methods">
           <div className="social-auth-divider"><span>or continue with</span></div>
           <div className="social-auth-actions">
-            <Button type="button" variant="outline" className="w-full" disabled={!providerQuery.data?.googleAuthorizationStartUrl} onClick={() => {
-              const startUrl = providerQuery.data?.googleAuthorizationStartUrl;
+            <Button type="button" variant="outline" className="w-full" disabled={!providerQuery.data?.googleRegistrationStartUrl} onClick={() => {
+              const startUrl = providerQuery.data?.googleRegistrationStartUrl;
               if (startUrl) window.location.assign(startUrl);
             }}><Chrome size={18} /> Continue with Google</Button>
           </div>
+          {!providerQuery.isLoading && providerQuery.data?.google && <p className="caption social-auth-note">Create your LifeLink account with Google here, then use Google sign-in next time.</p>}
           {!providerQuery.isLoading && !providerQuery.data?.google && <p className="caption social-auth-note">Google account creation will activate once it is securely connected.</p>}
         </div>
 

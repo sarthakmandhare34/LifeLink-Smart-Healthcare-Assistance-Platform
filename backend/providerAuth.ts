@@ -3,7 +3,7 @@ import { parse as parseCookieHeader } from "cookie";
 import type { Express, Request, Response } from "express";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { COOKIE_NAME, ONE_YEAR_MS } from "../shared/const";
-import { ProviderAccountConflictError, resolveProviderPatient } from "./db";
+import { ProviderAccountConflictError, ProviderRegistrationRequiredError, resolveProviderPatient } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { ENV } from "./_core/env";
 import { sdk } from "./_core/sdk";
@@ -12,7 +12,8 @@ const PROVIDER_STATE_COOKIE = "lifelink_google_oauth_state";
 const STATE_MAX_AGE_MS = 10 * 60 * 1000;
 const GOOGLE_JWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 
-type StoredState = { state: string; nonce: string; expiresAt: number };
+type ProviderIntent = "sign-in" | "register";
+type StoredState = { state: string; nonce: string; expiresAt: number; intent: ProviderIntent };
 type ProviderConfig = Pick<typeof ENV, "authPublicBaseUrl" | "googleOAuthClientId" | "googleOAuthClientSecret">;
 
 function getPublicBaseUrl() {
@@ -32,15 +33,18 @@ export function googleAvailabilityFromConfig(config: { authPublicBaseUrl: string
   return hasHttpsBase && Boolean(config.googleOAuthClientId && config.googleOAuthClientSecret);
 }
 
-export function googleAuthorizationStartUrlFromConfig(config: ProviderConfig) {
+export function googleAuthorizationStartUrlFromConfig(config: ProviderConfig, intent: ProviderIntent = "sign-in") {
   if (!googleAvailabilityFromConfig(config)) return null;
-  return `${new URL(config.authPublicBaseUrl).origin}/api/auth/google`;
+  const startUrl = new URL("/api/auth/google", new URL(config.authPublicBaseUrl).origin);
+  if (intent === "register") startUrl.searchParams.set("intent", "register");
+  return startUrl.toString();
 }
 
 export function getProviderAvailability() {
   return {
     google: googleAvailabilityFromConfig(ENV),
     googleAuthorizationStartUrl: googleAuthorizationStartUrlFromConfig(ENV),
+    googleRegistrationStartUrl: googleAuthorizationStartUrlFromConfig(ENV, "register"),
   };
 }
 
@@ -48,11 +52,12 @@ function callbackUrl() {
   return `${getPublicBaseUrl()}/api/auth/google/callback`;
 }
 
-function storeState(req: Request, res: Response) {
+function storeState(req: Request, res: Response, intent: ProviderIntent) {
   const stored: StoredState = {
     state: randomBytes(32).toString("base64url"),
     nonce: randomBytes(32).toString("base64url"),
     expiresAt: Date.now() + STATE_MAX_AGE_MS,
+    intent,
   };
   res.cookie(PROVIDER_STATE_COOKIE, Buffer.from(JSON.stringify(stored)).toString("base64url"), {
     ...getSessionCookieOptions(req),
@@ -107,8 +112,8 @@ async function exchangeGoogleCode(code: string, nonce: string) {
   return { provider: "google" as const, subject: payload.sub, email, name: typeof payload.name === "string" ? payload.name : null };
 }
 
-async function establishGoogleSession(req: Request, res: Response, profile: Awaited<ReturnType<typeof exchangeGoogleCode>>) {
-  const user = await resolveProviderPatient(profile);
+async function establishGoogleSession(req: Request, res: Response, profile: Awaited<ReturnType<typeof exchangeGoogleCode>>, intent: ProviderIntent) {
+  const user = await resolveProviderPatient(profile, { allowNewProviderAccount: intent === "register" });
   const token = await sdk.createSessionToken(user.openId, { name: user.name || "LifeLink Patient", expiresInMs: ONE_YEAR_MS });
   res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(req), maxAge: ONE_YEAR_MS });
   res.redirect(302, "/patient/dashboard");
@@ -119,7 +124,8 @@ function startGoogle(req: Request, res: Response) {
     res.status(503).json({ error: "Google sign-in is not configured yet." });
     return;
   }
-  const stored = storeState(req, res);
+  const intent: ProviderIntent = req.query.intent === "register" ? "register" : "sign-in";
+  const stored = storeState(req, res, intent);
   const authorizeUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   authorizeUrl.search = new URLSearchParams({
     client_id: ENV.googleOAuthClientId,
@@ -142,10 +148,10 @@ async function finishGoogle(req: Request, res: Response) {
   const code = typeof req.query.code === "string" ? req.query.code : undefined;
   if (providerError || !code) return redirectWithError(res, "provider_sign_in_cancelled");
   try {
-    await establishGoogleSession(req, res, await exchangeGoogleCode(code, state.nonce));
+    await establishGoogleSession(req, res, await exchangeGoogleCode(code, state.nonce), state.intent);
   } catch (error) {
     console.warn("[ProviderAuth] Google callback failed", error instanceof Error ? error.name : "unknown");
-    redirectWithError(res, error instanceof ProviderAccountConflictError ? "account_exists" : "provider_sign_in_failed");
+    redirectWithError(res, error instanceof ProviderRegistrationRequiredError ? "registration_required" : error instanceof ProviderAccountConflictError ? "account_exists" : "provider_sign_in_failed");
   }
 }
 

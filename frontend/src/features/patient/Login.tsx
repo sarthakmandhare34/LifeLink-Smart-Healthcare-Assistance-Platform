@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
@@ -11,6 +11,7 @@ import { PATIENT_DASHBOARD_PATH } from './patientAuthRoutes';
 
 export const PatientLogin = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const trpcUtils = trpc.useUtils();
   const loginMutation = trpc.patientAuth.login.useMutation();
   const providerQuery = trpc.auth.providers.useQuery();
@@ -18,6 +19,13 @@ export const PatientLogin = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const providerError = searchParams.get('authError') === 'registration_required'
+    ? 'No LifeLink account is linked to this Google account. Please register first.'
+    : searchParams.get('authError') === 'account_exists'
+      ? 'This email already has a LifeLink account. Sign in with its existing method before linking Google.'
+      : searchParams.get('authError') === 'provider_sign_in_failed'
+        ? 'Google sign-in could not be completed. Please try again.'
+        : '';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +52,7 @@ export const PatientLogin = () => {
           <p>Sign in to your health workspace.</p>
         </header>
 
-        {error && <div className="alert-panel auth-message" role="alert">{error}</div>}
+        {(error || providerError) && <div className="alert-panel auth-message" role="alert">{error || providerError}</div>}
 
         <form onSubmit={handleLogin} className="auth-form">
           <label className="auth-field">
@@ -66,6 +74,7 @@ export const PatientLogin = () => {
               if (startUrl) window.location.assign(startUrl);
             }}><Chrome size={18} /> Continue with Google</Button>
           </div>
+          {!providerQuery.isLoading && providerQuery.data?.google && <p className="caption social-auth-note">Use Google sign-in only if your LifeLink account is already registered.</p>}
           {!providerQuery.isLoading && !providerQuery.data?.google && <p className="caption social-auth-note">Google sign-in will activate once it is securely connected.</p>}
         </div>
 
