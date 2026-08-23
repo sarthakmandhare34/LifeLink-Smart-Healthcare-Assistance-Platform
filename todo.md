@@ -14,11 +14,16 @@
 - [ ] Register the configured LifeLink Google callback URL in the Google Cloud OAuth client to resolve the verified redirect mismatch.
 - [ ] Complete one real Google consent/callback validation after the corrected redirect URI is saved.
 - [ ] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
-- [ ] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
+- [x] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
+- [x] Change the permanent LifeLink deployment from reserved access to public access so Google can reach the callback without a platform sign-in wall.
 - [x] Prepare inactive-safe Google and Apple authorization routes with CSRF state validation and no provider secret embedded in client code.
 - [x] Add provider identity storage and email-confirmed linking rules that preserve existing native patient records.
 - [x] Show Google and Apple sign-in controls with an honest unavailable state until provider credentials and a public callback domain are configured.
 - [x] Document exact owner credential, Apple configuration, and callback-domain activation steps.
+- [x] Refine public patient login and registration light/dark themes for consistent contrast, glass surfaces, and provider-control readability.
+- [x] Verify successful native registration and existing-account sign-in both redirect patients to the protected LifeLink dashboard.
+- [x] Complete a no-health-data disposable native registration and confirm the authenticated dashboard route.
+- [x] Complete a no-health-data sign-in using that existing disposable native account and confirm the authenticated dashboard route.
 
 ## Dark Theme, Motion, and Gemini Configuration
 

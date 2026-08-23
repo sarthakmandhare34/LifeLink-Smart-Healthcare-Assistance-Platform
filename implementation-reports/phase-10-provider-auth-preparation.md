@@ -43,8 +43,18 @@ The three values below are held only in server configuration. They must never be
 | Google-only readiness and credential test | Passed; the Google token endpoint accepted the server credentials and rejected the intentionally invalid test code with `invalid_grant`, not `invalid_client`. No user data was sent. |
 | Configured public callback route | Passed; the permanent public origin responds through LifeLink’s callback handler and safely redirects a request with no valid state to the login error route. |
 | Native account preservation | Login and registration forms remain available before the Google action. |
-| Current public bundle | Pending publication of the current Google-only source to the permanent domain. The previously published bundle was confirmed to be older because it still displayed Apple controls. |
-| Live Google callback | Pending one user-consented sign-in after the current source is published. No Google account or patient record has been created during validation. |
+| Current public bundle | Verified after public-access activation: the permanent domain now serves the current Google-only login page, with native email/password and one Google control. |
+| Live Google authorization | Google receives the current callback URI but rejects it with `redirect_uri_mismatch`, proving that the exact permanent callback URI still needs to be added to the Google Cloud OAuth client. No Google account or patient record was created during validation. |
+
+## Remaining Google Console Action
+
+In the **same Google OAuth Web client** used for LifeLink, add this exact authorized redirect URI and save it:
+
+```text
+https://lifelink-rqrpkqmn.manus.space/api/auth/google/callback
+```
+
+The scheme, hostname, path, and lack of a trailing slash must match exactly. After saving, restart Google sign-in from the LifeLink public login page rather than by opening the callback URL directly.[1]
 
 ## Reference
 
