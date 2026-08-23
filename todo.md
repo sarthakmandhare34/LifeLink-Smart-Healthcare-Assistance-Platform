@@ -14,6 +14,7 @@
 - [ ] Register the configured LifeLink Google callback URL in the Google Cloud OAuth client to resolve the verified redirect mismatch.
 - [ ] Complete one real Google consent/callback validation after the corrected redirect URI is saved.
 - [ ] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
+- [ ] Resolve the new Railway 404 at the configured `lifelink-rqrpkqmn.manus.space` callback domain before resuming Google consent.
 - [x] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
 - [x] Change the permanent LifeLink deployment from reserved access to public access so Google can reach the callback without a platform sign-in wall.
 - [x] Prepare inactive-safe Google and Apple authorization routes with CSRF state validation and no provider secret embedded in client code.
@@ -25,6 +26,7 @@
 - [x] Complete a no-health-data disposable native registration and confirm the authenticated dashboard route.
 - [x] Complete a no-health-data sign-in using that existing disposable native account and confirm the authenticated dashboard route.
 - [x] Add the LifeLink logo to the upper-left patient sidebar with responsive light/dark presentation.
+- [x] Replace the sidebar brand tile with a clean LifeLink mark and name only, without the supplied artwork slogan.
 
 ## Dark Theme, Motion, and Gemini Configuration
 

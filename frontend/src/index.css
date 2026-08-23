@@ -1356,48 +1356,36 @@ dialog.popup::backdrop {
   justify-content: flex-start;
 }
 .app-sidebar-brand-link {
-  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   width: 100%;
-  min-height: 62px;
-  padding: 10px 12px;
-  overflow: hidden;
-  color: inherit;
-  border: 1px solid rgba(133, 156, 224, .2);
-  border-radius: 17px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, .52), rgba(224, 240, 255, .26));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .74), 0 7px 20px rgba(61, 82, 171, .07);
+  min-height: 48px;
+  padding: 4px;
+  color: var(--color-text);
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
   text-decoration: none;
 }
-.app-sidebar-brand-link::after {
-  content: '';
-  position: absolute;
-  inset: 1px;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(110deg, rgba(255, 255, 255, .22), transparent 42%, rgba(109, 206, 221, .1));
-}
-.app-sidebar-brand-link:hover { color: inherit; text-decoration: none; transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82), 0 10px 24px rgba(61, 82, 171, .12); }
-.app-sidebar-brand-symbol { position: relative; z-index: 1; display: inline-flex; flex: 0 0 auto; }
-.app-sidebar-brand-link .lifelink-logo-sidebar { position: relative; z-index: 1; width: min(148px, calc(100% - 48px)); max-width: none; margin: 0; }
+.app-sidebar-brand-link:hover { color: var(--color-primary); text-decoration: none; background: var(--color-primary-muted); }
+.app-sidebar-brand-symbol { display: inline-flex; flex: 0 0 auto; }
+.app-sidebar-brand-name { color: var(--color-text); font-size: 20px; font-weight: 800; letter-spacing: -.045em; line-height: 1; }
 
 :root[data-theme="dark"] .app-sidebar-brand-link {
-  border-color: rgba(161, 182, 255, .24);
-  background: linear-gradient(135deg, rgba(45, 60, 126, .66), rgba(19, 31, 72, .52));
-  box-shadow: inset 0 1px 0 rgba(216, 226, 255, .1), 0 9px 24px rgba(0, 0, 0, .2);
+  color: var(--color-text);
 }
 
 @media (max-width: 1024px) {
   .app-sidebar-header { padding-inline: var(--spacing-2); justify-content: center; }
   .app-sidebar-header::before { display: none; }
-  .app-sidebar-brand-link { justify-content: center; width: 56px; min-height: 56px; padding: 8px; border-radius: 15px; }
-  .app-sidebar-brand-link .lifelink-logo-sidebar { display: none; }
+  .app-sidebar-brand-link { justify-content: center; width: 48px; min-height: 48px; padding: 4px; }
+  .app-sidebar-brand-name { display: none; }
 }
 
 @media (max-width: 768px) {
   .app-sidebar-header { min-height: 92px; padding: var(--spacing-4); justify-content: flex-start; }
-  .app-sidebar-brand-link { justify-content: flex-start; width: 100%; min-height: 60px; padding: 10px 12px; }
-  .app-sidebar-brand-link .lifelink-logo-sidebar { display: block; width: min(148px, calc(100% - 48px)); }
+  .app-sidebar-brand-link { justify-content: flex-start; width: 100%; min-height: 52px; padding: 6px; }
+  .app-sidebar-brand-name { display: inline; }
 }
