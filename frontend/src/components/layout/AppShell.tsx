@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../_core/hooks/useAuth';
-import { LifeLinkMark } from '../brand/LifeLinkMark';
+import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 import { usePatientRealtime } from '../../hooks/usePatientRealtime';
 import {
   LayoutDashboard,
@@ -51,7 +51,6 @@ const pageTitles: Record<string, string> = {
 };
 
 export const PATIENT_SIDEBAR_BRAND_LABEL = 'LifeLink patient home';
-export const PATIENT_SIDEBAR_BRAND_NAME = 'LifeLink';
 
 export const AppShell = () => {
   const { user, loading, logout } = useAuth();
@@ -92,8 +91,7 @@ export const AppShell = () => {
       <aside className={`app-sidebar ${isMobileNavigationOpen ? 'is-open' : ''}`} aria-label="Patient navigation">
         <div className="app-sidebar-header">
           <NavLink to="/patient/dashboard" onClick={closeMobileNavigation} className="app-sidebar-brand-link" aria-label={PATIENT_SIDEBAR_BRAND_LABEL}>
-            <span className="app-sidebar-brand-symbol" aria-hidden="true"><LifeLinkMark size="md" /></span>
-            <span className="app-sidebar-brand-name">{PATIENT_SIDEBAR_BRAND_NAME}</span>
+            <LifeLinkLogo className="lifelink-logo-sidebar lifelink-logo-sidebar-patient" />
           </NavLink>
         </div>
 
@@ -142,7 +140,7 @@ export const AppShell = () => {
             <div className="app-header-divider" />
             <button type="button" className="app-account-control" onClick={() => navigate('/patient/profile')} aria-label="Open your profile">
               <div className="lifelink-avatar" aria-hidden="true">
-                <LifeLinkMark size="sm" />
+                <LifeLinkLogo variant="symbol" className="lifelink-mark lifelink-mark-sm" />
               </div>
               <span>{user.name || 'Patient'}</span>
             </button>

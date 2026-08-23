@@ -20,6 +20,7 @@
 - [ ] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable.
 - [ ] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try.
 - [ ] Verify the protected public session after that first-attempt callback without exposing personal data.
+- [ ] Reattach the permanent LifeLink domain to the latest deployment; it currently serves outdated provider metadata without the new Google registration start URL.
 - [x] Require explicit registration for a new Google account, while allowing Google sign-in only for an existing registered LifeLink account.
 - [x] Confirm the verified provider flow created a new Google provider identity rather than triggering a native-account conflict; secure signed-in linking is not required for this completed path.
 - [x] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
@@ -39,6 +40,7 @@
 - [x] Visually verify the reusable LifeLink logo in the doctor shell/sidebar and add that route to the logo verification report.
 - [x] Save a dedicated checkpoint for the verified reusable LifeLink logo white-background adjustment.
 - [x] Increase dark-mode contrast and separation for the reusable LifeLink logo without changing its light-mode presentation.
+- [x] Replace every temporary emoji-style or synthetic LifeLink brand mark with the newly supplied official logo artwork across public, patient, clinician, and map-related surfaces.
 
 ## Dark Theme, Motion, and Gemini Configuration
 

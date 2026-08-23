@@ -5,7 +5,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { Calendar, LayoutDashboard, FileText, Users, Activity, Stethoscope, Settings, User } from 'lucide-react';
-import { LifeLinkMark } from '../brand/LifeLinkMark';
 import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 
 const navItems = [
@@ -37,7 +36,7 @@ export const DoctorAppShell = () => (
       <header className="doctor-header">
         <NavLink to="/doctor/settings" className="icon-btn" aria-label="Doctor settings"><Settings size={20} /></NavLink>
         <NavLink to="/doctor/profile" className="doctor-profile-link">
-          <span className="doctor-avatar"><LifeLinkMark size="sm" /></span>
+          <span className="doctor-avatar"><LifeLinkLogo variant="symbol" className="lifelink-mark lifelink-mark-sm" /></span>
           <span>Dr. Ananya Sharma</span>
           <User size={18} />
         </NavLink>

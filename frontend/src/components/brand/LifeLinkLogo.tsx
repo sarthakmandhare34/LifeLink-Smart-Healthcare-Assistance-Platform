@@ -1,13 +1,21 @@
 /** Uses the user-supplied LifeLink brand artwork stored in project-managed storage. */
-const LIFE_LINK_LOGO_URL = "/manus-storage/lifelink-logo-blue-aqua_ac41eb4a.jpg";
+export const LIFELINK_OFFICIAL_LOGO_URL = "/manus-storage/lifelink-official-logo_71a0ddff.jpg";
 
-export function LifeLinkLogo({ className = "" }: { className?: string }) {
+type LifeLinkLogoProps = {
+  className?: string;
+  variant?: 'full' | 'symbol';
+};
+
+export function LifeLinkLogo({ className = '', variant = 'full' }: LifeLinkLogoProps) {
+  const usesEntryPageSize = variant === 'full' && className.includes('lifelink-logo-auth');
+
   return (
-    <span className={`lifelink-logo-crop ${className}`}>
+    <span className={`lifelink-logo-crop lifelink-logo-${variant} ${className}`}>
       <img
         className="lifelink-logo"
-        src={LIFE_LINK_LOGO_URL}
-        alt="LifeLink — Smart Healthcare Assistance Platform" style={{backgroundColor: '#ffffff'}}
+        src={LIFELINK_OFFICIAL_LOGO_URL}
+        alt={variant === 'full' ? 'LifeLink — Smart Healthcare Assistance Platform' : 'LifeLink'}
+        style={usesEntryPageSize ? { height: '173px', width: '307px' } : undefined}
       />
     </span>
   );

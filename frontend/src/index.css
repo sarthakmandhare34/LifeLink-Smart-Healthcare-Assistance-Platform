@@ -933,23 +933,20 @@ dialog.popup::backdrop {
 .doctor-avatar { width: 30px; height: 30px; border-radius: 50%; font-size: 0.66rem; }
 .doctor-content { flex: 1; padding: var(--spacing-5); overflow-y: auto; }
 
-/* LifeLink's linked-pulse mark keeps the brand material visible at every entry point. */
-.lifelink-mark { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; border-radius: 42%; background: linear-gradient(135deg, #4c5ed7 0%, #6378dc 54%, #65c0d3 100%); box-shadow: 0 9px 20px rgba(72, 90, 198, 0.25), inset 0 1px 0 rgba(255,255,255,0.42), inset 0 -8px 14px rgba(23, 47, 144, 0.16); overflow: hidden; }
-.lifelink-mark::after { content: ''; position: absolute; inset: 1px; border: 1px solid rgba(255,255,255,0.3); border-radius: inherit; }
+/* All LifeLink brand surfaces use the owner-supplied official artwork, not an emoji or synthetic mark. */
+.lifelink-mark { display: inline-flex; flex: 0 0 auto; overflow: hidden; border-radius: 42%; background: #f8fcff; box-shadow: 0 6px 15px rgba(52, 60, 143, 0.12), inset 0 1px 0 rgba(255,255,255,.82); }
 .lifelink-mark-sm { width: 20px; height: 20px; }
 .lifelink-mark-md { width: 32px; height: 32px; }
 .lifelink-mark-lg { width: 48px; height: 48px; }
-.lifelink-mark-link { position: absolute; display: block; width: 49%; height: 30%; border: 1.35px solid rgba(255,255,255,0.85); border-radius: 999px; transform: rotate(-31deg); }
-.lifelink-mark-link-one { left: 14%; top: 28%; }
-.lifelink-mark-link-two { right: 14%; bottom: 28%; }
-.lifelink-mark-pulse { position: relative; z-index: 1; display: block; width: 52%; height: 10%; background: rgba(255,255,255,0.96); clip-path: polygon(0 50%, 26% 50%, 38% 5%, 53% 94%, 66% 35%, 75% 50%, 100% 50%, 100% 64%, 81% 64%, 67% 49%, 52% 100%, 37% 27%, 30% 64%, 0 64%); filter: drop-shadow(0 1px 1px rgba(18, 35, 130, 0.2)); }
 .auth-brand-mark { margin-bottom: var(--spacing-3); }
 .lifelink-avatar { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.54); box-shadow: 0 6px 15px rgba(52, 60, 143, 0.1), inset 0 1px 0 rgba(255,255,255,.78); }
 .doctor-avatar .lifelink-mark { box-shadow: none; }
 
-/* Crop out the supplied image’s surrounding field and feather the retained mark into the blue–aqua atmosphere. */
-.lifelink-logo-crop { position: relative; display: block; width: 100%; aspect-ratio: 3.17 / 1; overflow: hidden; isolation: isolate; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%); }
-.lifelink-logo { position: absolute; display: block; width: 137.5%; max-width: none; height: auto; left: -18.75%; top: -61%; opacity: .99; filter: saturate(1.08) contrast(1.03) drop-shadow(0 7px 14px rgba(38, 101, 145, .08)); }
+/* Preserve the full supplied wordmark at primary brand locations, with a compact crop of that same artwork for avatars. */
+.lifelink-logo-crop { position: relative; display: block; width: 100%; aspect-ratio: 1024 / 559; overflow: hidden; isolation: isolate; border-radius: 10px; background: #f8fcff; }
+.lifelink-logo { position: absolute; display: block; width: 100%; max-width: none; height: 100%; left: 0; top: 0; object-fit: contain; opacity: 1; filter: saturate(1.03) contrast(1.02) drop-shadow(0 7px 14px rgba(38, 101, 145, .08)); }
+.lifelink-logo-symbol { aspect-ratio: 1 / 1; border-radius: inherit; }
+.lifelink-logo-symbol .lifelink-logo { width: auto; height: 137%; max-width: none; left: -12%; top: -18%; object-fit: initial; }
 .lifelink-logo-auth { width: min(310px, 100%); margin: 0 auto var(--spacing-4); }
 .lifelink-logo-sidebar { width: 202px; max-width: 100%; }
 .app-sidebar-header { min-height: 112px; justify-content: center; }
@@ -1046,6 +1043,8 @@ dialog.popup::backdrop {
   -webkit-mask-image: none;
   mask-image: none;
 }
+
+:root[data-theme="dark"] .lifelink-logo-symbol { padding: 0; border: 0; box-shadow: none; }
 
 :root[data-theme="dark"] .assessment-save-notice { background: rgba(30, 39, 84, 0.72); }
 :root[data-theme="dark"] .saved-assessments-panel {

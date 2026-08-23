@@ -1,7 +1,9 @@
 /**
- * Liquid-glass design note: the recurring LifeLink mark is a linked pulse motif,
- * used in portal identity and avatars instead of a generic healthcare plus.
+ * The compact brand treatment is a crop of the owner-supplied official LifeLink
+ * artwork, never a generic emoji or synthetic healthcare symbol.
  */
+import { LifeLinkLogo } from './LifeLinkLogo';
+
 type LifeLinkMarkProps = {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -9,10 +11,6 @@ type LifeLinkMarkProps = {
 
 export function LifeLinkMark({ size = 'md', className = '' }: LifeLinkMarkProps) {
   return (
-    <span className={`lifelink-mark lifelink-mark-${size} ${className}`} aria-hidden="true">
-      <span className="lifelink-mark-link lifelink-mark-link-one" />
-      <span className="lifelink-mark-link lifelink-mark-link-two" />
-      <span className="lifelink-mark-pulse" />
-    </span>
+    <LifeLinkLogo variant="symbol" className={`lifelink-mark lifelink-mark-${size} ${className}`} />
   );
 }
