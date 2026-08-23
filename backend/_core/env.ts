@@ -11,8 +11,4 @@ export const ENV = {
   authPublicBaseUrl: process.env.AUTH_PUBLIC_BASE_URL ?? "",
   googleOAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
   googleOAuthClientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "",
-  appleClientId: process.env.APPLE_CLIENT_ID ?? "",
-  appleTeamId: process.env.APPLE_TEAM_ID ?? "",
-  appleKeyId: process.env.APPLE_KEY_ID ?? "",
-  applePrivateKey: process.env.APPLE_PRIVATE_KEY ?? "",
 };

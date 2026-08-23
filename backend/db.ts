@@ -105,7 +105,7 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export type ExternalAuthProvider = "google" | "apple";
+export type ExternalAuthProvider = "google";
 
 export class ProviderAccountConflictError extends Error {
   constructor() {

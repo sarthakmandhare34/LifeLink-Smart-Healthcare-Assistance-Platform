@@ -1,52 +1,51 @@
-# Phase 10 — Google and Apple Provider Sign-In Preparation
+# Phase 10 — Google Sign-In Preparation
 
 ## Current State
 
-LifeLink now presents **Google** and **Apple** controls alongside the existing native email/password form. The controls are intentionally disabled with a visible preparation notice until the owner supplies provider credentials and one permanent HTTPS callback origin. This prevents a button from opening a malformed or unauthenticated third-party flow.
+LifeLink now prepares **Google sign-in only** beside the existing native email/password flows on both the login and registration pages. Apple controls, routes, server configuration, and activation requirements have been removed at the owner’s request.
 
-The native `Sign In` and `Register` paths are unchanged. Google and Apple are an additional sign-in method, not a replacement for the LifeLink account experience.
+Google is enabled only when the server has the configured Web application credentials and a permanent HTTPS callback origin. The native **Sign In**, **Register**, and secure email/password account behavior remain unchanged.
 
-## File-by-File Changes
+## Implemented Changes
 
-| File | Change | Safety outcome |
+| File | Change | Outcome |
 |---|---|---|
-| `database/schema.ts` | Added `patientProviderIdentities`, keyed by `(provider, subject)` with a cascading relation to the patient user. | A provider identity is separate from a password credential and cannot be shared by two LifeLink accounts. |
-| `database/0003_big_black_bird.sql` | Added the reviewed migration for the provider identity table and foreign key. | The migration was non-destructive and was applied successfully. |
-| `backend/_core/env.ts` | Added server-only Google, Apple, and public-origin configuration fields. | No provider secret is exposed to the frontend. |
-| `backend/db.ts` | Added provider-identity lookup, safe provider-patient creation, and an email-conflict guard. | An unauthenticated provider callback cannot silently merge into an existing native patient account merely by matching email. |
-| `backend/providerAuth.ts` | Added provider availability checks, state/nonce generation and validation, Google/Apple authorization start routes, token exchange/identity-token validation logic, session issuance, and failure redirects. | State is bound to an HttpOnly cookie, provider tokens are verified server-side, and only verified provider identities can create a patient session. |
-| `backend/_core/index.ts` | Registered the Google and Apple provider routes. | Callback routes are served by the backend, not the browser. |
-| `backend/routers.ts` | Added a public availability query that returns booleans only. | The login page learns only whether a provider is configured; it never sees credentials. |
-| `backend/providerAuth.test.ts` | Added provider-readiness tests with synthetic values only. | Tests do not call Google or Apple and do not use owner credentials. |
-| `frontend/src/features/patient/Login.tsx` | Added Google and Apple controls below native sign-in. | Controls remain visibly unavailable until setup is complete. |
-| `frontend/src/index.css` | Added responsive provider-control styling. | The native and provider choices remain readable at desktop and mobile sizes. |
+| `database/schema.ts` | Restricts provider identity records to `google`. | The provider identity table now represents the approved Google-only scope. |
+| `backend/_core/env.ts` | Retains only Google OAuth and public-base URL settings. | Apple credentials are no longer requested or read. |
+| `backend/providerAuth.ts` | Replaced multi-provider handling with the Google authorization-code callback path. | Google state and nonce checks, server-side token verification, session creation, and safe email-conflict handling remain in place. |
+| `backend/providerAuth.test.ts` | Simplified readiness coverage to Google and added a deployed-callback reachability check. | Tests validate provider availability, accepted client credentials without user data, and the configured public callback route. |
+| `frontend/src/features/patient/Login.tsx` | Replaced the two-provider choice with **Continue with Google**. | Native email/password login remains first. |
+| `frontend/src/features/patient/Registration.tsx` | Added the same prepared Google action under Create Account. | Users can choose Google at the start of either account journey once configured. |
+| `frontend/src/index.css` | Updated the provider action layout to one full-width control. | The Google action is consistent on desktop and mobile. |
 
-## Activation Checklist for the Owner
+## Public Callback Configuration
 
-| Provider | Owner configuration | Secret fields to supply in LifeLink settings |
-|---|---|---|
-| Google | In Google Cloud Console, create an OAuth 2.0 **Web application** client and register the exact callback `https://YOUR-DOMAIN/api/auth/google/callback`. Request only `openid`, `email`, and `profile`. | `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET`, and `AUTH_PUBLIC_BASE_URL`. |
-| Apple | In the Apple Developer portal, enable Sign in with Apple for a primary App ID; create a **Services ID**; associate it with the App ID; and register the exact domain plus `https://YOUR-DOMAIN/api/auth/apple/callback` return URL. Create a Sign in with Apple private key. | `APPLE_CLIENT_ID` (Services ID), `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` (complete `.p8` content), and `AUTH_PUBLIC_BASE_URL`. |
+The Google OAuth 2.0 **Web application** client must authorize the exact public callback URI associated with the deployed LifeLink backend:
 
-> Use the published LifeLink domain or a custom domain. Do **not** register a temporary preview domain, because the callback value must exactly match the provider registration and may change between preview sessions.[1] [2]
+```text
+https://YOUR-DOMAIN/api/auth/google/callback
+```
 
-## Account Ownership Rules
+The three values below are held only in server configuration. They must never be copied to browser code or source control.
 
-Provider-created accounts can be created after a verified Google or Apple callback. If a verified provider email already belongs to an existing native LifeLink account, the system stops and returns the user to the login page rather than silently joining the accounts. This protects health-record ownership. A signed-in account-linking setting can be added later as a separate verified flow.
+| Secret | Purpose |
+|---|---|
+| `GOOGLE_OAUTH_CLIENT_ID` | Identifies the Google Web application client. |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | Used only by the LifeLink backend when exchanging the authorization code. |
+| `AUTH_PUBLIC_BASE_URL` | The exact HTTPS LifeLink origin, such as `https://your-domain.example`. |
 
-## Verification Performed
+> Do not use a changing preview domain. Google requires the callback URL to exactly match an authorized redirect URI.[1]
+
+## Verification
 
 | Check | Result |
 |---|---|
-| Schema migration | Generated, reviewed, and applied successfully. It creates only the provider-identity table and user foreign key. |
-| Type check | Passed. |
-| Regression suite | Passed: **8 test files, 19 tests**, including the new provider configuration tests. |
-| Production build | Passed. The existing non-blocking JavaScript chunk-size advisory remains. |
-| Unconfigured provider routes | `/api/auth/google` and `/api/auth/apple` returned HTTP 503 with an explicit not-configured response. |
-| Native login UI | The existing native form remains present; Google and Apple controls are visible and honestly inactive until credentials are configured. |
-| Live provider callback | Pending owner credentials and permanent domain registration. No real provider token or patient account was created. |
+| Google-only readiness and credential test | Passed; the Google token endpoint accepted the server credentials and rejected the intentionally invalid test code with `invalid_grant`, not `invalid_client`. No user data was sent. |
+| Configured public callback route | Passed; the permanent public origin responds through LifeLink’s callback handler and safely redirects a request with no valid state to the login error route. |
+| Native account preservation | Login and registration forms remain available before the Google action. |
+| Current public bundle | Pending publication of the current Google-only source to the permanent domain. The previously published bundle was confirmed to be older because it still displayed Apple controls. |
+| Live Google callback | Pending one user-consented sign-in after the current source is published. No Google account or patient record has been created during validation. |
 
-## References
+## Reference
 
 [1]: https://developers.google.com/identity/protocols/oauth2/web-server "Google OAuth 2.0 for Web Server Applications"
-[2]: https://developer.apple.com/documentation/signinwithapple/configuring-your-environment-for-sign-in-with-apple "Apple — Configuring Your Environment for Sign in with Apple"

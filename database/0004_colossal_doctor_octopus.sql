@@ -1,0 +1,1 @@
+ALTER TABLE `patientProviderIdentities` MODIFY COLUMN `provider` enum('google') NOT NULL;

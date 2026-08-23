@@ -5,11 +5,13 @@ import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
 import { trpc } from '../../lib/trpc';
+import { Chrome } from 'lucide-react';
 
 export const PatientRegistration = () => {
   const navigate = useNavigate();
   const trpcUtils = trpc.useUtils();
   const registerMutation = trpc.patientAuth.register.useMutation();
+  const providerQuery = trpc.auth.providers.useQuery();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,6 +68,14 @@ export const PatientRegistration = () => {
           </fieldset>
           <Button type="submit" variant="primary" className="w-full" disabled={isLoading}>{isLoading ? 'Creating account…' : 'Create Account'}</Button>
         </form>
+
+        <div className="social-auth" aria-label="Alternative account creation methods">
+          <div className="social-auth-divider"><span>or continue with</span></div>
+          <div className="social-auth-actions">
+            <Button type="button" variant="outline" className="w-full" disabled={!providerQuery.data?.google} onClick={() => { window.location.assign('/api/auth/google'); }}><Chrome size={18} /> Continue with Google</Button>
+          </div>
+          {!providerQuery.isLoading && !providerQuery.data?.google && <p className="caption social-auth-note">Google account creation will activate once it is securely connected.</p>}
+        </div>
 
         <footer className="auth-card-footer">
           <span className="caption">Already have an account?</span>

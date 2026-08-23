@@ -68,7 +68,7 @@ export const patientProviderIdentities = mysqlTable("patientProviderIdentities",
   userId: int("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  provider: mysqlEnum("provider", ["google", "apple"]).notNull(),
+  provider: mysqlEnum("provider", ["google"]).notNull(),
   subject: varchar("subject", { length: 255 }).notNull(),
   email: varchar("email", { length: 320 }).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

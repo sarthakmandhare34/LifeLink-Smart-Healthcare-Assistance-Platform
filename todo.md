@@ -6,8 +6,15 @@
 - [x] Validate the revised native sign-in page at desktop and mobile sizes.
 - [x] Inspect the current auth architecture and provider requirements for Google and Apple sign-in alongside native LifeLink accounts.
 - [x] Add prepared Google and Apple sign-in controls without removing native email/password registration and login.
-- [ ] Configure required provider credentials and callback settings without exposing secrets to the browser.
+- [x] Configure required provider credentials and callback settings without exposing secrets to the browser.
 - [ ] Verify successful provider callback, account creation/linking, and native-login regression paths.
+- [x] Remove Apple provider controls, routes, configuration fields, and activation requirements from the Google-only scope.
+- [x] Add the prepared Google OAuth entry point to both native login and registration pages without removing email/password flows.
+- [x] Update provider documentation and tests for the streamlined Google-only activation path.
+- [ ] Register the configured LifeLink Google callback URL in the Google Cloud OAuth client to resolve the verified redirect mismatch.
+- [ ] Complete one real Google consent/callback validation after the corrected redirect URI is saved.
+- [ ] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
+- [ ] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
 - [x] Prepare inactive-safe Google and Apple authorization routes with CSRF state validation and no provider secret embedded in client code.
 - [x] Add provider identity storage and email-confirmed linking rules that preserve existing native patient records.
 - [x] Show Google and Apple sign-in controls with an honest unavailable state until provider credentials and a public callback domain are configured.
