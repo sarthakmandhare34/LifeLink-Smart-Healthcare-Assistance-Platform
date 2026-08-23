@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { googleAuthorizationStartUrlFromConfig, googleAvailabilityFromConfig } from "./providerAuth";
+import type { Express } from "express";
+import { describe, expect, it, vi } from "vitest";
+import { googleAuthorizationStartUrlFromConfig, googleAvailabilityFromConfig, registerProviderAuthRoutes } from "./providerAuth";
 
 const completeConfig = {
   authPublicBaseUrl: "https://lifelink.example",
@@ -44,16 +46,23 @@ describe("Google provider availability", () => {
     expect(payload.error).toBe("invalid_grant");
   }, 20_000);
 
-  it("serves the Google callback route on the configured public origin", async () => {
-    const publicBaseUrl = process.env.AUTH_PUBLIC_BASE_URL;
-    expect(publicBaseUrl).toMatch(/^https:\/\//);
+  it("registers the Google callback route and safely rejects a callback without a bound state", () => {
+    const getHandlers = new Map<string, (req: any, res: any) => void>();
+    const app = {
+      get: vi.fn((path: string, handler: (req: any, res: any) => void) => getHandlers.set(path, handler)),
+      all: vi.fn(),
+    } as unknown as Express;
 
-    const response = await fetch(`${publicBaseUrl}/api/auth/google/callback`, {
-      redirect: "manual",
-    });
+    registerProviderAuthRoutes(app);
 
-    expect(response.status).toBeGreaterThanOrEqual(300);
-    expect(response.status).toBeLessThan(400);
-    expect(response.headers.get("location")).toContain("/login?authError=invalid_provider_state");
-  }, 20_000);
+    expect(getHandlers.has("/api/auth/google")).toBe(true);
+    const callback = getHandlers.get("/api/auth/google/callback");
+    expect(callback).toBeTypeOf("function");
+
+    const response = { clearCookie: vi.fn(), redirect: vi.fn() };
+    callback?.({ headers: {}, query: {}, protocol: "https" }, response);
+
+    expect(response.clearCookie).toHaveBeenCalled();
+    expect(response.redirect).toHaveBeenCalledWith(302, "/login?authError=invalid_provider_state");
+  });
 });

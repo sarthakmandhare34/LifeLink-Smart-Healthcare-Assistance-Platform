@@ -17,6 +17,7 @@ export const RESIDENCE_CORRIDOR_LABEL = 'Which part of Mumbai do you live in?';
 export const RESIDENCE_STATION_LABEL = 'Which station is closest to where you live?';
 export const BROWSER_LOCATION_TITLE = 'Optional browser location';
 export const BROWSER_LOCATION_PRIVACY = 'Optional: use your browser location to order only the visible controlled development entries. Your location is not stored or sent to LifeLink.';
+export const SPECIALTY_SEARCH_GUIDANCE = 'Free-text search matches specialties only. Use the Mumbai area and station filters below for where you live.';
 
 export const SpecialistFinder = () => {
   const trpcUtils = trpc.useUtils();
@@ -158,7 +159,10 @@ export const SpecialistFinder = () => {
           </div>
           <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center' }}>
             <Search size={20} color="var(--color-primary)" style={{ flexShrink: 0 }} />
-            <div style={{ flex: 1 }}><Input placeholder="Search by specialty, station, or directory name…" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></div>
+            <div style={{ flex: 1 }}>
+              <Input placeholder="Search by specialty…" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
+              <p className="caption discovery-search-guidance">{SPECIALTY_SEARCH_GUIDANCE}</p>
+            </div>
           </div>
           <div className="discovery-location-control">
             <div>

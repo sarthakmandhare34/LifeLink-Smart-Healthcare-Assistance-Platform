@@ -154,3 +154,4 @@
 - [x] Remove the long visible Mumbai station-reference guide and locality filter; reword railway prompts around where the patient lives, retain requested visit date/time, and refine the controlled-directory live-map presentation.
 - [x] Expand the clearly labeled controlled Mumbai development directory across more specialty categories and areas, and add an optional browser-only location permission flow that sorts and centers controlled map entries without storing precise location or claiming real doctors/availability.
 - [x] Redo and independently re-verify the controlled specialty and browser-only location update before assigning its rebuilt version to the permanent domain.
+- [x] Restrict the Specialist Finder free-text search to specialty names only and update its placeholder and guidance.

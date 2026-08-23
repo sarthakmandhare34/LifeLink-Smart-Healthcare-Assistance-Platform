@@ -30,4 +30,10 @@ describe("controlled Mumbai development doctor directory", () => {
       expect(getMumbaiRailStation(entry.station)?.lines).toEqual(expect.arrayContaining(entry.railLines));
     });
   });
+
+  it("restricts free-text directory search to specialty names", () => {
+    expect(filterMockDoctorDirectory({ query: "pediat" })).toMatchObject([{ specialty: "Pediatrics", locality: "Bandra" }]);
+    expect(filterMockDoctorDirectory({ query: "bandra" })).toEqual([]);
+    expect(filterMockDoctorDirectory({ query: "western" })).toEqual([]);
+  });
 });

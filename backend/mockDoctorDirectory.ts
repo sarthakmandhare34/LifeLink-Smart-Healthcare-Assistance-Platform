@@ -217,7 +217,7 @@ export function filterMockDoctorDirectory(filters: MockDoctorDirectoryFilters = 
     if (station && doctor.station.toLowerCase() !== station) return false;
     if (specialty && doctor.specialty.toLowerCase() !== specialty) return false;
     if (locality && doctor.locality.toLowerCase() !== locality) return false;
-    if (query && ![doctor.name, doctor.specialty, doctor.hospital, doctor.locality, doctor.station, ...doctor.railLines].some((field) => field.toLowerCase().includes(query))) return false;
+    if (query && !doctor.specialty.toLowerCase().includes(query)) return false;
     return true;
   });
 }

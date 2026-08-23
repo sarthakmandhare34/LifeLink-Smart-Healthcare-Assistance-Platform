@@ -19,6 +19,7 @@
 }
 
 .discovery-location-control { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); padding: 10px 12px; border: 1px solid rgba(83, 192, 165, 0.22); border-radius: var(--border-radius-md); background: rgba(83, 192, 165, 0.08); }
+.discovery-search-guidance { margin: 5px 0 0; }
 .discovery-location-title { margin: 0 0 3px; color: var(--color-primary); font-size: var(--text-caption); font-weight: 700; }
 .discovery-location-copy { max-width: 720px; margin: 0; }
 .discovery-location-actions { display: flex; align-items: center; gap: var(--spacing-2); flex-shrink: 0; }
