@@ -43,7 +43,8 @@
 - [x] Increase dark-mode contrast and separation for the reusable LifeLink logo without changing its light-mode presentation.
 - [x] Replace every temporary emoji-style or synthetic LifeLink brand mark with the newly supplied official logo artwork across public, patient, clinician, and map-related surfaces.
 - [x] Fix the public delivery route for the new official LifeLink logo asset; the permanent domain currently renders its image as broken despite the current deployment.
-- [ ] Enlarge and reframe the official LifeLink artwork so the icon, name, and tagline are clearly legible on every branded surface.
+- [x] Enlarge and reframe the official full LifeLink lockup so the icon, name, and tagline are clearly legible on every full-wordmark surface.
+- [x] Confirm that compact sidebar/profile marks intentionally use the official symbol crop without a tagline, matching the owner's prior “mark + name only” sidebar requirement; all full-wordmark surfaces show icon, name, and tagline.
 
 ## Dark Theme, Motion, and Gemini Configuration
 

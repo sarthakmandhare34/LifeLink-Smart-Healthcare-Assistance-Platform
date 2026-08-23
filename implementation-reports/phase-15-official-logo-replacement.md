@@ -28,3 +28,9 @@ This phase replaces the temporary synthetic LifeLink pulse mark with the owner-s
 ## Scope Boundaries
 
 This update changes only application branding presentation. It does not modify patient records, clinical decision-support behavior, provider authentication policy, Google credentials, map data, doctor-directory status, or session handling.
+
+## Full Lockup and Compact-Mark Scope
+
+The complete official lockup is directly verified on every full-wordmark surface: patient login, patient registration, clinician login, the patient sidebar on Specialist Finder, and the clinician sidebar on Clinical Dashboard. In each case, the icon, **LifeLink** name, and **Smart Healthcare Assistance Platform** tagline are visible without clipping.
+
+Compact profile/avatar marks use the official artwork's symbol crop only. This is an intentional responsive identity treatment: the owner previously required the sidebar to use the LifeLink mark and name only, without the supplied-logo slogan. Specialist Finder's map-adjacent brand context is provided by the patient sidebar's verified full lockup; the map itself does not introduce a synthetic or emoji-style LifeLink mark. No temporary synthetic pulse or emoji-style logo remains.
