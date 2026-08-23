@@ -1,4 +1,4 @@
-import { foreignKey, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { foreignKey, int, mysqlEnum, mysqlTable, text, timestamp, unique, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -61,6 +61,21 @@ export const patientCredentials = mysqlTable("patientCredentials", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+
+/** Provider identities are separate from native credentials and are added only after a verified provider callback. */
+export const patientProviderIdentities = mysqlTable("patientProviderIdentities", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  provider: mysqlEnum("provider", ["google", "apple"]).notNull(),
+  subject: varchar("subject", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+  unique("provider_subject_unique").on(table.provider, table.subject),
+]);
 
 /** Existing Health Passport fields; absent clinical data remains absent rather than fabricated. */
 export const patientProfiles = mysqlTable("patientProfiles", {

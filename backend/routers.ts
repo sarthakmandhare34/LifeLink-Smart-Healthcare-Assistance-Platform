@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createPatientAssessment, createPatientEvent, getPatientAssessments } from "./db";
 import { analyzeAssessmentWithGemini, assessmentRequestInput } from "./assessmentService";
 import { getSessionCookieOptions } from "./_core/cookies";
+import { getProviderAvailability } from "./providerAuth";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import {
@@ -22,6 +23,7 @@ export const appRouter = router({
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    providers: publicProcedure.query(() => getProviderAvailability()),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });

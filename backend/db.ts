@@ -9,6 +9,7 @@ import {
   patientEmergencyContacts,
   patientEvents,
   patientMedicines,
+  patientProviderIdentities,
   patientPrescriptionItems,
   patientPrescriptions,
   patientProfiles,
@@ -102,6 +103,70 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export type ExternalAuthProvider = "google" | "apple";
+
+export class ProviderAccountConflictError extends Error {
+  constructor() {
+    super("An account with this verified email already exists. Sign in with your existing method before linking a new provider.");
+    this.name = "ProviderAccountConflictError";
+  }
+}
+
+function normalizeProviderEmail(email: string) {
+  return email.trim().toLowerCase();
+}
+
+export async function getUserByProviderIdentity(provider: ExternalAuthProvider, subject: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .select({ user: users })
+    .from(patientProviderIdentities)
+    .innerJoin(users, eq(patientProviderIdentities.userId, users.id))
+    .where(and(eq(patientProviderIdentities.provider, provider), eq(patientProviderIdentities.subject, subject)))
+    .limit(1);
+  return rows[0]?.user ?? null;
+}
+
+export async function findUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db.select().from(users).where(eq(users.email, normalizeProviderEmail(email))).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function resolveProviderPatient(input: {
+  provider: ExternalAuthProvider;
+  subject: string;
+  email: string;
+  name: string | null;
+}) {
+  const existingIdentityUser = await getUserByProviderIdentity(input.provider, input.subject);
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  if (existingIdentityUser) {
+    await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, existingIdentityUser.id));
+    return existingIdentityUser;
+  }
+
+  const email = normalizeProviderEmail(input.email);
+  if (await findUserByEmail(email)) throw new ProviderAccountConflictError();
+  const openId = `provider:${randomUUID()}`;
+  await db.insert(users).values({
+    openId,
+    name: input.name,
+    email,
+    loginMethod: `${input.provider}-oauth`,
+    role: "user",
+    lastSignedIn: new Date(),
+  });
+  const user = await getUserByOpenId(openId);
+  if (!user) throw new Error("Provider patient account could not be created");
+  await db.insert(patientProviderIdentities).values({ userId: user.id, provider: input.provider, subject: input.subject, email });
+  await db.insert(patientProfiles).values({ userId: user.id, allergiesJson: "[]", conditionsJson: "[]" });
+  return user;
 }
 
 export async function createPatientAssessment(assessment: InsertPatientAssessment) {

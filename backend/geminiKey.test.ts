@@ -45,5 +45,5 @@ describe("server Gemini credential", () => {
       .map((part) => part.text ?? "")
       .join("") ?? "{}";
     expect(JSON.parse(output)).toEqual({ status: "ready" });
-  }, 20_000);
+  }, 60_000);
 });

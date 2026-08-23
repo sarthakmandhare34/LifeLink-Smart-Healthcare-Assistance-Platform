@@ -4,6 +4,14 @@
 
 - [x] Make the existing patient login action explicitly read “Sign in” on the requested LifeLink page, without adding external providers or unrelated UI.
 - [x] Validate the revised native sign-in page at desktop and mobile sizes.
+- [x] Inspect the current auth architecture and provider requirements for Google and Apple sign-in alongside native LifeLink accounts.
+- [x] Add prepared Google and Apple sign-in controls without removing native email/password registration and login.
+- [ ] Configure required provider credentials and callback settings without exposing secrets to the browser.
+- [ ] Verify successful provider callback, account creation/linking, and native-login regression paths.
+- [x] Prepare inactive-safe Google and Apple authorization routes with CSRF state validation and no provider secret embedded in client code.
+- [x] Add provider identity storage and email-confirmed linking rules that preserve existing native patient records.
+- [x] Show Google and Apple sign-in controls with an honest unavailable state until provider credentials and a public callback domain are configured.
+- [x] Document exact owner credential, Apple configuration, and callback-domain activation steps.
 
 ## Dark Theme, Motion, and Gemini Configuration
 
