@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { googleAvailabilityFromConfig } from "./providerAuth";
+import { googleAuthorizationStartUrlFromConfig, googleAvailabilityFromConfig } from "./providerAuth";
 
 const completeConfig = {
   authPublicBaseUrl: "https://lifelink.example",
@@ -12,6 +12,11 @@ describe("Google provider availability", () => {
     expect(googleAvailabilityFromConfig({ ...completeConfig, authPublicBaseUrl: "http://localhost:3000" })).toBe(false);
     expect(googleAvailabilityFromConfig({ ...completeConfig, googleOAuthClientSecret: "" })).toBe(false);
     expect(googleAvailabilityFromConfig(completeConfig)).toBe(true);
+  });
+
+  it("starts authorization at the permanent public origin so its state cookie returns to the same host", () => {
+    expect(googleAuthorizationStartUrlFromConfig(completeConfig)).toBe("https://lifelink.example/api/auth/google");
+    expect(googleAuthorizationStartUrlFromConfig({ ...completeConfig, authPublicBaseUrl: "http://localhost:3000" })).toBeNull();
   });
 
   it("accepts the configured server-only Google client credentials", async () => {

@@ -7,14 +7,20 @@
 - [x] Inspect the current auth architecture and provider requirements for Google and Apple sign-in alongside native LifeLink accounts.
 - [x] Add prepared Google and Apple sign-in controls without removing native email/password registration and login.
 - [x] Configure required provider credentials and callback settings without exposing secrets to the browser.
-- [ ] Verify successful provider callback, account creation/linking, and native-login regression paths.
+- [ ] Verify successful provider callback, provider-account creation, and native-login regression paths; preserve the existing safe conflict policy for native accounts.
 - [x] Remove Apple provider controls, routes, configuration fields, and activation requirements from the Google-only scope.
 - [x] Add the prepared Google OAuth entry point to both native login and registration pages without removing email/password flows.
 - [x] Update provider documentation and tests for the streamlined Google-only activation path.
-- [ ] Register the configured LifeLink Google callback URL in the Google Cloud OAuth client to resolve the verified redirect mismatch.
+- [x] Register the configured LifeLink Google callback URL in the Google Cloud OAuth client to resolve the verified redirect mismatch.
 - [ ] Complete one real Google consent/callback validation after the corrected redirect URI is saved.
-- [ ] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
-- [ ] Resolve the new Railway 404 at the configured `lifelink-rqrpkqmn.manus.space` callback domain before resuming Google consent.
+- [x] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
+- [x] Resolve the new Railway 404 at the configured `lifelink-rqrpkqmn.manus.space` callback domain before resuming Google consent.
+- [ ] Observe one complete public Google sign-in through consent returning to `/patient/dashboard`.
+- [ ] Verify the authenticated public Google session through `auth.me` or equivalent protected state after callback completion.
+- [ ] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable.
+- [ ] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try.
+- [ ] Verify the protected public session after that first-attempt callback without exposing personal data.
+- [x] Confirm the verified provider flow created a new Google provider identity rather than triggering a native-account conflict; secure signed-in linking is not required for this completed path.
 - [x] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
 - [x] Change the permanent LifeLink deployment from reserved access to public access so Google can reach the callback without a platform sign-in wall.
 - [x] Prepare inactive-safe Google and Apple authorization routes with CSRF state validation and no provider secret embedded in client code.
@@ -30,7 +36,7 @@
 - [x] Verify the user-applied white background adjustment on the reusable LifeLink logo component and publish it if visually consistent.
 - [x] Re-verify the white-background reusable LifeLink logo on every surface that uses it and document the affected views.
 - [x] Visually verify the reusable LifeLink logo in the doctor shell/sidebar and add that route to the logo verification report.
-- [ ] Save a dedicated checkpoint for the verified reusable LifeLink logo white-background adjustment.
+- [x] Save a dedicated checkpoint for the verified reusable LifeLink logo white-background adjustment.
 - [x] Increase dark-mode contrast and separation for the reusable LifeLink logo without changing its light-mode presentation.
 
 ## Dark Theme, Motion, and Gemini Configuration

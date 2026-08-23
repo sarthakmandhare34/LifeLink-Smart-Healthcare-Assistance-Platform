@@ -13,6 +13,7 @@ const STATE_MAX_AGE_MS = 10 * 60 * 1000;
 const GOOGLE_JWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 
 type StoredState = { state: string; nonce: string; expiresAt: number };
+type ProviderConfig = Pick<typeof ENV, "authPublicBaseUrl" | "googleOAuthClientId" | "googleOAuthClientSecret">;
 
 function getPublicBaseUrl() {
   try {
@@ -31,8 +32,16 @@ export function googleAvailabilityFromConfig(config: { authPublicBaseUrl: string
   return hasHttpsBase && Boolean(config.googleOAuthClientId && config.googleOAuthClientSecret);
 }
 
+export function googleAuthorizationStartUrlFromConfig(config: ProviderConfig) {
+  if (!googleAvailabilityFromConfig(config)) return null;
+  return `${new URL(config.authPublicBaseUrl).origin}/api/auth/google`;
+}
+
 export function getProviderAvailability() {
-  return { google: googleAvailabilityFromConfig(ENV) };
+  return {
+    google: googleAvailabilityFromConfig(ENV),
+    googleAuthorizationStartUrl: googleAuthorizationStartUrlFromConfig(ENV),
+  };
 }
 
 function callbackUrl() {

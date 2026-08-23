@@ -44,17 +44,19 @@ The three values below are held only in server configuration. They must never be
 | Configured public callback route | Passed; the permanent public origin responds through LifeLink’s callback handler and safely redirects a request with no valid state to the login error route. |
 | Native account preservation | Login and registration forms remain available before the Google action. |
 | Current public bundle | Verified after public-access activation: the permanent domain now serves the current Google-only login page, with native email/password and one Google control. |
-| Live Google authorization | Google receives the current callback URI but rejects it with `redirect_uri_mismatch`, proving that the exact permanent callback URI still needs to be added to the Google Cloud OAuth client. No Google account or patient record was created during validation. |
+| Current public callback route | Verified: a request without a valid state is handled by LifeLink and redirects safely to the login error route rather than an external 404 page. |
+| Google authorization start | Verified: Google accepts the permanent callback URI and opens its account-selection screen without `redirect_uri_mismatch`. |
+| Provider identity aggregate | One Google provider identity is present after user-reported consent; only an aggregate count was reviewed, with no email, subject, or health data retrieved. |
+| Final dashboard session | Owner-confirmed successful completion after consent. The user reports that Google sign-in now returns to and works within LifeLink; the sandbox browser remained separate at account selection, so no personal session information was inspected. |
+| Provider account outcome | The new Google identity aggregate confirms provider-account creation rather than an existing native-email conflict. Existing native accounts still require explicit signed-in linking and are never silently claimed. |
 
-## Remaining Google Console Action
+## Live Verification Outcome
 
-In the **same Google OAuth Web client** used for LifeLink, add this exact authorized redirect URI and save it:
+The permanent redirect URI has been accepted by Google. The owner confirmed the user-consented flow returns successfully to LifeLink, and the backend shows one Google provider identity through an aggregate-only query. Existing native accounts are deliberately not silently linked by email; any required linking must occur from an already authenticated native LifeLink session.
 
-```text
-https://lifelink-rqrpkqmn.manus.space/api/auth/google/callback
-```
+## First-Attempt Reliability Fix
 
-The scheme, hostname, path, and lack of a trailing slash must match exactly. After saving, restart Google sign-in from the LifeLink public login page rather than by opening the callback URL directly.[1]
+The first attempt could fail when a user opened the app on a temporary preview hostname. The previous relative Google-start URL wrote the host-only OAuth state cookie to that preview host, while Google returned to the configured permanent domain; the callback therefore could not read the state cookie. LifeLink now exposes a safe, non-secret `googleAuthorizationStartUrl` through the provider-availability endpoint. Both patient entry pages navigate to that permanent origin before authorization begins, keeping the state cookie and callback on the same host from the first attempt.
 
 ## Reference
 

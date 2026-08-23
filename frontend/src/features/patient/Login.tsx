@@ -61,7 +61,10 @@ export const PatientLogin = () => {
         <div className="social-auth" aria-label="Alternative sign-in methods">
           <div className="social-auth-divider"><span>or continue with</span></div>
           <div className="social-auth-actions">
-            <Button type="button" variant="outline" className="w-full" disabled={!providerQuery.data?.google} onClick={() => { window.location.assign('/api/auth/google'); }}><Chrome size={18} /> Continue with Google</Button>
+            <Button type="button" variant="outline" className="w-full" disabled={!providerQuery.data?.googleAuthorizationStartUrl} onClick={() => {
+              const startUrl = providerQuery.data?.googleAuthorizationStartUrl;
+              if (startUrl) window.location.assign(startUrl);
+            }}><Chrome size={18} /> Continue with Google</Button>
           </div>
           {!providerQuery.isLoading && !providerQuery.data?.google && <p className="caption social-auth-note">Google sign-in will activate once it is securely connected.</p>}
         </div>
