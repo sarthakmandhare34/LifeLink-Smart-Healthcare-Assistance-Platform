@@ -20,7 +20,7 @@
 - [ ] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable.
 - [ ] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try.
 - [ ] Verify the protected public session after that first-attempt callback without exposing personal data.
-- [ ] Reattach the permanent LifeLink domain to the latest deployment; it currently serves outdated provider metadata without the new Google registration start URL.
+- [x] Reattach the permanent LifeLink domain to the latest deployment; it currently serves outdated provider metadata without the new Google registration start URL.
 - [x] Restore public access to the permanent LifeLink domain; it currently shows a platform permission screen instead of the application on `/login` and `/patient/specialists`.
 - [x] Require explicit registration for a new Google account, while allowing Google sign-in only for an existing registered LifeLink account.
 - [x] Confirm the verified provider flow created a new Google provider identity rather than triggering a native-account conflict; secure signed-in linking is not required for this completed path.
@@ -42,7 +42,7 @@
 - [x] Save a dedicated checkpoint for the verified reusable LifeLink logo white-background adjustment.
 - [x] Increase dark-mode contrast and separation for the reusable LifeLink logo without changing its light-mode presentation.
 - [x] Replace every temporary emoji-style or synthetic LifeLink brand mark with the newly supplied official logo artwork across public, patient, clinician, and map-related surfaces.
-- [ ] Fix the public delivery route for the new official LifeLink logo asset; the permanent domain currently renders its image as broken despite the current deployment.
+- [x] Fix the public delivery route for the new official LifeLink logo asset; the permanent domain currently renders its image as broken despite the current deployment.
 - [ ] Enlarge and reframe the official LifeLink artwork so the icon, name, and tagline are clearly legible on every branded surface.
 
 ## Dark Theme, Motion, and Gemini Configuration
@@ -150,6 +150,6 @@
 - [x] Add and run tests, build checks, browser validation, and phase-by-phase implementation reports.
 - [x] Save a checkpoint and deliver the completed master-specification phase.
 - [x] Update the Mumbai discovery and maps area with the user-supplied Western, Central, and Harbour railway station corridors, branches, and shared-station associations.
-- [ ] Remove the long visible Mumbai station-reference guide and locality filter; reword railway prompts around where the patient lives, retain requested visit date/time, and refine the controlled-directory live-map presentation.
-- [ ] Expand the clearly labeled controlled Mumbai development directory across more specialty categories and areas, and add an optional browser-only location permission flow that sorts and centers controlled map entries without storing precise location or claiming real doctors/availability.
-- [ ] Redo and independently re-verify the controlled specialty and browser-only location update before assigning its rebuilt version to the permanent domain.
+- [x] Remove the long visible Mumbai station-reference guide and locality filter; reword railway prompts around where the patient lives, retain requested visit date/time, and refine the controlled-directory live-map presentation.
+- [x] Expand the clearly labeled controlled Mumbai development directory across more specialty categories and areas, and add an optional browser-only location permission flow that sorts and centers controlled map entries without storing precise location or claiming real doctors/availability.
+- [x] Redo and independently re-verify the controlled specialty and browser-only location update before assigning its rebuilt version to the permanent domain.
