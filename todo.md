@@ -156,3 +156,5 @@
 - [x] Redo and independently re-verify the controlled specialty and browser-only location update before assigning its rebuilt version to the permanent domain.
 - [x] Restrict the Specialist Finder free-text search to specialty names only and update its placeholder and guidance.
 - [ ] Diagnose and fix the reported interactive Mumbai map loading failure while preserving controlled-directory and browser-location privacy safeguards.
+- [x] Restore the permanent LifeLink domain’s HTTPS availability; it currently returns an SSL protocol error that blocks public map and OAuth verification.
+- [x] Ensure each supported station has two explicitly labeled mock development-directory entries and each rail corridor has at least three specialty categories, without claiming real clinicians or availability.

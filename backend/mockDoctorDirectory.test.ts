@@ -1,39 +1,44 @@
 import { describe, expect, it } from "vitest";
 import { filterMockDoctorDirectory, getMockDoctorDirectoryFacets, mockDoctorDirectory } from "./mockDoctorDirectory";
-import { getMumbaiRailStation } from "@shared/mumbaiRailNetwork";
+import { MUMBAI_RAIL_LINES, MUMBAI_RAIL_STATIONS, getMumbaiRailStation } from "@shared/mumbaiRailNetwork";
+import { MUMBAI_STATION_COORDINATES } from "@shared/mumbaiStationCoordinates";
 
 describe("controlled Mumbai development doctor directory", () => {
-  it("filters the repository-owned directory by Mumbai rail corridor and specialty", () => {
-    expect(filterMockDoctorDirectory({ city: "Mumbai", railLine: "Central" })).toHaveLength(4);
-    expect(filterMockDoctorDirectory({ station: "Dadar", railLine: "Western" })).toMatchObject([{ station: "Dadar", railLines: ["Central", "Western"] }]);
-    expect(filterMockDoctorDirectory({ city: "Mumbai", specialty: "Dermatology" })).toMatchObject([
-      { locality: "Chembur", railLine: "Harbour", isMock: true },
-    ]);
+  it("creates exactly two mock listings for every owner-supplied station entity", () => {
+    expect(mockDoctorDirectory).toHaveLength(MUMBAI_RAIL_STATIONS.length * 2);
+    MUMBAI_RAIL_STATIONS.forEach((station) => {
+      const entries = filterMockDoctorDirectory({ station: station.name });
+      expect(entries).toHaveLength(2);
+      entries.forEach((entry) => {
+        expect(entry.isMock).toBe(true);
+        expect(entry.railLines).toEqual(station.lines);
+        expect(entry.latitude).toBeCloseTo(MUMBAI_STATION_COORDINATES[station.name].latitude, 3);
+        expect(entry.longitude).toBeCloseTo(MUMBAI_STATION_COORDINATES[station.name].longitude, 3);
+      });
+    });
   });
 
-  it("publishes only the approved discovery facets", () => {
-    expect(getMockDoctorDirectoryFacets()).toMatchObject({
-      city: "Mumbai",
-      specialties: expect.arrayContaining(["Cardiology", "Dermatology", "Endocrinology", "Gastroenterology", "General Practice", "Gynecology", "Neurology", "Ophthalmology", "Orthopedics", "Pediatrics", "Psychiatry", "Pulmonology"]),
-      localities: expect.arrayContaining(["Andheri", "Bandra", "Borivali", "Chembur", "Dadar", "Ghatkopar", "Kalyan", "Lower Parel", "Mulund", "Nerul", "Panvel", "Vashi"]),
-      railLines: ["Central", "Harbour", "Western"],
-    });
+  it("preserves supplied shared-station associations and filters both mock listings by line", () => {
+    expect(filterMockDoctorDirectory({ station: "Dadar", railLine: "Western" })).toHaveLength(2);
+    expect(filterMockDoctorDirectory({ station: "Dadar", railLine: "Central" })).toHaveLength(2);
     expect(getMumbaiRailStation("Dadar")?.lines).toEqual(["Western", "Central"]);
     expect(getMumbaiRailStation("Wadala Road")?.lines).toEqual(["Harbour"]);
-    expect(getMockDoctorDirectoryFacets().stations).toContainEqual(expect.objectContaining({ name: "Wadala Road", lines: ["Harbour"] }));
   });
 
-  it("keeps every expanded entry explicitly mocked and linked to one of the supplied rail-station associations", () => {
-    expect(mockDoctorDirectory).toHaveLength(12);
-    mockDoctorDirectory.forEach((entry) => {
-      expect(entry.isMock).toBe(true);
-      expect(getMumbaiRailStation(entry.station)?.lines).toEqual(expect.arrayContaining(entry.railLines));
+  it("provides at least three controlled specialty categories for every rail corridor", () => {
+    MUMBAI_RAIL_LINES.forEach((railLine) => {
+      const specialties = new Set(filterMockDoctorDirectory({ railLine }).map((entry) => entry.specialty));
+      expect(specialties.size).toBeGreaterThanOrEqual(3);
     });
   });
 
-  it("restricts free-text directory search to specialty names", () => {
-    expect(filterMockDoctorDirectory({ query: "pediat" })).toMatchObject([{ specialty: "Pediatrics", locality: "Bandra" }]);
-    expect(filterMockDoctorDirectory({ query: "bandra" })).toEqual([]);
+  it("publishes only approved controlled facets and specialty-only free-text matching", () => {
+    expect(getMockDoctorDirectoryFacets()).toMatchObject({
+      city: "Mumbai",
+      specialties: expect.arrayContaining(["Cardiology", "Dermatology", "General Practice", "Pediatrics"]),
+      railLines: ["Central", "Harbour", "Western"],
+    });
+    expect(filterMockDoctorDirectory({ query: "cardio" })).toSatisfy((entries) => entries.length > 0 && entries.every((entry) => entry.specialty === "Cardiology"));
     expect(filterMockDoctorDirectory({ query: "western" })).toEqual([]);
   });
 });
