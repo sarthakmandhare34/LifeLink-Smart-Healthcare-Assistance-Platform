@@ -149,3 +149,4 @@
 - [x] Save a checkpoint and deliver the completed master-specification phase.
 - [x] Update the Mumbai discovery and maps area with the user-supplied Western, Central, and Harbour railway station corridors, branches, and shared-station associations.
 - [ ] Remove the long visible Mumbai station-reference guide and locality filter; reword railway prompts around where the patient lives, retain requested visit date/time, and refine the controlled-directory live-map presentation.
+- [ ] Expand the clearly labeled controlled Mumbai development directory across more specialty categories and areas, and add an optional browser-only location permission flow that sorts and centers controlled map entries without storing precise location or claiming real doctors/availability.

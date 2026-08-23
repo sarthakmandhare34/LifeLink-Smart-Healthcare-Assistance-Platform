@@ -4,6 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MumbaiRailLine } from "@shared/mumbaiRailNetwork";
 import { MapView } from "./Map";
 
+export type BrowserMapLocation = {
+  latitude: number;
+  longitude: number;
+};
+
 export type DirectoryMapDoctor = {
   id: string;
   name: string;
@@ -20,14 +25,16 @@ type MumbaiDoctorMapProps = {
   doctors: DirectoryMapDoctor[];
   selectedDoctorId: string | null;
   onSelectDoctor: (doctorId: string) => void;
+  browserLocation?: BrowserMapLocation | null;
 };
 
 const MUMBAI_CENTER = { lat: 19.076, lng: 72.8777 };
 
-export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor }: MumbaiDoctorMapProps) {
+export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor, browserLocation = null }: MumbaiDoctorMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [mapFailed, setMapFailed] = useState(false);
   const markersRef = useRef<Array<{ marker: google.maps.marker.AdvancedMarkerElement; listener: google.maps.MapsEventListener }>>([]);
+  const browserLocationMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
 
   const onMapReady = useCallback((readyMap: google.maps.Map) => {
     setMapFailed(false);
@@ -81,6 +88,28 @@ export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor }: M
     }
   }, [doctors, map, selectedDoctorId]);
 
+  useEffect(() => {
+    if (!map || !window.google) return;
+
+    if (browserLocationMarkerRef.current) browserLocationMarkerRef.current.map = null;
+    browserLocationMarkerRef.current = null;
+
+    if (!browserLocation) return;
+
+    browserLocationMarkerRef.current = new window.google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: browserLocation.latitude, lng: browserLocation.longitude },
+      title: "Your browser location — visible only in this map and not stored",
+    });
+    map.panTo({ lat: browserLocation.latitude, lng: browserLocation.longitude });
+    map.setZoom(12);
+
+    return () => {
+      if (browserLocationMarkerRef.current) browserLocationMarkerRef.current.map = null;
+      browserLocationMarkerRef.current = null;
+    };
+  }, [browserLocation, map]);
+
   return (
     <div className="mumbai-directory-map-wrap">
       <MapView
@@ -90,7 +119,7 @@ export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor }: M
         onMapReady={onMapReady}
         onMapError={() => setMapFailed(true)}
       />
-      {map && <p className="mumbai-map-status" role="status">Interactive Google Maps view is ready. Select a directory card or marker to focus its controlled location.</p>}
+      {map && <p className="mumbai-map-status" role="status">{browserLocation ? 'Interactive map centered on your browser location for this page only. Your location is not stored.' : 'Interactive Google Maps view is ready. Select a directory card or marker to focus its controlled location.'}</p>}
       {mapFailed && <p className="mumbai-map-error" role="status">The interactive map is unavailable in this session. Directory filters and appointment requests remain available; no location or distance is inferred.</p>}
     </div>
   );

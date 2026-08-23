@@ -4,11 +4,12 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
-import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route, TrainFront } from 'lucide-react';
+import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route, TrainFront, LocateFixed, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trpc } from '../../lib/trpc';
 import { MumbaiDoctorMap } from '../../components/MumbaiDoctorMap';
 import type { MumbaiRailLine } from '@shared/mumbaiRailNetwork';
+import { sortByBrowserLocation, type BrowserLocation } from './discoveryLocation';
 import '../../discovery.css';
 
 const ALL_FILTER = 'all';
@@ -42,6 +43,9 @@ export const SpecialistFinder = () => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [requestError, setRequestError] = useState('');
+  const [browserLocation, setBrowserLocation] = useState<BrowserLocation | null>(null);
+  const [locationStatus, setLocationStatus] = useState('Optional: use your browser location to order only the visible controlled development entries. Your location is not stored or sent to LifeLink.');
+  const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
     const requestedSpecialty = searchParams.get('specialty') || ALL_FILTER;
@@ -76,6 +80,33 @@ export const SpecialistFinder = () => {
     setRequestError('');
   }, []);
 
+  const requestBrowserLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationStatus('This browser does not support location. You can still choose the Mumbai area closest to where you live.');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationStatus('Requesting your browser location…');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setBrowserLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+        setLocationStatus('Location is active for this page only. Controlled development entries are ordered approximately from your browser location; no coordinates are stored or sent to LifeLink.');
+        setIsLocating(false);
+      },
+      () => {
+        setLocationStatus('Location was not shared. You can continue using the Mumbai area and station filters; no location was stored.');
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 },
+    );
+  };
+
+  const clearBrowserLocation = () => {
+    setBrowserLocation(null);
+    setLocationStatus('Browser location cleared. Directory results return to their standard controlled order; no location was stored.');
+  };
+
   const handleRequest = async (doctorId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     if (!requestedAt) {
@@ -98,9 +129,11 @@ export const SpecialistFinder = () => {
     }
   };
 
+  const filteredDoctors = directoryQuery.data ?? [];
+  const displayedDoctors = useMemo(() => browserLocation ? sortByBrowserLocation(filteredDoctors, browserLocation) : filteredDoctors, [browserLocation, filteredDoctors]);
+
   if (directoryQuery.isLoading || facetsQuery.isLoading) return <div className="flex items-center justify-center h-full"><p className="caption">Loading the controlled Mumbai development directory…</p></div>;
 
-  const filteredDoctors = directoryQuery.data ?? [];
   const facets = facetsQuery.data;
 
   return (
@@ -124,6 +157,18 @@ export const SpecialistFinder = () => {
           <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center' }}>
             <Search size={20} color="var(--color-primary)" style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}><Input placeholder="Search by specialty, station, or directory name…" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></div>
+          </div>
+          <div className="discovery-location-control">
+            <div>
+              <p className="discovery-location-title">Optional browser location</p>
+              <p className="caption discovery-location-copy">{locationStatus}</p>
+            </div>
+            <div className="discovery-location-actions">
+              <Button type="button" variant="outline" size="sm" onClick={requestBrowserLocation} disabled={isLocating}>
+                <LocateFixed size={15} /> {isLocating ? 'Getting location…' : browserLocation ? 'Refresh my location' : 'Use my location'}
+              </Button>
+              {browserLocation && <Button type="button" variant="secondary" size="sm" onClick={clearBrowserLocation}><X size={15} /> Clear</Button>}
+            </div>
           </div>
           <div className="discovery-filter-grid">
             <div>
@@ -161,12 +206,12 @@ export const SpecialistFinder = () => {
           <div className="discovery-results-heading">
             <div>
               <h2 style={{ fontSize: 'var(--text-h2)', margin: 0 }}>Mumbai Development Directory</h2>
-              <p className="caption">{filteredDoctors.length} controlled {filteredDoctors.length === 1 ? 'entry' : 'entries'} match the current filters.</p>
+              <p className="caption">{displayedDoctors.length} controlled {displayedDoctors.length === 1 ? 'entry' : 'entries'} match the current filters.{browserLocation ? ' They are ordered approximately from your browser location.' : ''}</p>
             </div>
             <Badge status="neutral">Mumbai only</Badge>
           </div>
           <BentoGrid>
-            {filteredDoctors.map((doctor) => {
+            {displayedDoctors.map((doctor) => {
               const isSelected = selectedDocId === doctor.id;
               return (
                 <BentoItem key={doctor.id} colSpan={2}>
@@ -198,7 +243,7 @@ export const SpecialistFinder = () => {
                 </BentoItem>
               );
             })}
-            {filteredDoctors.length === 0 && (
+            {displayedDoctors.length === 0 && (
               <BentoItem colSpan={4}>
                 <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}><p className="text-muted" style={{ margin: 0 }}>No controlled directory entries match the selected Mumbai filters. Clear a filter to view the available development entries.</p></Card>
               </BentoItem>
@@ -212,8 +257,8 @@ export const SpecialistFinder = () => {
               <Route size={20} color="var(--color-primary)" />
               <div><h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Interactive Mumbai map</h2><p className="caption">Google Maps base map and controlled directory markers stay in sync.</p></div>
             </div>
-            <MumbaiDoctorMap doctors={filteredDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} />
-            <p className="caption discovery-map-note">The interactive map identifies only controlled directory entries. It does not claim verified clinicians, live availability, travel time, GPS, or “nearby” results.</p>
+            <MumbaiDoctorMap doctors={displayedDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} browserLocation={browserLocation} />
+            <p className="caption discovery-map-note">The interactive map identifies only controlled directory entries. If you choose to share browser location, it is used only in this page to order entries and center the map; it is not stored or sent to LifeLink. The directory does not claim verified clinicians or live availability.</p>
           </Card>
         </aside>
       </div>
