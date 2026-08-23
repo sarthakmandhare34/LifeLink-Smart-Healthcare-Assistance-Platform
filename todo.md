@@ -24,6 +24,7 @@
 - [x] Verify successful native registration and existing-account sign-in both redirect patients to the protected LifeLink dashboard.
 - [x] Complete a no-health-data disposable native registration and confirm the authenticated dashboard route.
 - [x] Complete a no-health-data sign-in using that existing disposable native account and confirm the authenticated dashboard route.
+- [x] Add the LifeLink logo to the upper-left patient sidebar with responsive light/dark presentation.
 
 ## Dark Theme, Motion, and Gemini Configuration
 
