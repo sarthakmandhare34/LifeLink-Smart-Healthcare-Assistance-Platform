@@ -27,6 +27,11 @@
 - [x] Complete a no-health-data sign-in using that existing disposable native account and confirm the authenticated dashboard route.
 - [x] Add the LifeLink logo to the upper-left patient sidebar with responsive light/dark presentation.
 - [x] Replace the sidebar brand tile with a clean LifeLink mark and name only, without the supplied artwork slogan.
+- [x] Verify the user-applied white background adjustment on the reusable LifeLink logo component and publish it if visually consistent.
+- [x] Re-verify the white-background reusable LifeLink logo on every surface that uses it and document the affected views.
+- [x] Visually verify the reusable LifeLink logo in the doctor shell/sidebar and add that route to the logo verification report.
+- [ ] Save a dedicated checkpoint for the verified reusable LifeLink logo white-background adjustment.
+- [x] Increase dark-mode contrast and separation for the reusable LifeLink logo without changing its light-mode presentation.
 
 ## Dark Theme, Motion, and Gemini Configuration
 

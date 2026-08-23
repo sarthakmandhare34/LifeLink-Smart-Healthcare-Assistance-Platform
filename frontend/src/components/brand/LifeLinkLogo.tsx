@@ -7,7 +7,7 @@ export function LifeLinkLogo({ className = "" }: { className?: string }) {
       <img
         className="lifelink-logo"
         src={LIFE_LINK_LOGO_URL}
-        alt="LifeLink — Smart Healthcare Assistance Platform"
+        alt="LifeLink — Smart Healthcare Assistance Platform" style={{backgroundColor: '#ffffff'}}
       />
     </span>
   );

@@ -1032,9 +1032,19 @@ dialog.popup::backdrop {
 :root[data-theme="dark"] .assessment-disclaimer .caption { color: #ffd8cb; }
 
 :root[data-theme="dark"] .lifelink-logo {
-  mix-blend-mode: multiply;
-  opacity: 0.94;
-  filter: saturate(1.18) contrast(1.08) brightness(1.16) drop-shadow(0 7px 14px rgba(38, 101, 145, 0.18));
+  mix-blend-mode: normal;
+  opacity: 1;
+  filter: saturate(1.1) contrast(1.08) brightness(1.05) drop-shadow(0 7px 14px rgba(38, 101, 145, 0.2));
+}
+
+:root[data-theme="dark"] .lifelink-logo-crop {
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, .82);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff, #eff9ff);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .38), 0 0 0 4px rgba(128, 220, 235, .08), inset 0 1px 0 rgba(255, 255, 255, .92);
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 :root[data-theme="dark"] .assessment-save-notice { background: rgba(30, 39, 84, 0.72); }
