@@ -181,6 +181,7 @@ const discoveryInput = z.object({
   city: z.literal("Mumbai").optional(),
   specialty: z.string().trim().min(1).max(160).optional(),
   railLine: z.enum(["Central", "Harbour", "Western"]).optional(),
+  station: z.string().trim().min(1).max(160).optional(),
   locality: z.string().trim().min(1).max(160).optional(),
   query: z.string().trim().min(1).max(160).optional(),
 }).optional();

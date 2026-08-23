@@ -1,13 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
-import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route } from 'lucide-react';
+import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route, TrainFront } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trpc } from '../../lib/trpc';
 import { MumbaiDoctorMap } from '../../components/MumbaiDoctorMap';
+import type { MumbaiRailLine } from '@shared/mumbaiRailNetwork';
 import '../../discovery.css';
 
 const ALL_FILTER = 'all';
@@ -18,17 +19,22 @@ export const SpecialistFinder = () => {
   const initialSpecialty = searchParams.get('specialty') || ALL_FILTER;
   const [specialty, setSpecialty] = useState(initialSpecialty);
   const [railLine, setRailLine] = useState(ALL_FILTER);
+  const [station, setStation] = useState(ALL_FILTER);
   const [locality, setLocality] = useState(ALL_FILTER);
   const [searchTerm, setSearchTerm] = useState('');
   const discoveryFilters = useMemo(() => ({
     city: 'Mumbai' as const,
     specialty: specialty === ALL_FILTER ? undefined : specialty,
-    railLine: railLine === ALL_FILTER ? undefined : railLine as 'Central' | 'Harbour' | 'Western',
+    railLine: railLine === ALL_FILTER ? undefined : railLine as MumbaiRailLine,
+    station: station === ALL_FILTER ? undefined : station,
     locality: locality === ALL_FILTER ? undefined : locality,
     query: searchTerm.trim() || undefined,
-  }), [locality, railLine, searchTerm, specialty]);
+  }), [locality, railLine, searchTerm, specialty, station]);
   const directoryQuery = trpc.patientDiscovery.list.useQuery(discoveryFilters);
   const facetsQuery = trpc.patientDiscovery.facets.useQuery();
+  const availableStations = useMemo(() => (
+    (facetsQuery.data?.stations ?? []).filter((candidate) => railLine === ALL_FILTER || candidate.lines.includes(railLine as MumbaiRailLine))
+  ), [facetsQuery.data?.stations, railLine]);
   const requestMutation = trpc.patientAppointment.request.useMutation();
   const navigate = useNavigate();
   const [requestedAt, setRequestedAt] = useState('');
@@ -46,6 +52,10 @@ export const SpecialistFinder = () => {
     if (selectedDocId && !directoryQuery.data?.some((doctor) => doctor.id === selectedDocId)) setSelectedDocId(null);
   }, [directoryQuery.data, selectedDocId]);
 
+  useEffect(() => {
+    if (station !== ALL_FILTER && !availableStations.some((candidate) => candidate.name === station)) setStation(ALL_FILTER);
+  }, [availableStations, station]);
+
   const updateSpecialty = (nextSpecialty: string) => {
     setSpecialty(nextSpecialty);
     setSearchParams((current) => {
@@ -54,6 +64,11 @@ export const SpecialistFinder = () => {
       else next.set('specialty', nextSpecialty);
       return next;
     }, { replace: true });
+  };
+
+  const updateRailLine = (nextRailLine: string) => {
+    setRailLine(nextRailLine);
+    if (station !== ALL_FILTER && nextRailLine !== ALL_FILTER && !availableStations.find((candidate) => candidate.name === station)?.lines.includes(nextRailLine as MumbaiRailLine)) setStation(ALL_FILTER);
   };
 
   const selectDoctor = useCallback((doctorId: string) => {
@@ -96,7 +111,7 @@ export const SpecialistFinder = () => {
         </div>
         <div>
           <h1 style={{ margin: 0 }}>Specialist Finder</h1>
-          <p className="caption">Browse controlled Mumbai development entries, select a map marker or card, and send a patient-owned appointment request.</p>
+          <p className="caption">Browse controlled Mumbai development entries, use the supplied suburban rail station guide, and send a patient-owned appointment request.</p>
         </div>
       </header>
 
@@ -108,7 +123,7 @@ export const SpecialistFinder = () => {
           </div>
           <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center' }}>
             <Search size={20} color="var(--color-primary)" style={{ flexShrink: 0 }} />
-            <div style={{ flex: 1 }}><Input placeholder="Search by specialty or directory name…" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></div>
+            <div style={{ flex: 1 }}><Input placeholder="Search by specialty, station, or directory name…" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} /></div>
           </div>
           <div className="discovery-filter-grid">
             <div>
@@ -124,9 +139,16 @@ export const SpecialistFinder = () => {
             </div>
             <div>
               <label className="discovery-filter-label" htmlFor="rail-filter">Rail corridor</label>
-              <select id="rail-filter" className="discovery-filter-select" value={railLine} onChange={(event) => setRailLine(event.target.value)}>
+              <select id="rail-filter" className="discovery-filter-select" value={railLine} onChange={(event) => updateRailLine(event.target.value)}>
                 <option value={ALL_FILTER}>All corridors</option>
                 {facets?.railLines.map((value) => <option key={value} value={value}>{value} line</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="discovery-filter-label" htmlFor="station-filter">Railway station</label>
+              <select id="station-filter" className="discovery-filter-select" value={station} onChange={(event) => setStation(event.target.value)}>
+                <option value={ALL_FILTER}>All stations</option>
+                {availableStations.map((value) => <option key={value.id} value={value.name}>{value.name}{value.lines.length > 1 ? ` · ${value.lines.join(" + ")}` : ""}</option>)}
               </select>
             </div>
             <div>
@@ -155,45 +177,43 @@ export const SpecialistFinder = () => {
             <Badge status="neutral">Mumbai only</Badge>
           </div>
           <BentoGrid>
-          {filteredDoctors.map((doctor) => {
-            const isSelected = selectedDocId === doctor.id;
-            return (
-              <BentoItem key={doctor.id} colSpan={2}>
-                <Card variant="glass" interactive selected={isSelected} className="h-full flex-col justify-between" onClick={() => selectDoctor(doctor.id)}>
-                  <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 style={{ margin: 0, color: 'var(--color-primary)' }}>{doctor.name}</h3>
-                        <p style={{ color: 'var(--color-success)', fontWeight: 600, margin: '2px 0 0 0' }}>{doctor.specialty}</p>
+            {filteredDoctors.map((doctor) => {
+              const isSelected = selectedDocId === doctor.id;
+              return (
+                <BentoItem key={doctor.id} colSpan={2}>
+                  <Card variant="glass" interactive selected={isSelected} className="h-full flex-col justify-between" onClick={() => selectDoctor(doctor.id)}>
+                    <div>
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 style={{ margin: 0, color: 'var(--color-primary)' }}>{doctor.name}</h3>
+                          <p style={{ color: 'var(--color-success)', fontWeight: 600, margin: '2px 0 0 0' }}>{doctor.specialty}</p>
+                        </div>
+                        <Badge status="neutral">Development mock</Badge>
                       </div>
-                      <Badge status="neutral">Development mock</Badge>
+                      <div className="flex-col gap-1 mt-2">
+                        <div className="caption flex items-center gap-1"><Building size={14} /> {doctor.hospital}</div>
+                        <div className="caption flex items-center gap-1"><MapPin size={14} /> {doctor.locality}, {doctor.city} • {doctor.station} station</div>
+                        <div className="caption flex items-center gap-1"><TrainFront size={14} /> {doctor.railLines.join(" + ")} connectivity</div>
+                      </div>
                     </div>
-
-                    <div className="flex-col gap-1 mt-2">
-                      <div className="caption flex items-center gap-1"><Building size={14} /> {doctor.hospital}</div>
-                      <div className="caption flex items-center gap-1"><MapPin size={14} /> {doctor.locality}, {doctor.city} • {doctor.railLine} line</div>
+                    <div style={{ marginTop: 'var(--spacing-4)', paddingTop: 'var(--spacing-3)', borderTop: '1px solid var(--color-border)' }}>
+                      {requestedDocId === doctor.id ? (
+                        <Button variant="secondary" className="w-full" disabled>Requested! Opening appointments…</Button>
+                      ) : (
+                        <Button variant="primary" className="w-full" onClick={(event) => handleRequest(doctor.id, event)} disabled={processingId === doctor.id}>
+                          {processingId === doctor.id ? 'Requesting Appointment…' : 'Request Appointment'}
+                        </Button>
+                      )}
                     </div>
-                  </div>
-
-                  <div style={{ marginTop: 'var(--spacing-4)', paddingTop: 'var(--spacing-3)', borderTop: '1px solid var(--color-border)' }}>
-                    {requestedDocId === doctor.id ? (
-                      <Button variant="secondary" className="w-full" disabled>Requested! Opening appointments…</Button>
-                    ) : (
-                      <Button variant="primary" className="w-full" onClick={(event) => handleRequest(doctor.id, event)} disabled={processingId === doctor.id}>
-                        {processingId === doctor.id ? 'Requesting Appointment…' : 'Request Appointment'}
-                      </Button>
-                    )}
-                  </div>
-                </Card>
+                  </Card>
+                </BentoItem>
+              );
+            })}
+            {filteredDoctors.length === 0 && (
+              <BentoItem colSpan={4}>
+                <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}><p className="text-muted" style={{ margin: 0 }}>No controlled directory entries match the selected Mumbai filters. Clear a filter to view the available development entries.</p></Card>
               </BentoItem>
-            );
-          })}
-
-          {filteredDoctors.length === 0 && (
-            <BentoItem colSpan={4}>
-              <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}><p className="text-muted" style={{ margin: 0 }}>No controlled directory entries match the selected Mumbai filters. Clear a filter to view the available development entries.</p></Card>
-            </BentoItem>
-          )}
+            )}
           </BentoGrid>
         </section>
 
@@ -201,10 +221,10 @@ export const SpecialistFinder = () => {
           <Card variant="glass" className="directory-map-card">
             <div className="flex items-center gap-2 mb-3">
               <Route size={20} color="var(--color-primary)" />
-              <div><h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Map selection</h2><p className="caption">Marker and card selection stay in sync.</p></div>
+              <div><h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Map & rail guide</h2><p className="caption">Markers, cards, stations, and corridor filters stay in sync.</p></div>
             </div>
-            <MumbaiDoctorMap doctors={filteredDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} />
-            <p className="caption discovery-map-note">Map locations identify only the controlled directory entries. LifeLink does not collect your location here, so no distance or “nearby” claim is shown.</p>
+            <MumbaiDoctorMap doctors={filteredDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} railLine={railLine === ALL_FILTER ? null : railLine as MumbaiRailLine} selectedStation={station === ALL_FILTER ? null : station} onSelectStation={setStation} />
+            <p className="caption discovery-map-note">Map markers identify only controlled directory entries. The rail guide uses the supplied station reference, not live train status, travel times, GPS, or “nearby” claims.</p>
           </Card>
         </aside>
       </div>

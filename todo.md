@@ -142,3 +142,4 @@
 - [x] Keep all doctor accounts, profiles, dashboards, and availability explicitly mocked for this phase.
 - [x] Add and run tests, build checks, browser validation, and phase-by-phase implementation reports.
 - [x] Save a checkpoint and deliver the completed master-specification phase.
+- [x] Update the Mumbai discovery and maps area with the user-supplied Western, Central, and Harbour railway station corridors, branches, and shared-station associations.
