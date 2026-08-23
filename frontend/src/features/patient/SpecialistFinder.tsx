@@ -15,6 +15,8 @@ import '../../discovery.css';
 const ALL_FILTER = 'all';
 export const RESIDENCE_CORRIDOR_LABEL = 'Which part of Mumbai do you live in?';
 export const RESIDENCE_STATION_LABEL = 'Which station is closest to where you live?';
+export const BROWSER_LOCATION_TITLE = 'Optional browser location';
+export const BROWSER_LOCATION_PRIVACY = 'Optional: use your browser location to order only the visible controlled development entries. Your location is not stored or sent to LifeLink.';
 
 export const SpecialistFinder = () => {
   const trpcUtils = trpc.useUtils();
@@ -44,7 +46,7 @@ export const SpecialistFinder = () => {
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   const [requestError, setRequestError] = useState('');
   const [browserLocation, setBrowserLocation] = useState<BrowserLocation | null>(null);
-  const [locationStatus, setLocationStatus] = useState('Optional: use your browser location to order only the visible controlled development entries. Your location is not stored or sent to LifeLink.');
+  const [locationStatus, setLocationStatus] = useState(BROWSER_LOCATION_PRIVACY);
   const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
@@ -160,8 +162,8 @@ export const SpecialistFinder = () => {
           </div>
           <div className="discovery-location-control">
             <div>
-              <p className="discovery-location-title">Optional browser location</p>
-              <p className="caption discovery-location-copy">{locationStatus}</p>
+              <p className="discovery-location-title">{BROWSER_LOCATION_TITLE}</p>
+              <p className="caption discovery-location-copy" aria-live="polite">{locationStatus}</p>
             </div>
             <div className="discovery-location-actions">
               <Button type="button" variant="outline" size="sm" onClick={requestBrowserLocation} disabled={isLocating}>

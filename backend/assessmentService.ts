@@ -43,6 +43,18 @@ const ASSESSMENT_RESPONSE_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+/** Gemini's generate-content schema dialect does not accept `additionalProperties`. */
+const GEMINI_ASSESSMENT_RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    urgency: { type: "STRING", enum: ["LOW", "MODERATE", "EMERGENCY"] },
+    specialty: { type: "STRING" },
+    reason: { type: "STRING" },
+    guidance: { type: "STRING" },
+  },
+  required: ["urgency", "specialty", "reason", "guidance"],
+} as const;
+
 const ASSESSMENT_SYSTEM_INSTRUCTION = "You are LifeLink's health-triage decision-support assistant. Do not diagnose, prescribe, claim certainty, or replace professional care. Return only the requested JSON. Use short, calm, non-diagnostic reasoning. If potentially urgent, choose MODERATE or EMERGENCY and direct the person to appropriate in-person care. For EMERGENCY, guidance must say to seek emergency care or contact a local emergency number now.";
 
 export function hasEmergencyPattern(symptoms: string) {
@@ -74,34 +86,30 @@ function assessmentPrompt(input: AssessmentRequest) {
 }
 
 async function invokeConfiguredGemini(input: AssessmentRequest) {
-  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent", {
     method: "POST",
     headers: {
       "content-type": "application/json",
       "x-goog-api-key": ENV.geminiApiKey,
     },
     body: JSON.stringify({
-      model: "gemini-3.6-flash",
-      input: `${ASSESSMENT_SYSTEM_INSTRUCTION}\n\nPatient-provided information:\n${assessmentPrompt(input)}`,
-      response_format: {
-        type: "text",
-        mime_type: "application/json",
-        schema: ASSESSMENT_RESPONSE_SCHEMA,
-      },
-      generation_config: {
-        thinking_level: "minimal",
+      contents: [{
+        role: "user",
+        parts: [{ text: `${ASSESSMENT_SYSTEM_INSTRUCTION}\n\nPatient-provided information:\n${assessmentPrompt(input)}` }],
+      }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: GEMINI_ASSESSMENT_RESPONSE_SCHEMA,
       },
     }),
   });
 
   if (!response.ok) throw new Error("Gemini assessment request was unavailable.");
   const payload = await response.json() as {
-    steps?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }>;
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
-  const content = payload.steps
-    ?.filter((step) => step.type === "model_output")
-    .flatMap((step) => step.content ?? [])
-    .filter((part) => part.type === "text")
+  const content = payload.candidates
+    ?.flatMap((candidate) => candidate.content?.parts ?? [])
     .map((part) => part.text ?? "")
     .join("") ?? "";
   return parseModelContent(content);
@@ -130,9 +138,17 @@ async function invokePlatformGeminiFallback(input: AssessmentRequest) {
 export async function analyzeAssessmentWithGemini(input: AssessmentRequest): Promise<AssessmentResult> {
   if (hasEmergencyPattern(input.symptoms)) return emergencyOverride();
 
-  const parsed = ENV.geminiApiKey
-    ? await invokeConfiguredGemini(input)
-    : await invokePlatformGeminiFallback(input);
+  let parsed: AssessmentResult;
+  if (!ENV.geminiApiKey) {
+    parsed = await invokePlatformGeminiFallback(input);
+  } else {
+    try {
+      parsed = await invokeConfiguredGemini(input);
+    } catch {
+      // Do not expose provider details to the patient. The platform route uses the same schema and remains server-only.
+      parsed = await invokePlatformGeminiFallback(input);
+    }
+  }
 
   return hasEmergencyPattern(input.symptoms) && parsed.urgency !== "EMERGENCY" ? emergencyOverride() : parsed;
 }

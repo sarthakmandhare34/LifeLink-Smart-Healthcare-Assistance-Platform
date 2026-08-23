@@ -21,6 +21,7 @@
 - [ ] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try.
 - [ ] Verify the protected public session after that first-attempt callback without exposing personal data.
 - [ ] Reattach the permanent LifeLink domain to the latest deployment; it currently serves outdated provider metadata without the new Google registration start URL.
+- [x] Restore public access to the permanent LifeLink domain; it currently shows a platform permission screen instead of the application on `/login` and `/patient/specialists`.
 - [x] Require explicit registration for a new Google account, while allowing Google sign-in only for an existing registered LifeLink account.
 - [x] Confirm the verified provider flow created a new Google provider identity rather than triggering a native-account conflict; secure signed-in linking is not required for this completed path.
 - [x] Publish the current Google-only LifeLink implementation to the permanent `lifelink-rqrpkqmn.manus.space` domain before completing live OAuth verification.
@@ -58,6 +59,7 @@
 - [x] Submit one non-clinical assessment through the protected frontend API and confirm a persisted backend response.
 - [x] Remove the temporary account and its test assessment after validation.
 - [x] Review a clinician route in dark mode at the mobile breakpoint to confirm shared tokens and contrast remain consistent.
+- [x] Repair the outdated server-side Gemini generation endpoint/schema contract, retain the deterministic emergency override, and fall back safely when the configured provider is temporarily unavailable.
 
 ## Project Boundaries and Layout Architecture
 
@@ -150,3 +152,4 @@
 - [x] Update the Mumbai discovery and maps area with the user-supplied Western, Central, and Harbour railway station corridors, branches, and shared-station associations.
 - [ ] Remove the long visible Mumbai station-reference guide and locality filter; reword railway prompts around where the patient lives, retain requested visit date/time, and refine the controlled-directory live-map presentation.
 - [ ] Expand the clearly labeled controlled Mumbai development directory across more specialty categories and areas, and add an optional browser-only location permission flow that sorts and centers controlled map entries without storing precise location or claiming real doctors/availability.
+- [ ] Redo and independently re-verify the controlled specialty and browser-only location update before assigning its rebuilt version to the permanent domain.
