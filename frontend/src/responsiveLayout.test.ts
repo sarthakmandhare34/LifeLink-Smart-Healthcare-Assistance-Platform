@@ -18,4 +18,13 @@ describe('multi-display responsive layout system', () => {
     expect(discoveryStyles).toContain('grid-template-columns: 1fr;');
     expect(discoveryStyles).toContain('height: clamp(280px, 62vw, 360px)');
   });
+
+  it('keeps the mobile drawer compact with its official brand first and every navigation label readable', () => {
+    expect(globalStyles).toContain('width: min(276px, calc(100vw - 72px))');
+    expect(globalStyles).toContain('flex-direction: column;');
+    expect(globalStyles).toContain('.app-sidebar-header .lifelink-logo-sidebar');
+    expect(globalStyles).toContain('overflow-x: hidden');
+    expect(globalStyles).toContain('display: inline !important');
+    expect(globalStyles).toContain('overflow-wrap: anywhere');
+  });
 });

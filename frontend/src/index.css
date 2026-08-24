@@ -1536,3 +1536,58 @@ dialog.popup {
     transform: none !important;
   }
 }
+
+/* Mobile drawer repair: retain a compact left rail, place the official brand first, and never clip menu labels. */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: min(276px, calc(100vw - 72px));
+    max-width: calc(100vw - 48px);
+    padding-bottom: max(var(--spacing-3), env(safe-area-inset-bottom));
+    flex-direction: column;
+  }
+
+  .app-sidebar-header {
+    min-height: 76px;
+    padding: var(--spacing-3) var(--spacing-3) var(--spacing-2);
+    align-items: flex-start;
+    justify-content: flex-start;
+    border-bottom-color: rgba(165, 185, 255, .14);
+  }
+
+  .app-sidebar-brand-link {
+    min-height: 48px;
+    padding: 0;
+    justify-content: flex-start;
+  }
+
+  .app-sidebar-header .lifelink-logo-sidebar {
+    width: min(168px, 100%);
+    max-height: 48px;
+  }
+
+  .app-sidebar-nav {
+    gap: 4px;
+    padding: var(--spacing-2) var(--spacing-3) var(--spacing-3);
+    overflow-x: hidden;
+  }
+
+  .app-sidebar-nav-item,
+  .app-sidebar-nav-item.sos {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    gap: 12px;
+    padding: 10px 12px;
+    justify-content: flex-start;
+    white-space: normal;
+  }
+
+  .app-sidebar-nav-item span,
+  .app-sidebar-nav-item.sos span {
+    display: inline !important;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .app-sidebar-divider { margin: var(--spacing-2) 0; }
+}
