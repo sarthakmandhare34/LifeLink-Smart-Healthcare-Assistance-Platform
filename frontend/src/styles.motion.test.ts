@@ -8,7 +8,9 @@ describe('LifeLink motion system', () => {
     expect(styles).toContain('@keyframes lifelink-auth-card-in');
     expect(styles).toContain('@keyframes lifelink-field-rise');
     expect(styles).toContain('@media (prefers-reduced-motion: no-preference)');
-    expect(styles).toContain('animation-delay: 70ms');
+    expect(styles).toContain('animation-delay: 120ms');
+    expect(styles).toContain('560ms cubic-bezier');
+    expect(styles).toContain('lifelink-orb-drift 22s');
     expect(styles).toContain('scale(.98)');
   });
 
