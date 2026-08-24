@@ -161,3 +161,5 @@
 - [x] Reconcile the uploaded LifeLink feature inventory against the implemented product and provide a security-safe inventory of configured integration purposes.
 - [x] Make the local LifeLink checkout runnable with standard npm install, npm run dev, npm test, and npm run build commands, without changing application behavior.
 - [x] Remove the Specialist Finder section beneath the map and reduce the controlled mock doctor directory to an orderly specialty-balanced set across Central, Harbour, and Western corridors.
+- [x] Repair the pnpm frozen-lockfile override mismatch that blocks deployment while retaining validated npm local development commands.
+- [x] Remove the remaining visible controlled-map guidance copy while retaining interactive marker selection and browser-location privacy behavior.

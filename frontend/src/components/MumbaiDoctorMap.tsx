@@ -127,7 +127,6 @@ export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor, bro
         onMapReady={onMapReady}
         onMapError={() => setMapFailed(true)}
       />
-      {map && <p className="mumbai-map-status" role="status">{browserLocation ? 'Interactive map centered on your browser location for this page only. Your location is not stored.' : 'Interactive Google Maps view is ready. Select a directory card or marker to focus its controlled location.'}</p>}
       {mapFailed && <div className="mumbai-map-error" role="status">
         <p>The interactive map is unavailable in this session. Directory filters and appointment requests remain available; no location or distance is inferred.</p>
         <button type="button" className="mumbai-map-retry" onClick={retryMap}>Retry interactive map</button>
