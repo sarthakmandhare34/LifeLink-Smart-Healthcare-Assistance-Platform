@@ -159,3 +159,4 @@
 - [x] Restore the permanent LifeLink domain’s HTTPS availability; it currently returns an SSL protocol error that blocks public map and OAuth verification.
 - [x] Ensure each supported station has two explicitly labeled mock development-directory entries and each rail corridor has at least three specialty categories, without claiming real clinicians or availability.
 - [x] Reconcile the uploaded LifeLink feature inventory against the implemented product and provide a security-safe inventory of configured integration purposes.
+- [x] Make the local LifeLink checkout runnable with standard npm install, npm run dev, npm test, and npm run build commands, without changing application behavior.
