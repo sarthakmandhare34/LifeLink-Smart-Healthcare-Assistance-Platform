@@ -174,4 +174,5 @@
 - [x] Rewrite the README with accurate LifeLink architecture, setup, safety, and workflow guidance, then remove only verified-unused repository files.
 - [x] Refine the patient dashboard with stable branding, visible mobile navigation labels, clearer section separation, responsive card orientation, and polished typography.
 - [x] Add a validated emergency-contact phone number field to the Health Passport and use it only in the user-confirmed SOS message draft flow.
+- [x] Replace the outdated GitHub Figma/Manus repository description with a concise accurate LifeLink project summary.
 - [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.
