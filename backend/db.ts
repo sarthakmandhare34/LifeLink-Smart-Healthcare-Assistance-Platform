@@ -18,6 +18,7 @@ import {
 import { ENV } from './_core/env';
 import { randomUUID } from "node:crypto";
 import { publishPatientEvent, type PatientEventType } from "./patientEventBus";
+import { storageGet } from "./storage";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -271,12 +272,15 @@ export async function getPatientProfile(userId: number) {
     .where(eq(patientEmergencyContacts.userId, userId))
     .orderBy(desc(patientEmergencyContacts.createdAt));
 
+  const avatar = row.profile?.avatarKey ? await storageGet(row.profile.avatarKey) : null;
+
   return {
     id: row.user.id,
     name: row.user.name ?? "",
     email: row.user.email ?? "",
     bloodGroup: row.profile?.bloodGroup ?? "",
     phone: row.profile?.phone ?? "",
+    avatarUrl: avatar?.url ?? null,
     allergies: parseList(row.profile?.allergiesJson),
     conditions: parseList(row.profile?.conditionsJson),
     emergencyContacts: contacts.map((contact) => ({
@@ -308,6 +312,13 @@ export async function updatePatientProfile(
     await db.update(patientProfiles).set(values).where(eq(patientProfiles.userId, userId));
   }
 
+  return getPatientProfile(userId);
+}
+
+export async function updatePatientAvatarKey(userId: number, avatarKey: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(patientProfiles).set({ avatarKey }).where(eq(patientProfiles.userId, userId));
   return getPatientProfile(userId);
 }
 

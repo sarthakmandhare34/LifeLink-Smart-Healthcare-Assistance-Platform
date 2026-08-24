@@ -178,3 +178,6 @@
 - [x] Fix the mobile navigation drawer so its width, logo placement, and full menu labels remain visible without clipping or excessive blank space.
 - [x] Remove Mumbai specialist discovery from the GitHub repository description while retaining a concise accurate LifeLink summary.
 - [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.
+- [x] Refine the patient dashboard Quick Actions card with aligned action rows, clear visual hierarchy, and responsive glass-surface spacing matching the supplied reference.
+- [x] Add a secure optional circular patient profile-photo control with validated upload, patient-only persistence, and a graceful initial-based fallback.
+- [x] Add regression coverage and validate the refined dashboard on mobile and desktop before publishing.

@@ -4,6 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../_core/hooks/useAuth';
 import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 import { usePatientRealtime } from '../../hooks/usePatientRealtime';
+import { trpc } from '../../lib/trpc';
 import {
   LayoutDashboard,
   FileHeart,
@@ -58,6 +59,7 @@ export const AppShell = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
+  const profileQuery = trpc.patientProfile.get.useQuery(undefined, { enabled: Boolean(user) });
   usePatientRealtime(Boolean(user));
 
   if (loading) {
@@ -144,8 +146,12 @@ export const AppShell = () => {
             </button>
             <div className="app-header-divider" />
             <button type="button" className="app-account-control" onClick={() => navigate('/patient/profile')} aria-label="Open your profile">
-              <div className="lifelink-avatar" aria-hidden="true">
-                <LifeLinkLogo variant="symbol" className="lifelink-mark lifelink-mark-sm" />
+              <div className={`lifelink-avatar ${profileQuery.data?.avatarUrl ? 'has-photo' : ''}`} aria-hidden="true">
+                {profileQuery.data?.avatarUrl ? (
+                  <img src={profileQuery.data.avatarUrl} alt="" />
+                ) : (
+                  <LifeLinkLogo variant="symbol" className="lifelink-mark lifelink-mark-sm" />
+                )}
               </div>
               <span>{user.name || 'Patient'}</span>
             </button>

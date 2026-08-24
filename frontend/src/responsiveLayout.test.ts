@@ -27,4 +27,11 @@ describe('multi-display responsive layout system', () => {
     expect(globalStyles).toContain('display: inline !important');
     expect(globalStyles).toContain('overflow-wrap: anywhere');
   });
+
+  it('defines aligned care shortcuts and a responsive circular profile-photo control', () => {
+    expect(globalStyles).toContain('.dashboard-quick-action');
+    expect(globalStyles).toContain('grid-template-columns: minmax(0, 1fr) auto');
+    expect(globalStyles).toContain('.patient-profile-avatar');
+    expect(globalStyles).toContain('object-fit: cover');
+  });
 });

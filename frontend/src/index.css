@@ -1591,3 +1591,69 @@ dialog.popup {
 
   .app-sidebar-divider { margin: var(--spacing-2) 0; }
 }
+
+/* Patient profile-photo control and intentionally compact care shortcuts. */
+.lifelink-avatar {
+  width: 36px;
+  height: 36px;
+  overflow: hidden;
+  border: 1px solid rgba(116, 139, 220, .24);
+}
+.lifelink-avatar.has-photo { background: var(--color-surface-interactive); }
+.lifelink-avatar img,
+.patient-profile-avatar img { width: 100%; height: 100%; display: block; object-fit: cover; }
+
+.dashboard-quick-actions-card { gap: var(--spacing-3); }
+.dashboard-quick-actions-card .dashboard-card-heading { align-items: center; }
+.dashboard-action-list { display: grid; gap: 10px; }
+.dashboard-quick-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px 10px 16px;
+  border: 1px solid rgba(117, 140, 218, .34);
+  border-radius: 15px;
+  color: var(--color-text);
+  background: linear-gradient(112deg, rgba(115, 132, 230, .13), rgba(91, 193, 212, .08));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .54), 0 6px 16px rgba(32, 46, 125, .05);
+  font: inherit;
+  font-size: .94rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(.23, 1, .32, 1), border-color 180ms cubic-bezier(.23, 1, .32, 1), background 180ms cubic-bezier(.23, 1, .32, 1), box-shadow 180ms cubic-bezier(.23, 1, .32, 1);
+}
+.dashboard-quick-action:hover { transform: translateX(2px); border-color: rgba(88, 113, 220, .72); background: linear-gradient(112deg, rgba(101, 119, 226, .22), rgba(80, 191, 213, .15)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .64), 0 9px 20px rgba(32, 46, 125, .1); }
+.dashboard-quick-action:focus-visible { outline: 3px solid rgba(89, 119, 229, .36); outline-offset: 2px; }
+.dashboard-quick-action:active { transform: scale(.985); }
+.dashboard-quick-action svg { color: var(--color-primary); }
+
+.patient-profile-page { display: grid; gap: var(--spacing-4); }
+.patient-profile-heading { display: flex; align-items: center; gap: var(--spacing-3); }
+.patient-profile-heading-icon { width: 44px; height: 44px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 14px; background: var(--color-primary-muted); }
+.patient-profile-heading h1 { margin: 0; }
+.patient-profile-heading .caption { margin: 3px 0 0; }
+.patient-profile-card { width: min(640px, 100%); margin: 0 auto; }
+.patient-profile-identity { display: flex; align-items: center; gap: var(--spacing-4); margin-bottom: var(--spacing-4); padding-bottom: var(--spacing-4); border-bottom: 1px solid var(--color-border); }
+.profile-photo-picker { position: relative; display: inline-grid; flex: 0 0 auto; width: 76px; height: 76px; cursor: pointer; }
+.profile-photo-input { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.patient-profile-avatar { display: grid; width: 76px; height: 76px; place-items: center; overflow: hidden; border: 3px solid rgba(255, 255, 255, .72); border-radius: 50%; color: #fff; background: linear-gradient(135deg, #5669da, #5fc5d7); box-shadow: 0 12px 26px rgba(63, 78, 178, .2), inset 0 1px 0 rgba(255, 255, 255, .38); font-size: 1.6rem; font-weight: 800; }
+.profile-photo-picker:focus-within .patient-profile-avatar { outline: 3px solid rgba(88, 113, 220, .38); outline-offset: 3px; }
+.profile-photo-edit { position: absolute; right: -1px; bottom: -1px; display: grid; width: 28px; height: 28px; place-items: center; border: 2px solid var(--color-surface); border-radius: 50%; color: #fff; background: var(--color-primary); box-shadow: 0 5px 12px rgba(50, 65, 165, .26); }
+.profile-photo-edit svg { animation: none; }
+.profile-photo-help { max-width: 420px; margin: var(--spacing-2) 0 0; color: var(--color-text-muted); font-size: var(--text-caption); line-height: 1.45; }
+
+:root[data-theme="dark"] .dashboard-quick-action { border-color: rgba(150, 175, 255, .3); background: linear-gradient(112deg, rgba(83, 101, 197, .35), rgba(49, 132, 160, .22)); box-shadow: inset 0 1px 0 rgba(206, 219, 255, .1), 0 8px 20px rgba(0, 0, 0, .16); }
+:root[data-theme="dark"] .dashboard-quick-action:hover { border-color: rgba(168, 191, 255, .68); background: linear-gradient(112deg, rgba(96, 116, 224, .46), rgba(69, 168, 192, .31)); }
+:root[data-theme="dark"] .patient-profile-avatar { border-color: rgba(209, 222, 255, .3); }
+
+@media (max-width: 520px) {
+  .patient-profile-identity { align-items: flex-start; gap: var(--spacing-3); }
+  .profile-photo-picker,
+  .patient-profile-avatar { width: 66px; height: 66px; }
+  .patient-profile-avatar { font-size: 1.35rem; }
+  .dashboard-quick-action { min-height: 44px; padding: 9px 12px 9px 14px; }
+}

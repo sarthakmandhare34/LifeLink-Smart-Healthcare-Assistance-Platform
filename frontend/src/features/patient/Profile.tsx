@@ -3,7 +3,7 @@ import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { User, CheckCircle2 } from 'lucide-react';
+import { User, CheckCircle2, Camera, Loader2 } from 'lucide-react';
 import { trpc } from '../../lib/trpc';
 
 export const Profile = () => {
@@ -16,6 +16,8 @@ export const Profile = () => {
   const [first, setFirst] = useState('');
   const [last, setLast] = useState('');
   const [phone, setPhone] = useState('');
+  const [photoError, setPhotoError] = useState('');
+  const [isPhotoSaving, setIsPhotoSaving] = useState(false);
 
   useEffect(() => {
     if (!profileQuery.data) return;
@@ -30,6 +32,46 @@ export const Profile = () => {
   }
   if (!profileQuery.data) return null;
   const profile = profileQuery.data;
+  const profileInitial = profile.name.trim().charAt(0).toUpperCase() || 'P';
+
+  const handlePhotoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const photo = event.target.files?.[0];
+    event.target.value = '';
+    if (!photo) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(photo.type)) {
+      setPhotoError('Use a JPG, PNG, or WebP image.');
+      return;
+    }
+    if (photo.size > 2 * 1024 * 1024) {
+      setPhotoError('Choose an image smaller than 2 MB.');
+      return;
+    }
+
+    setPhotoError('');
+    setIsPhotoSaving(true);
+    try {
+      const response = await fetch('/api/patient/profile-photo', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': photo.type,
+          'X-LifeLink-Request': 'profile-photo',
+        },
+        body: photo,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(typeof payload.error === 'string' ? payload.error : 'Your photo could not be saved.');
+      await Promise.all([
+        trpcUtils.patientProfile.get.invalidate(),
+        trpcUtils.patientDashboard.summary.invalidate(),
+      ]);
+    } catch (uploadError) {
+      setPhotoError(uploadError instanceof Error ? uploadError.message : 'Your photo could not be saved.');
+    } finally {
+      setIsPhotoSaving(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,9 +100,9 @@ export const Profile = () => {
   };
 
   return (
-    <div className="container" style={{ padding: 0 }}>
-      <header className="mb-4 flex items-center gap-3">
-        <div style={{ width: 44, height: 44, borderRadius: '14px', background: 'rgba(0,27,48,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="container patient-profile-page" style={{ padding: 0 }}>
+      <header className="patient-profile-heading">
+        <div className="patient-profile-heading-icon">
           <User size={24} color="var(--color-primary)" />
         </div>
         <div>
@@ -69,32 +111,26 @@ export const Profile = () => {
         </div>
       </header>
 
-      <Card variant="glass" style={{ maxWidth: '640px', margin: '0 auto' }}>
-        {/* Avatar & Header Identity Surface */}
-        <div className="flex items-center gap-4 mb-4 pb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
-          <div style={{ 
-            width: 60, 
-            height: 60, 
-            borderRadius: '50%', 
-            backgroundColor: 'var(--color-primary)', 
-            color: 'var(--color-secondary)', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            fontWeight: '700',
-            fontSize: '1.5rem',
-            boxShadow: 'var(--shadow-sm)'
-          }}>
-            {profile.name.charAt(0) || 'P'}
-          </div>
+      <Card variant="glass" className="patient-profile-card">
+        <div className="patient-profile-identity">
+          <label className="profile-photo-picker">
+            <input className="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoChange} disabled={isPhotoSaving} />
+            <span className="patient-profile-avatar">
+              {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" /> : <span>{profileInitial}</span>}
+            </span>
+            <span className="profile-photo-edit" aria-hidden="true">{isPhotoSaving ? <Loader2 size={14} /> : <Camera size={14} />}</span>
+          </label>
           <div>
             <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>{profile.name}</h2>
             <div className="flex items-center gap-2 mt-1">
               <Badge status="success"><CheckCircle2 size={12} /> Patient Account</Badge>
               <span className="caption">Private profile</span>
             </div>
+            <p className="profile-photo-help">{isPhotoSaving ? 'Saving your photo…' : 'Select the circle to add or change a photo. JPG, PNG, or WebP up to 2 MB.'}</p>
           </div>
         </div>
+
+        {photoError && <div className="alert-panel mb-3"><span style={{ fontSize: 'var(--text-caption)' }}>{photoError}</span></div>}
 
         {error && (
           <div className="alert-panel mb-3">

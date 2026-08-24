@@ -10,6 +10,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { registerPatientRealtimeRoute } from "../patientRealtime";
 import { registerProviderAuthRoutes } from "../providerAuth";
+import { registerPatientProfilePhotoRoute } from "../profilePhoto";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -40,6 +41,7 @@ async function startServer() {
   registerOAuthRoutes(app);
   registerProviderAuthRoutes(app);
   registerPatientRealtimeRoute(app);
+  registerPatientProfilePhotoRoute(app);
   // tRPC API
   app.use(
     "/api/trpc",

@@ -86,6 +86,8 @@ export const patientProfiles = mysqlTable("patientProfiles", {
     .references(() => users.id, { onDelete: "cascade" }),
   bloodGroup: varchar("bloodGroup", { length: 12 }),
   phone: varchar("phone", { length: 32 }),
+  /** Managed-storage key for an optional patient-selected profile photo; image bytes never enter the database. */
+  avatarKey: varchar("avatarKey", { length: 512 }),
   allergiesJson: text("allergiesJson").notNull(),
   conditionsJson: text("conditionsJson").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

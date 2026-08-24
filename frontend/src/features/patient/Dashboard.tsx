@@ -110,12 +110,12 @@ export const PatientDashboard = () => {
             </div>
           </Card>
 
-          <Card variant="glass">
+          <Card variant="glass" className="dashboard-quick-actions-card">
             <div className="dashboard-card-heading"><span className="dashboard-icon"><UserCheck size={20} /></span><div><p className="caption">Quick actions</p><h2>Continue your care</h2></div></div>
             <div className="dashboard-action-list">
-              <Button variant="outline" size="sm" onClick={() => navigate('/patient/specialists')}>Find specialist <ArrowRight size={14} /></Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/patient/passport')}>Health passport <FileHeart size={14} /></Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/patient/medicines')}>Medicines <Pill size={14} /></Button>
+              <button type="button" className="dashboard-quick-action" onClick={() => navigate('/patient/specialists')}><span>Find specialist</span><ArrowRight size={17} /></button>
+              <button type="button" className="dashboard-quick-action" onClick={() => navigate('/patient/passport')}><span>Health passport</span><FileHeart size={17} /></button>
+              <button type="button" className="dashboard-quick-action" onClick={() => navigate('/patient/medicines')}><span>Medicines</span><Pill size={17} /></button>
             </div>
           </Card>
         </div>
