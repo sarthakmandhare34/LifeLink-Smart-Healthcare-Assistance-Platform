@@ -7,6 +7,13 @@ import { Input } from '../../components/ui/Input';
 import { FileHeart, ShieldAlert, AlertTriangle, Activity } from 'lucide-react';
 import { trpc } from '../../lib/trpc';
 
+type EmergencyContactDraft = {
+  id?: string;
+  name: string;
+  relationship: string;
+  phone: string;
+};
+
 export const HealthPassport = () => {
   const trpcUtils = trpc.useUtils();
   const profileQuery = trpc.patientProfile.get.useQuery();
@@ -16,6 +23,11 @@ export const HealthPassport = () => {
   const [bloodGroup, setBloodGroup] = useState('');
   const [allergies, setAllergies] = useState('');
   const [conditions, setConditions] = useState('');
+  const [contactDraft, setContactDraft] = useState<EmergencyContactDraft | null>(null);
+  const [contactError, setContactError] = useState('');
+  const [isSavingContact, setIsSavingContact] = useState(false);
+  const createEmergencyContactMutation = trpc.patientProfile.emergencyContacts.create.useMutation();
+  const updateEmergencyContactMutation = trpc.patientProfile.emergencyContacts.update.useMutation();
 
   useEffect(() => {
     if (!profileQuery.data) return;
@@ -53,6 +65,46 @@ export const HealthPassport = () => {
       console.error(e);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const beginContactEdit = (contact?: { id: string; name: string; relationship: string; phone: string }) => {
+    setContactError('');
+    setContactDraft(contact ? { ...contact } : { name: '', relationship: '', phone: '' });
+  };
+
+  const cancelContactEdit = () => {
+    setContactError('');
+    setContactDraft(null);
+  };
+
+  const saveEmergencyContact = async () => {
+    if (!contactDraft) return;
+    const values = {
+      name: contactDraft.name.trim(),
+      relationship: contactDraft.relationship.trim(),
+      phone: contactDraft.phone.trim(),
+    };
+    if (!values.name || !values.relationship || !values.phone) {
+      setContactError('Enter the contact name, relationship, and phone number before saving.');
+      return;
+    }
+
+    setIsSavingContact(true);
+    setContactError('');
+    try {
+      if (contactDraft.id) {
+        await updateEmergencyContactMutation.mutateAsync({ id: Number(contactDraft.id), values });
+      } else {
+        await createEmergencyContactMutation.mutateAsync(values);
+      }
+      await trpcUtils.patientProfile.get.invalidate();
+      await trpcUtils.patientDashboard.summary.invalidate();
+      setContactDraft(null);
+    } catch (error) {
+      setContactError(error instanceof Error ? error.message : 'The emergency contact could not be saved. Please review the phone number and try again.');
+    } finally {
+      setIsSavingContact(false);
     }
   };
 
@@ -110,17 +162,48 @@ export const HealthPassport = () => {
         {/* Emergency Contacts - Bento Span 2 */}
         <BentoItem colSpan={2}>
           <Card variant="glass" className="h-full">
-            <CardHeader title="Emergency Contacts" />
+            <div className="flex justify-between items-center mb-3" style={{ gap: 'var(--spacing-3)' }}>
+              <CardHeader title="Emergency Contacts" />
+              {!contactDraft && <Button variant="outline" size="sm" onClick={() => beginContactEdit()}>Add contact</Button>}
+            </div>
             <div className="flex-col gap-2">
               {patient.emergencyContacts.length ? patient.emergencyContacts.map(contact => (
                 <div key={contact.id} style={{ padding: '12px var(--spacing-3)', background: 'rgba(255,255,255,0.6)', borderRadius: 'var(--border-radius-md)', border: '1px solid var(--color-border)' }}>
-                  <div className="flex justify-between items-center mb-1">
-                    <strong style={{ color: 'var(--color-primary)' }}>{contact.name}</strong>
-                    <Badge status="neutral">{contact.relationship}</Badge>
-                  </div>
-                  <div className="caption">Phone: {contact.phone}</div>
+                  {contactDraft?.id === contact.id ? (
+                    <EmergencyContactEditor
+                      draft={contactDraft}
+                      onChange={setContactDraft}
+                      error={contactError}
+                      isSaving={isSavingContact}
+                      onCancel={cancelContactEdit}
+                      onSave={saveEmergencyContact}
+                    />
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-center mb-1" style={{ gap: 'var(--spacing-2)' }}>
+                        <strong style={{ color: 'var(--color-primary)' }}>{contact.name}</strong>
+                        <div className="flex items-center gap-2">
+                          <Badge status="neutral">{contact.relationship}</Badge>
+                          {!contactDraft && <Button variant="outline" size="sm" onClick={() => beginContactEdit(contact)}>Edit</Button>}
+                        </div>
+                      </div>
+                      <div className="caption">Phone: {contact.phone}</div>
+                    </>
+                  )}
                 </div>
               )) : <span className="text-muted caption">No emergency contacts recorded.</span>}
+              {contactDraft && !contactDraft.id && (
+                <div style={{ padding: '12px var(--spacing-3)', background: 'rgba(255,255,255,0.6)', borderRadius: 'var(--border-radius-md)', border: '1px solid var(--color-border)' }}>
+                  <EmergencyContactEditor
+                    draft={contactDraft}
+                    onChange={setContactDraft}
+                    error={contactError}
+                    isSaving={isSavingContact}
+                    onCancel={cancelContactEdit}
+                    onSave={saveEmergencyContact}
+                  />
+                </div>
+              )}
             </div>
           </Card>
         </BentoItem>
@@ -175,3 +258,42 @@ export const HealthPassport = () => {
     </div>
   );
 };
+
+function EmergencyContactEditor({
+  draft,
+  onChange,
+  error,
+  isSaving,
+  onCancel,
+  onSave,
+}: {
+  draft: EmergencyContactDraft;
+  onChange: (draft: EmergencyContactDraft) => void;
+  error: string;
+  isSaving: boolean;
+  onCancel: () => void;
+  onSave: () => void;
+}) {
+  return (
+    <div className="flex-col gap-3">
+      <div className="caption" style={{ margin: 0 }}>Enter the number LifeLink should use only when you confirm an SOS message draft.</div>
+      <label className="flex-col gap-1">
+        <span className="caption">Contact name</span>
+        <Input value={draft.name} onChange={(event) => onChange({ ...draft, name: event.target.value })} placeholder="Family member name" autoComplete="name" />
+      </label>
+      <label className="flex-col gap-1">
+        <span className="caption">Relationship</span>
+        <Input value={draft.relationship} onChange={(event) => onChange({ ...draft, relationship: event.target.value })} placeholder="For example, parent or sibling" />
+      </label>
+      <label className="flex-col gap-1">
+        <span className="caption">Emergency contact number</span>
+        <Input type="tel" value={draft.phone} onChange={(event) => onChange({ ...draft, phone: event.target.value })} placeholder="For example, +91 98765 43210" autoComplete="tel" inputMode="tel" />
+      </label>
+      {error && <p role="alert" style={{ margin: 0, color: 'var(--color-semantic-emergency)', fontSize: 'var(--text-caption)' }}>{error}</p>}
+      <div className="flex gap-2 flex-wrap">
+        <Button variant="outline" size="sm" onClick={onCancel} disabled={isSaving}>Cancel</Button>
+        <Button variant="primary" size="sm" onClick={onSave} disabled={isSaving}>{isSaving ? 'Saving…' : 'Save contact'}</Button>
+      </div>
+    </div>
+  );
+}

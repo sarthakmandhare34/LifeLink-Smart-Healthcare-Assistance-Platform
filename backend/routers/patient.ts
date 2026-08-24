@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   cancelOwnedPatientAppointment,
   createPatientAppointment,
+  createPatientEmergencyContact,
   createNativePatient,
   createPatientMedicine,
   createPatientEvent,
@@ -14,6 +15,7 @@ import {
   listPatientPrescriptions,
   removeOwnedPatientMedicine,
   updateOwnedPatientMedicine,
+  updateOwnedPatientEmergencyContact,
   updatePatientProfile,
 } from "../db";
 import { filterMockDoctorDirectory, getMockDoctorById, getMockDoctorDirectoryFacets } from "../mockDoctorDirectory";
@@ -40,6 +42,19 @@ const profileInput = z.object({
   phone: z.string().trim().max(32).optional(),
   allergies: z.array(z.string().trim().min(1).max(160)).max(50).optional(),
   conditions: z.array(z.string().trim().min(1).max(160)).max(50).optional(),
+});
+
+const emergencyContactPhone = z
+  .string()
+  .trim()
+  .min(7, "Enter a valid contact number.")
+  .max(32)
+  .regex(/^\+?[0-9][0-9\s().-]*$/, "Enter a valid contact number.");
+
+export const emergencyContactInput = z.object({
+  name: z.string().trim().min(2).max(160),
+  relationship: z.string().trim().min(2).max(80),
+  phone: emergencyContactPhone,
 });
 
 function normalizedEmail(email: string) {
@@ -89,6 +104,21 @@ export const patientProfileRouter = router({
     const profile = await updatePatientProfile(ctx.user.id, input);
     await createPatientEvent(ctx.user.id, "PROFILE_UPDATED", String(ctx.user.id));
     return profile;
+  }),
+  emergencyContacts: router({
+    create: protectedProcedure.input(emergencyContactInput).mutation(async ({ ctx, input }) => {
+      const id = await createPatientEmergencyContact(ctx.user.id, input);
+      await createPatientEvent(ctx.user.id, "PROFILE_UPDATED", String(id));
+      return { id };
+    }),
+    update: protectedProcedure
+      .input(z.object({ id: z.number().int().positive(), values: emergencyContactInput }))
+      .mutation(async ({ ctx, input }) => {
+        const updated = await updateOwnedPatientEmergencyContact(ctx.user.id, input.id, input.values);
+        if (!updated) throw new TRPCError({ code: "NOT_FOUND", message: "Emergency contact not found." });
+        await createPatientEvent(ctx.user.id, "PROFILE_UPDATED", String(input.id));
+        return { success: true } as const;
+      }),
   }),
 });
 

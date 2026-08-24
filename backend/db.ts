@@ -311,6 +311,33 @@ export async function updatePatientProfile(
   return getPatientProfile(userId);
 }
 
+export type PatientEmergencyContactInput = {
+  name: string;
+  relationship: string;
+  phone: string;
+};
+
+export async function createPatientEmergencyContact(userId: number, input: PatientEmergencyContactInput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(patientEmergencyContacts).values({ userId, ...input });
+  return Number(result[0].insertId);
+}
+
+export async function updateOwnedPatientEmergencyContact(
+  userId: number,
+  contactId: number,
+  input: PatientEmergencyContactInput
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db
+    .update(patientEmergencyContacts)
+    .set(input)
+    .where(and(eq(patientEmergencyContacts.id, contactId), eq(patientEmergencyContacts.userId, userId)));
+  return Number(result[0].affectedRows) > 0;
+}
+
 export async function getPatientDashboard(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
