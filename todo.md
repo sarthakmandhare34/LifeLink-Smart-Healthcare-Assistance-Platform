@@ -163,3 +163,5 @@
 - [x] Remove the Specialist Finder section beneath the map and reduce the controlled mock doctor directory to an orderly specialty-balanced set across Central, Harbour, and Western corridors.
 - [x] Repair the pnpm frozen-lockfile override mismatch that blocks deployment while retaining validated npm local development commands.
 - [x] Remove the remaining visible controlled-map guidance copy while retaining interactive marker selection and browser-location privacy behavior.
+- [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.
+- [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.
