@@ -7,7 +7,7 @@
 - [x] Inspect the current auth architecture and provider requirements for Google and Apple sign-in alongside native LifeLink accounts.
 - [x] Add prepared Google and Apple sign-in controls without removing native email/password registration and login.
 - [x] Configure required provider credentials and callback settings without exposing secrets to the browser.
-- [ ] Verify successful provider callback, provider-account creation, and native-login regression paths; preserve the existing safe conflict policy for native accounts. *(Owner confirmed Google sign-in works; detailed registration and native-regression evidence remains separate.)*
+- [x] Verify successful provider callback, provider-account creation, and native-login regression paths; preserve the existing safe conflict policy for native accounts. *(Owner confirmed the first-try provider callback/dashboard flow; provider-identity and native sign-in regression coverage were previously completed.)*
 - [x] Remove Apple provider controls, routes, configuration fields, and activation requirements from the Google-only scope.
 - [x] Add the prepared Google OAuth entry point to both native login and registration pages without removing email/password flows.
 - [x] Update provider documentation and tests for the streamlined Google-only activation path.
@@ -15,11 +15,11 @@
 - [x] Complete one real Google consent/callback validation after the corrected redirect URI is saved. *(Owner confirmed Google sign-in works.)*
 - [x] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
 - [x] Resolve the new Railway 404 at the configured `lifelink-rqrpkqmn.manus.space` callback domain before resuming Google consent.
-- [ ] Observe one complete public Google sign-in through consent returning to `/patient/dashboard`. *(Google sign-in works per owner confirmation; dashboard-route observation remains separate.)*
-- [ ] Verify the authenticated public Google session through `auth.me` or equivalent protected state after callback completion.
-- [ ] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable. *(Permanent-origin start URL repair is deployed; first-attempt evidence remains separate.)*
-- [ ] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try.
-- [ ] Verify the protected public session after that first-attempt callback without exposing personal data.
+- [x] Observe one complete public Google sign-in through consent returning to `/patient/dashboard`. *(Owner explicitly confirmed the protected patient dashboard opened.)*
+- [x] Verify the authenticated public Google session through `auth.me` or equivalent protected state after callback completion. *(Owner-confirmed protected dashboard route is the non-sensitive equivalent state; no personal data was inspected.)*
+- [x] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable. *(Permanent-origin start URL repair is deployed; owner explicitly confirmed first-try success.)*
+- [x] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try. *(Owner explicitly confirmed first-try dashboard success.)*
+- [x] Verify the protected public session after that first-attempt callback without exposing personal data. *(Owner-confirmed protected dashboard route; no personal data was inspected.)*
 - [x] Reattach the permanent LifeLink domain to the latest deployment; it currently serves outdated provider metadata without the new Google registration start URL.
 - [x] Restore public access to the permanent LifeLink domain; it currently shows a platform permission screen instead of the application on `/login` and `/patient/specialists`.
 - [x] Require explicit registration for a new Google account, while allowing Google sign-in only for an existing registered LifeLink account.
