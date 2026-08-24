@@ -115,25 +115,7 @@ body {
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-/* The supplied official lockup is a quiet atmospheric layer only; content remains in the foreground. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: url('/assets/branding/lifelink-logo-lockup.jpg') center 46% / min(78vw, 980px) auto no-repeat;
-  filter: blur(30px) saturate(1.08);
-  opacity: .075;
-  transform: scale(1.12);
-}
-
 #root { position: relative; z-index: 1; min-height: 100vh; }
-
-:root[data-theme="dark"] body::before {
-  filter: blur(34px) saturate(1.18) brightness(.86);
-  opacity: .11;
-}
 
 /* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6 {
@@ -392,8 +374,26 @@ a:hover {
 /* Layout System - Vertical Sidebar */
 .app-layout {
   display: flex;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 100vh;
 }
+
+.app-layout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url('/manus-storage/lifelink-background-lockup_56f20e75.jpg') 78% 46% / min(80vw, 1050px) auto no-repeat;
+  filter: blur(10px) saturate(1.14) contrast(1.06);
+  mix-blend-mode: multiply;
+  opacity: .2;
+}
+
+.app-layout > * { position: relative; z-index: 1; }
+:root[data-theme="dark"] .app-layout::before { filter: blur(14px) saturate(1.2) brightness(.68); mix-blend-mode: screen; opacity: .09; }
 
 .app-sidebar {
   width: 260px;
@@ -1261,13 +1261,23 @@ dialog.popup::backdrop {
 .auth-page::after {
   content: '';
   position: absolute;
-  z-index: -1;
-  border-radius: 999px;
+  z-index: 0;
   pointer-events: none;
-  filter: blur(2px);
 }
-.auth-page::before { width: 18rem; height: 18rem; top: -8rem; right: -4rem; background: radial-gradient(circle, var(--entry-orb-primary), transparent 68%); }
-.auth-page::after { width: 15rem; height: 15rem; bottom: -7rem; left: -5rem; background: radial-gradient(circle, var(--entry-orb-secondary), transparent 70%); }
+.auth-page::before {
+  width: min(84vw, 1040px);
+  aspect-ratio: 1024 / 559;
+  top: 47%;
+  left: 72%;
+  border-radius: 0;
+  background: url('/manus-storage/lifelink-background-lockup_56f20e75.jpg') center / contain no-repeat;
+  filter: blur(9px) saturate(1.14) contrast(1.06);
+  mix-blend-mode: multiply;
+  opacity: .25;
+  transform: translate(-50%, -50%);
+}
+.auth-page::after { width: 15rem; height: 15rem; bottom: -7rem; left: -5rem; border-radius: 999px; background: radial-gradient(circle, var(--entry-orb-secondary), transparent 70%); filter: blur(2px); }
+.auth-page > * { position: relative; z-index: 1; }
 .auth-card {
   width: min(100%, 460px);
   padding: clamp(24px, 4vw, 34px);
@@ -1344,6 +1354,7 @@ dialog.popup::backdrop {
   --entry-control-border: rgba(118, 159, 255, .42);
   --entry-label: #b8c7ff;
 }
+:root[data-theme="dark"] .auth-page::before { filter: blur(12px) saturate(1.2) brightness(.68); mix-blend-mode: screen; opacity: .1; }
 :root[data-theme="dark"] .auth-card {
   box-shadow: 0 30px 80px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(218, 228, 255, .1) !important;
 }

@@ -186,3 +186,5 @@
 - [x] Add lifecycle regression coverage for activity reset, timeout cleanup, and secure logout behavior.
 - [x] Add a restrained blurred official LifeLink logo background layer that preserves readable foreground content in light and dark modes.
 - [x] Validate the blurred-logo background on responsive login and patient dashboard views before publishing.
+- [x] Strengthen the blurred LifeLink logo background using the supplied lockup reference while retaining high-clarity foreground surfaces.
+- [x] Revalidate the recognisable background treatment on responsive login and patient dashboard views.
