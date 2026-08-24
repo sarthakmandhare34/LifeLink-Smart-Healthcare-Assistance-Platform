@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { Outlet, NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../_core/hooks/useAuth';
 import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 import { usePatientRealtime } from '../../hooks/usePatientRealtime';
@@ -19,8 +18,6 @@ import {
   User,
   Settings as SettingsIcon,
   LogOut,
-  Sun,
-  Moon,
   Menu,
   X,
 } from 'lucide-react';
@@ -57,7 +54,6 @@ export const PATIENT_SIDEBAR_BRAND_LABEL = 'LifeLink patient home';
 
 export const AppShell = () => {
   const { user, loading, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
@@ -161,10 +157,6 @@ export const AppShell = () => {
             </div>
           </div>
           <div className="app-header-controls">
-            <button className="icon-btn" aria-label="Toggle theme" onClick={toggleTheme}>
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
-            <div className="app-header-divider" />
             <button type="button" className="app-account-control" onClick={() => navigate('/patient/profile')} aria-label="Open your profile">
               <div className={`lifelink-avatar ${profileQuery.data?.avatarUrl ? 'has-photo' : ''}`} aria-hidden="true">
                 {profileQuery.data?.avatarUrl ? (

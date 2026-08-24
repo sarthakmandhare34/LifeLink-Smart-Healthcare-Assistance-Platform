@@ -34,4 +34,11 @@ describe('multi-display responsive layout system', () => {
     expect(globalStyles).toContain('.patient-profile-avatar');
     expect(globalStyles).toContain('object-fit: cover');
   });
+
+  it('keeps the dashboard justified with aligned columns and equal-height lower workflow panels', () => {
+    expect(globalStyles).toContain('width: min(100%, 1320px); margin-inline: auto;');
+    expect(globalStyles).toContain('align-items: stretch;');
+    expect(globalStyles).toContain('.dashboard-lower-grid > .card { display: flex; min-height: 238px; flex-direction: column; gap: var(--spacing-4); }');
+    expect(globalStyles).toContain('.dashboard-quick-actions-card .dashboard-action-list { margin-top: auto; }');
+  });
 });

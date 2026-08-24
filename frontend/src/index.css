@@ -1134,14 +1134,15 @@ dialog.popup::backdrop {
 .app-sidebar-backdrop { display: none; }
 
 .dashboard-workspace { display: grid; gap: var(--spacing-5); }
+.dashboard-workspace { width: min(100%, 1320px); margin-inline: auto; }
 .dashboard-welcome { max-width: 720px; }
 .dashboard-welcome .caption { margin: 0 0 4px; text-transform: uppercase; letter-spacing: .08em; }
 .dashboard-welcome h1 { margin: 0 0 6px; }
 .dashboard-welcome > p:last-child { margin: 0; color: var(--color-text-muted); }
-.dashboard-primary-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr); gap: var(--spacing-5); }
+.dashboard-primary-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr); gap: var(--spacing-5); align-items: stretch; }
 .dashboard-assessment-card,
 .dashboard-today-card { display: flex; flex-direction: column; gap: var(--spacing-4); min-height: 300px; }
-.dashboard-card-heading { display: flex; align-items: flex-start; gap: var(--spacing-3); }
+.dashboard-card-heading { display: flex; align-items: center; gap: var(--spacing-3); }
 .dashboard-card-heading h2 { margin: 1px 0 0; font-size: var(--text-h2); }
 .dashboard-card-heading .caption { margin: 0; text-transform: uppercase; letter-spacing: .07em; }
 .dashboard-icon { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 14px; color: var(--color-primary); background: var(--color-primary-muted); }
@@ -1155,10 +1156,10 @@ dialog.popup::backdrop {
 .dashboard-assessment-summary > p { margin: 0; }
 .dashboard-primary-action { margin-top: auto; width: 100%; }
 .dashboard-empty-state p { margin: 0; color: var(--color-text-muted); }
-.dashboard-care-row { display: flex; align-items: flex-start; gap: var(--spacing-3); width: 100%; padding: var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--border-radius-sm); background: var(--color-surface-interactive); color: var(--color-text); text-align: left; cursor: pointer; font: inherit; }
+.dashboard-care-row { display: flex; align-items: center; gap: var(--spacing-3); width: 100%; padding: var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--border-radius-sm); background: var(--color-surface-interactive); color: var(--color-text); text-align: left; cursor: pointer; font: inherit; }
 .dashboard-care-row:hover { border-color: var(--color-primary); }
 .dashboard-care-row svg { flex: 0 0 auto; color: var(--color-primary); margin-top: 2px; }
-.dashboard-care-row span { display: grid; gap: 2px; }
+.dashboard-care-row span { display: grid; min-width: 0; gap: 2px; }
 .dashboard-care-row small { color: var(--color-text-muted); font-size: var(--text-caption); }
 .dashboard-section { display: grid; gap: var(--spacing-3); }
 .dashboard-records-section { display: grid; gap: var(--spacing-3); padding-top: var(--spacing-5); border-top: 1px solid var(--color-border); }
@@ -1172,7 +1173,9 @@ dialog.popup::backdrop {
 .dashboard-stat-card svg { color: var(--color-primary); }
 .dashboard-stat-card span { font-size: 24px; font-weight: 700; color: var(--color-text); }
 .dashboard-stat-card small { color: var(--color-text-muted); }
-.dashboard-lower-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--spacing-5); }
+.dashboard-lower-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--spacing-5); align-items: stretch; }
+.dashboard-lower-grid > .card { display: flex; min-height: 238px; flex-direction: column; gap: var(--spacing-4); }
+.dashboard-quick-actions-card .dashboard-action-list { margin-top: auto; }
 .dashboard-record-link { display: grid; grid-template-columns: 1fr auto; gap: 4px var(--spacing-2); align-items: center; width: 100%; padding: var(--spacing-3); color: var(--color-text); text-align: left; font: inherit; background: var(--color-surface-interactive); border: 1px solid var(--color-border); border-radius: var(--border-radius-sm); cursor: pointer; }
 .dashboard-record-link span { color: var(--color-text-muted); font-size: var(--text-caption); }
 .dashboard-record-link svg { grid-row: span 2; grid-column: 2; color: var(--color-primary); }

@@ -188,3 +188,6 @@
 - [x] Validate the blurred-logo background on responsive login and patient dashboard views before publishing.
 - [x] Strengthen the blurred LifeLink logo background using the supplied lockup reference while retaining high-clarity foreground surfaces.
 - [x] Revalidate the recognisable background treatment on responsive login and patient dashboard views.
+- [x] Remove dark mode controls and persistence so LifeLink uses one consistent accessible light theme.
+- [x] Refine the patient layout alignment and responsive spacing for a clearer, properly arranged interface.
+- [x] Add focused workflow verification coverage so key patient flows can be checked against their expected outcomes.
