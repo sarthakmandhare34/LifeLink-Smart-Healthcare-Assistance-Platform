@@ -176,6 +176,9 @@
 - [x] Add a validated emergency-contact phone number field to the Health Passport and use it only in the user-confirmed SOS message draft flow.
 - [x] Replace the outdated GitHub Figma/Manus repository description with a concise accurate LifeLink project summary.
 - [x] Fix the mobile navigation drawer so its width, logo placement, and full menu labels remain visible without clipping or excessive blank space.
+- [x] Audit the restored repository and move only genuinely misplaced files into the appropriate frontend, backend, database, or shared boundary.
+- [x] Update affected imports, configuration, scripts, and documentation so the organized structure remains fully functional.
+- [x] Verify the reorganized project with type checking, tests, production build, and a concise structure report.
 - [x] Remove Mumbai specialist discovery from the GitHub repository description while retaining a concise accurate LifeLink summary.
 - [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.
 - [x] Refine the patient dashboard Quick Actions card with aligned action rows, clear visual hierarchy, and responsive glass-surface spacing matching the supplied reference.

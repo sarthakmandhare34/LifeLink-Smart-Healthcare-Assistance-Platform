@@ -1,4 +1,4 @@
-import { startLogin } from "@/const";
+import { startLogin } from "@/lib/auth";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";

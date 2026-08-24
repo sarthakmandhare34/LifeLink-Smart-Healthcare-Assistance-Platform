@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const globalStyles = readFileSync(new URL('./index.css', import.meta.url), 'utf8');
-const discoveryStyles = readFileSync(new URL('./discovery.css', import.meta.url), 'utf8');
+const discoveryStyles = readFileSync(new URL('./features/patient/specialistFinder.css', import.meta.url), 'utf8');
 
 describe('multi-display responsive layout system', () => {
   it('defines wide desktop, laptop/tablet, mobile, and compact touch-screen layout rules', () => {

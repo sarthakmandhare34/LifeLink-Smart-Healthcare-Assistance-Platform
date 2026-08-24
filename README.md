@@ -118,4 +118,4 @@ Before a checkpoint is saved, the project is validated with TypeScript checking,
 
 ## Development Notes
 
-The project is structured deliberately around `frontend`, `backend`, `database`, and `shared` boundaries. Keep browser-only code inside `frontend`, server-only credentials and integrations inside `backend`, migrations/schema inside `database`, and shared contracts inside `shared`. Keep generated build output, dependency folders, logs, and private environment files out of Git.
+The project is structured deliberately around `frontend`, `backend`, `database`, and `shared` boundaries. Browser-only code—including feature-local styles and browser authentication helpers—lives inside `frontend`; server-only credentials and integrations live inside `backend`; schema and migrations live inside `database`; and cross-boundary contracts live inside `shared`. Phase records are consolidated in `implementation-reports/`. Keep generated build output, dependency folders, logs, and private environment files out of Git.

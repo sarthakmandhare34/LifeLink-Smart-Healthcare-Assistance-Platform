@@ -10,7 +10,7 @@ import { trpc } from '../../lib/trpc';
 import { MumbaiDoctorMap } from '../../components/MumbaiDoctorMap';
 import type { MumbaiRailLine } from '@shared/mumbaiRailNetwork';
 import { sortByBrowserLocation, type BrowserLocation } from './discoveryLocation';
-import '../../discovery.css';
+import './specialistFinder.css';
 
 const ALL_FILTER = 'all';
 export const RESIDENCE_CORRIDOR_LABEL = 'Which part of Mumbai do you live in?';
