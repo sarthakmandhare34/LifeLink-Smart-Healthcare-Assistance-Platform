@@ -87,33 +87,38 @@ export const PatientDashboard = () => {
         </div>
       </section>
 
-      <section className="dashboard-lower-grid" aria-label="Recent records and quick actions">
-        <Card variant="glass">
-          <div className="dashboard-card-heading"><span className="dashboard-icon"><Calendar size={20} /></span><div><p className="caption">Appointments</p><h2>Upcoming care</h2></div></div>
-          {upcomingAppointment ? (
-            <button type="button" className="dashboard-record-link" onClick={() => navigate('/patient/appointments')}>
-              <strong>{new Date(upcomingAppointment.scheduledAt).toLocaleDateString()}</strong><span>{new Date(upcomingAppointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · {upcomingAppointment.status}</span><ArrowRight size={16} />
-            </button>
-          ) : <p className="dashboard-empty-copy">No upcoming appointments. Use Specialists when you are ready to request one.</p>}
-        </Card>
+      <section className="dashboard-records-section" aria-labelledby="care-next-steps-heading">
+        <div className="dashboard-section-heading dashboard-records-heading">
+          <div><p className="caption">Your care plan</p><h2 id="care-next-steps-heading">Records and next steps</h2></div>
+        </div>
+        <div className="dashboard-lower-grid" aria-label="Recent records and quick actions">
+          <Card variant="glass">
+            <div className="dashboard-card-heading"><span className="dashboard-icon"><Calendar size={20} /></span><div><p className="caption">Appointments</p><h2>Upcoming care</h2></div></div>
+            {upcomingAppointment ? (
+              <button type="button" className="dashboard-record-link" onClick={() => navigate('/patient/appointments')}>
+                <strong>{new Date(upcomingAppointment.scheduledAt).toLocaleDateString()}</strong><span>{new Date(upcomingAppointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · {upcomingAppointment.status}</span><ArrowRight size={16} />
+              </button>
+            ) : <p className="dashboard-empty-copy">No upcoming appointments. Use Specialists when you are ready to request one.</p>}
+          </Card>
 
-        <Card variant="glass">
-          <div className="dashboard-card-heading"><span className="dashboard-icon"><FileText size={20} /></span><div><p className="caption">Recent activity</p><h2>Latest records</h2></div></div>
-          <div className="dashboard-activity-list">
-            {latestAssessment && <p><Stethoscope size={16} /> Assessment completed · {latestAssessment.urgency}</p>}
-            {prescriptions[0] && <p><FileText size={16} /> Prescription recorded · {new Date(prescriptions[0].issuedAt).toLocaleDateString()}</p>}
-            {!latestAssessment && !prescriptions[0] && <p className="dashboard-empty-copy">No recent records to show.</p>}
-          </div>
-        </Card>
+          <Card variant="glass">
+            <div className="dashboard-card-heading"><span className="dashboard-icon"><FileText size={20} /></span><div><p className="caption">Recent activity</p><h2>Latest records</h2></div></div>
+            <div className="dashboard-activity-list">
+              {latestAssessment && <p><Stethoscope size={16} /> Assessment completed · {latestAssessment.urgency}</p>}
+              {prescriptions[0] && <p><FileText size={16} /> Prescription recorded · {new Date(prescriptions[0].issuedAt).toLocaleDateString()}</p>}
+              {!latestAssessment && !prescriptions[0] && <p className="dashboard-empty-copy">No recent records to show.</p>}
+            </div>
+          </Card>
 
-        <Card variant="glass">
-          <div className="dashboard-card-heading"><span className="dashboard-icon"><UserCheck size={20} /></span><div><p className="caption">Quick actions</p><h2>Continue your care</h2></div></div>
-          <div className="dashboard-action-list">
-            <Button variant="outline" size="sm" onClick={() => navigate('/patient/specialists')}>Find specialist <ArrowRight size={14} /></Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/patient/passport')}>Health passport <FileHeart size={14} /></Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/patient/medicines')}>Medicines <Pill size={14} /></Button>
-          </div>
-        </Card>
+          <Card variant="glass">
+            <div className="dashboard-card-heading"><span className="dashboard-icon"><UserCheck size={20} /></span><div><p className="caption">Quick actions</p><h2>Continue your care</h2></div></div>
+            <div className="dashboard-action-list">
+              <Button variant="outline" size="sm" onClick={() => navigate('/patient/specialists')}>Find specialist <ArrowRight size={14} /></Button>
+              <Button variant="outline" size="sm" onClick={() => navigate('/patient/passport')}>Health passport <FileHeart size={14} /></Button>
+              <Button variant="outline" size="sm" onClick={() => navigate('/patient/medicines')}>Medicines <Pill size={14} /></Button>
+            </div>
+          </Card>
+        </div>
       </section>
     </div>
   );

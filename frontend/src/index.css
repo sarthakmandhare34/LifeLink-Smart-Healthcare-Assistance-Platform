@@ -103,7 +103,7 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--color-background);
   color: var(--color-text);
   font-size: var(--text-body);
@@ -116,6 +116,7 @@ body {
 
 /* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--color-text);
   margin-bottom: var(--spacing-3);
   line-height: 1.3;
@@ -951,6 +952,7 @@ dialog.popup::backdrop {
 .lifelink-logo-symbol .lifelink-logo { width: auto; height: 137%; max-width: none; left: -12%; top: -18%; object-fit: initial; }
 .lifelink-logo-auth { width: min(360px, 100%); margin: 0 auto var(--spacing-4); }
 .lifelink-logo-sidebar { width: 238px; max-width: 100%; }
+.lifelink-logo-sidebar-symbol { display: none; width: 42px; height: 42px; flex: 0 0 auto; }
 .app-sidebar-header { min-height: 112px; justify-content: center; }
 .doctor-sidebar-brand { min-height: 112px; justify-content: center; }
 .assessment-save-notice { max-width: 680px; margin: 0 auto var(--spacing-4); padding: 10px 12px; border: 1px solid rgba(99,102,241,0.18); border-radius: var(--border-radius-sm); background: rgba(255,255,255,0.35); color: var(--color-text-muted); font-size: var(--text-caption); }
@@ -1105,6 +1107,9 @@ dialog.popup::backdrop {
 .app-account-control { display: inline-flex; align-items: center; gap: var(--spacing-2); padding: 4px 8px 4px 4px; border-radius: 999px; font: inherit; font-weight: 600; }
 .app-account-control:hover { background: var(--color-primary-muted); }
 .app-mobile-menu-button { display: none; align-items: center; justify-content: center; width: 38px; height: 38px; padding: 0; border-radius: 10px; }
+.app-mobile-brand { display: none; align-items: center; gap: 7px; min-width: 0; color: var(--color-text); font-family: 'Plus Jakarta Sans', 'Manrope', sans-serif; font-size: 14px; font-weight: 800; letter-spacing: -.035em; text-decoration: none; }
+.app-mobile-brand:hover { color: var(--color-primary); text-decoration: none; }
+.app-mobile-brand-symbol { width: 28px; height: 28px; flex: 0 0 auto; }
 .app-sidebar-backdrop { display: none; }
 
 .dashboard-workspace { display: grid; gap: var(--spacing-5); }
@@ -1135,6 +1140,8 @@ dialog.popup::backdrop {
 .dashboard-care-row span { display: grid; gap: 2px; }
 .dashboard-care-row small { color: var(--color-text-muted); font-size: var(--text-caption); }
 .dashboard-section { display: grid; gap: var(--spacing-3); }
+.dashboard-records-section { display: grid; gap: var(--spacing-3); padding-top: var(--spacing-5); border-top: 1px solid var(--color-border); }
+.dashboard-records-heading { padding-inline: 2px; }
 .dashboard-section-heading { display: flex; align-items: end; justify-content: space-between; gap: var(--spacing-3); }
 .dashboard-section-heading h2 { margin: 0; font-size: var(--text-h2); }
 .dashboard-section-heading .caption { margin: 0 0 2px; text-transform: uppercase; letter-spacing: .07em; }
@@ -1159,7 +1166,7 @@ dialog.popup::backdrop {
 @media (max-width: 1024px) {
   .app-sidebar-header { padding-inline: var(--spacing-3); }
   .app-sidebar-header .lifelink-logo-sidebar { display: none; }
-  .app-sidebar-header::before { content: 'LL'; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; color: #fff; font-size: 11px; font-weight: 800; background: linear-gradient(135deg, #5566d9, #62bdd4); }
+  .app-sidebar-header .lifelink-logo-sidebar-symbol { display: block; width: 38px; height: 38px; }
   .app-sidebar-nav-item span { display: none; }
   .app-sidebar-nav-item { justify-content: center; }
   .app-sidebar-nav-item.sos span { display: none; }
@@ -1174,7 +1181,7 @@ dialog.popup::backdrop {
   .app-sidebar.is-open { transform: translateX(0); }
   .app-sidebar-header { display: flex; min-height: 92px; padding: var(--spacing-4); }
   .app-sidebar-header .lifelink-logo-sidebar { display: block; width: 180px; }
-  .app-sidebar-header::before { display: none; }
+  .app-sidebar-header .lifelink-logo-sidebar-symbol { display: none; }
   .app-sidebar-nav { flex-direction: column; padding: var(--spacing-3); }
   .app-sidebar-nav-item,
   .app-sidebar-nav-item.sos { justify-content: flex-start; padding: var(--spacing-2) var(--spacing-3); margin: 0; }
@@ -1182,6 +1189,7 @@ dialog.popup::backdrop {
   .app-sidebar-nav-item.sos span { display: inline; }
   .app-sidebar-backdrop { display: block; position: fixed; inset: 0; z-index: 55; border: 0; background: rgba(6, 10, 28, .46); backdrop-filter: blur(2px); }
   .app-mobile-menu-button { display: inline-flex; }
+  .app-mobile-brand { display: inline-flex; }
   .app-header { height: 66px; padding: 0 var(--spacing-3); }
   .app-header-controls { gap: var(--spacing-2); }
   .app-account-control > span,
@@ -1199,6 +1207,7 @@ dialog.popup::backdrop {
   .dashboard-health-grid { gap: var(--spacing-2); }
   .dashboard-stat-card { padding: var(--spacing-3); }
   .dashboard-section-heading .btn { font-size: 12px; padding: 8px 10px; }
+  .app-header-title { display: none; }
 }
 
 /* Patient entry pages: light and dark modes use dedicated, high-contrast glass surfaces. */
@@ -1453,13 +1462,18 @@ dialog.popup {
   .app-header-title { max-width: 42vw; font-size: 14px; }
   .icon-btn { width: 40px; min-width: 40px; padding: 8px; }
   .app-mobile-menu-button { width: 40px; min-width: 40px; }
-  .dashboard-health-grid { grid-template-columns: 1fr; }
+  .dashboard-health-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dashboard-lower-grid { grid-template-columns: 1fr; }
   .dashboard-lower-grid > :last-child { grid-column: auto; }
   .auth-card { padding: 22px 18px; }
   .auth-card-header h1 { font-size: 24px; }
   .auth-theme-toggle { min-height: 40px; }
   dialog.popup { width: calc(100vw - 24px); }
+}
+
+@media (max-width: 350px) {
+  .dashboard-health-grid { grid-template-columns: 1fr; }
+  .app-mobile-brand span { display: none; }
 }
 
 /* Refined motion: short, interruptible feedback and a calm staged entrance for infrequent page changes. */

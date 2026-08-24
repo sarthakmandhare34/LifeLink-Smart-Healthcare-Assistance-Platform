@@ -92,6 +92,7 @@ export const AppShell = () => {
         <div className="app-sidebar-header">
           <NavLink to="/patient/dashboard" onClick={closeMobileNavigation} className="app-sidebar-brand-link" aria-label={PATIENT_SIDEBAR_BRAND_LABEL}>
             <LifeLinkLogo className="lifelink-logo-sidebar lifelink-logo-sidebar-patient" />
+            <LifeLinkLogo variant="symbol" className="lifelink-logo-sidebar-symbol" />
           </NavLink>
         </div>
 
@@ -128,6 +129,10 @@ export const AppShell = () => {
             >
               {isMobileNavigationOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
+            <NavLink to="/patient/dashboard" className="app-mobile-brand" aria-label={PATIENT_SIDEBAR_BRAND_LABEL}>
+              <LifeLinkLogo variant="symbol" className="app-mobile-brand-symbol" />
+              <span>LifeLink</span>
+            </NavLink>
             <div>
               <p className="caption app-header-eyebrow">Patient workspace</p>
               <p className="app-header-title">{pageTitle}</p>
