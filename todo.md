@@ -182,3 +182,5 @@
 - [x] Add a secure optional circular patient profile-photo control with validated upload, patient-only persistence, and a graceful initial-based fallback.
 - [x] Add regression coverage and validate the refined dashboard on mobile and desktop before publishing.
 - [x] Integrate the requested Oxanium font across the LifeLink interface and tune heading/body weights for readable responsive healthcare workflows.
+- [x] Add a five-minute authenticated-session inactivity timeout that clears the existing LifeLink session and returns the patient to login.
+- [x] Add lifecycle regression coverage for activity reset, timeout cleanup, and secure logout behavior.

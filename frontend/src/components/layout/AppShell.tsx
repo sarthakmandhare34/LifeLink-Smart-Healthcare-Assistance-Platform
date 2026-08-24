@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { Outlet, NavLink, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../_core/hooks/useAuth';
 import { LifeLinkLogo } from '../brand/LifeLinkLogo';
 import { usePatientRealtime } from '../../hooks/usePatientRealtime';
 import { trpc } from '../../lib/trpc';
+import { registerPatientInactivityTimer } from '../../hooks/patientInactivity';
 import {
   LayoutDashboard,
   FileHeart,
@@ -61,6 +63,24 @@ export const AppShell = () => {
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
   const profileQuery = trpc.patientProfile.get.useQuery(undefined, { enabled: Boolean(user) });
   usePatientRealtime(Boolean(user));
+
+  useEffect(() => {
+    if (!user || typeof window === 'undefined') return;
+
+    let hasExpired = false;
+    return registerPatientInactivityTimer(window, () => {
+      if (hasExpired) return;
+      hasExpired = true;
+      void (async () => {
+        try {
+          await logout();
+        } finally {
+          window.alert('You have been signed out after five minutes of inactivity.');
+          navigate('/login', { replace: true });
+        }
+      })();
+    });
+  }, [logout, navigate, user]);
 
   if (loading) {
     return <div className="flex items-center justify-center h-full"><p className="caption">Loading your LifeLink workspace…</p></div>;
