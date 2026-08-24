@@ -69,12 +69,15 @@
   .discovery-map-pane { order: -1; }
   .directory-map-card { position: static; }
   .discovery-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mumbai-directory-map { height: clamp(340px, 46vw, 460px) !important; }
 }
 
 @media (max-width: 768px) {
   .discovery-filter-grid { grid-template-columns: 1fr 1fr; }
-  .mumbai-directory-map { height: 300px !important; }
+  .mumbai-directory-map { height: clamp(280px, 62vw, 360px) !important; }
   .discovery-location-control { align-items: flex-start; flex-direction: column; }
+  .discovery-location-actions { width: 100%; }
+  .discovery-location-actions .btn { flex: 1; }
 }
 
 @media (max-width: 480px) {
@@ -82,6 +85,12 @@
   .discovery-results-heading { align-items: flex-start; flex-direction: column; }
   .discovery-location-actions { width: 100%; }
   .discovery-location-actions .btn { flex: 1; }
+}
+
+@media (max-width: 360px) {
+  .discovery-location-control { padding: 10px; }
+  .discovery-filter-select { padding-inline: 10px; }
+  .mumbai-directory-map { height: 270px !important; }
 }
 
 :root[data-theme="dark"] .mock-directory-notice {

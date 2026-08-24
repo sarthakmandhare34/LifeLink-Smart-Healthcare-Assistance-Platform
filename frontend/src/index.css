@@ -1401,6 +1401,67 @@ dialog.popup::backdrop {
   .app-sidebar-brand-name { display: inline; }
 }
 
+/* Multi-display layout system: wide content remains readable, while controls retain room on laptop, tablet, and compact touch screens. */
+@media (min-width: 1280px) {
+  .app-content { max-width: 1600px; padding-inline: clamp(32px, 4vw, 72px); }
+  .app-header { padding-inline: clamp(32px, 4vw, 72px); }
+  .doctor-content { padding-inline: clamp(28px, 4vw, 64px); }
+}
+
+@media (min-width: 1025px) and (max-width: 1279px) {
+  .app-sidebar { width: 232px; }
+  .app-content { padding: var(--spacing-5); }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .app-header { padding-inline: var(--spacing-4); }
+  .app-content { padding: var(--spacing-5); }
+  .app-account-control > span { display: none; }
+  .app-account-control { padding-right: 4px; }
+  .dashboard-primary-grid { grid-template-columns: 1fr; }
+  .dashboard-lower-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-lower-grid > :last-child { grid-column: span 2; }
+}
+
+.app-sidebar-nav-item,
+.doctor-nav-item,
+.icon-btn,
+.app-mobile-menu-button,
+.app-account-control {
+  min-height: 44px;
+}
+
+dialog.popup {
+  max-height: min(84dvh, 720px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+  .app-header-context { gap: var(--spacing-2); }
+  .app-header-title { max-width: min(48vw, 260px); overflow: hidden; text-overflow: ellipsis; }
+  .app-header-eyebrow { display: none; }
+  .app-header-controls { gap: 6px; }
+  .app-content { padding: var(--spacing-4) max(var(--spacing-3), env(safe-area-inset-right)) calc(var(--spacing-5) + env(safe-area-inset-bottom)) max(var(--spacing-3), env(safe-area-inset-left)); }
+  .doctor-content { padding: var(--spacing-4) max(var(--spacing-3), env(safe-area-inset-right)) calc(var(--spacing-5) + env(safe-area-inset-bottom)) max(var(--spacing-3), env(safe-area-inset-left)); }
+  dialog.popup { width: min(94vw, 540px); max-height: 88dvh; }
+  .auth-page { min-height: 100dvh; padding-bottom: calc(var(--spacing-6) + env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 480px) {
+  .app-header { height: 60px; padding-inline: var(--spacing-2); }
+  .app-header-title { max-width: 42vw; font-size: 14px; }
+  .icon-btn { width: 40px; min-width: 40px; padding: 8px; }
+  .app-mobile-menu-button { width: 40px; min-width: 40px; }
+  .dashboard-health-grid { grid-template-columns: 1fr; }
+  .dashboard-lower-grid { grid-template-columns: 1fr; }
+  .dashboard-lower-grid > :last-child { grid-column: auto; }
+  .auth-card { padding: 22px 18px; }
+  .auth-card-header h1 { font-size: 24px; }
+  .auth-theme-toggle { min-height: 40px; }
+  dialog.popup { width: calc(100vw - 24px); }
+}
+
 /* Refined motion: short, interruptible feedback and a calm staged entrance for infrequent page changes. */
 @keyframes lifelink-auth-card-in {
   from { opacity: 0; transform: translateY(18px) scale(.985); }
