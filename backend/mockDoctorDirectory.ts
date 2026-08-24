@@ -38,22 +38,23 @@ type ControlledDirectoryDefinition = {
 };
 
 /**
- * Compact, balanced development catalog: four specialty examples per primary
- * corridor. Shared-station connectivity comes from the owner-supplied network.
+ * Compact development catalog clustered around connected interchange areas.
+ * All 12 specialties remain represented, while card and map discovery now focus
+ * on four nearby hubs rather than spreading examples across distant endpoints.
  */
 const CONTROLLED_DIRECTORY_DEFINITIONS: readonly ControlledDirectoryDefinition[] = [
   { id: "mock-central-cardiology-dadar", specialty: "Cardiology", station: "Dadar", railLine: "Central" },
-  { id: "mock-central-dermatology-ghatkopar", specialty: "Dermatology", station: "Ghatkopar", railLine: "Central" },
-  { id: "mock-central-orthopedics-byculla", specialty: "Orthopedics", station: "Byculla", railLine: "Central" },
-  { id: "mock-central-neurology-kalyan", specialty: "Neurology", station: "Kalyan Junction", railLine: "Central" },
-  { id: "mock-western-general-practice-churchgate", specialty: "General Practice", station: "Churchgate", railLine: "Western" },
+  { id: "mock-central-dermatology-dadar", specialty: "Dermatology", station: "Dadar", railLine: "Central" },
+  { id: "mock-central-orthopedics-kurla", specialty: "Orthopedics", station: "Kurla", railLine: "Central" },
+  { id: "mock-central-neurology-kurla", specialty: "Neurology", station: "Kurla", railLine: "Central" },
+  { id: "mock-western-general-practice-dadar", specialty: "General Practice", station: "Dadar", railLine: "Western" },
   { id: "mock-western-pediatrics-bandra", specialty: "Pediatrics", station: "Bandra", railLine: "Western" },
-  { id: "mock-western-ophthalmology-andheri", specialty: "Ophthalmology", station: "Andheri", railLine: "Western" },
-  { id: "mock-western-gastroenterology-borivali", specialty: "Gastroenterology", station: "Borivali", railLine: "Western" },
-  { id: "mock-harbour-psychiatry-wadala", specialty: "Psychiatry", station: "Wadala Road", railLine: "Harbour" },
-  { id: "mock-harbour-endocrinology-chembur", specialty: "Endocrinology", station: "Chembur", railLine: "Harbour" },
-  { id: "mock-harbour-pulmonology-vashi", specialty: "Pulmonology", station: "Vashi", railLine: "Harbour" },
-  { id: "mock-harbour-gynecology-panvel", specialty: "Gynecology", station: "Panvel", railLine: "Harbour" },
+  { id: "mock-western-ophthalmology-bandra", specialty: "Ophthalmology", station: "Bandra", railLine: "Western" },
+  { id: "mock-western-gastroenterology-bandra", specialty: "Gastroenterology", station: "Bandra", railLine: "Western" },
+  { id: "mock-harbour-psychiatry-kurla", specialty: "Psychiatry", station: "Kurla", railLine: "Harbour" },
+  { id: "mock-harbour-endocrinology-bandra", specialty: "Endocrinology", station: "Bandra", railLine: "Harbour" },
+  { id: "mock-harbour-pulmonology-wadala", specialty: "Pulmonology", station: "Wadala Road", railLine: "Harbour" },
+  { id: "mock-harbour-gynecology-wadala", specialty: "Gynecology", station: "Wadala Road", railLine: "Harbour" },
 ];
 
 export const mockDoctorDirectory: MockDoctorDirectoryEntry[] = CONTROLLED_DIRECTORY_DEFINITIONS.map((definition) => {

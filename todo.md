@@ -7,17 +7,17 @@
 - [x] Inspect the current auth architecture and provider requirements for Google and Apple sign-in alongside native LifeLink accounts.
 - [x] Add prepared Google and Apple sign-in controls without removing native email/password registration and login.
 - [x] Configure required provider credentials and callback settings without exposing secrets to the browser.
-- [ ] Verify successful provider callback, provider-account creation, and native-login regression paths; preserve the existing safe conflict policy for native accounts.
+- [ ] Verify successful provider callback, provider-account creation, and native-login regression paths; preserve the existing safe conflict policy for native accounts. *(Owner confirmed Google sign-in works; detailed registration and native-regression evidence remains separate.)*
 - [x] Remove Apple provider controls, routes, configuration fields, and activation requirements from the Google-only scope.
 - [x] Add the prepared Google OAuth entry point to both native login and registration pages without removing email/password flows.
 - [x] Update provider documentation and tests for the streamlined Google-only activation path.
 - [x] Register the configured LifeLink Google callback URL in the Google Cloud OAuth client to resolve the verified redirect mismatch.
-- [ ] Complete one real Google consent/callback validation after the corrected redirect URI is saved.
+- [x] Complete one real Google consent/callback validation after the corrected redirect URI is saved. *(Owner confirmed Google sign-in works.)*
 - [x] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
 - [x] Resolve the new Railway 404 at the configured `lifelink-rqrpkqmn.manus.space` callback domain before resuming Google consent.
-- [ ] Observe one complete public Google sign-in through consent returning to `/patient/dashboard`.
+- [ ] Observe one complete public Google sign-in through consent returning to `/patient/dashboard`. *(Google sign-in works per owner confirmation; dashboard-route observation remains separate.)*
 - [ ] Verify the authenticated public Google session through `auth.me` or equivalent protected state after callback completion.
-- [ ] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable.
+- [ ] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable. *(Permanent-origin start URL repair is deployed; first-attempt evidence remains separate.)*
 - [ ] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try.
 - [ ] Verify the protected public session after that first-attempt callback without exposing personal data.
 - [x] Reattach the permanent LifeLink domain to the latest deployment; it currently serves outdated provider metadata without the new Google registration start URL.
@@ -165,4 +165,7 @@
 - [x] Remove the remaining visible controlled-map guidance copy while retaining interactive marker selection and browser-location privacy behavior.
 - [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.
 - [x] Consolidate the duplicate legacy frontend context modules into one active context folder without changing application behavior.
+- [x] Recluster the controlled mock specialty directory around connected Mumbai interchange stations while retaining Central, Harbour, and Western coverage.
+- [x] Add safe user-initiated SOS actions that prepare an emergency-contact message and open an ambulance-call confirmation without automatic calling or messaging.
+- [x] Require an explicit in-app confirmation before opening either an emergency-contact SMS composer or an ambulance-call dialer.
 - [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.

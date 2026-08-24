@@ -1,130 +1,127 @@
-import React, { useState } from 'react';
-import { useMockData } from '../../context/MockDataContext';
+import { useState } from 'react';
+import { ShieldAlert, Phone, MessageCircle, Siren, UsersRound } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { ShieldAlert, Phone, MapPin, Activity, AlertTriangle } from 'lucide-react';
+import { Popup } from '../../components/ui/Popup';
+import { trpc } from '../../lib/trpc';
+import { useNavigate } from 'react-router-dom';
+
+/** India’s unified emergency response number. The control only opens a dialer after confirmation. */
+export const AMBULANCE_EMERGENCY_NUMBER = '112';
+export const SMS_CONFIRMATION_TITLE = 'Prepare SOS message';
+
+/** This copy is placed into the user’s SMS composer; LifeLink never sends it automatically. */
+export function buildEmergencySmsBody() {
+  return 'SOS: Please contact me immediately. I requested emergency help through LifeLink.';
+}
+
+function smsHref(phone: string) {
+  return `sms:${phone.replace(/[^+\d]/g, '')}?body=${encodeURIComponent(buildEmergencySmsBody())}`;
+}
 
 export const Emergency = () => {
-  const { currentUser } = useMockData();
-  const [status, setStatus] = useState<'idle' | 'confirming' | 'processing' | 'triggered'>('idle');
+  const navigate = useNavigate();
+  const profileQuery = trpc.patientProfile.get.useQuery();
+  const [isAmbulanceConfirmOpen, setIsAmbulanceConfirmOpen] = useState(false);
+  const [contactForSms, setContactForSms] = useState<{ name: string; phone: string } | null>(null);
 
-  if (!currentUser || currentUser.role !== 'patient') return null;
+  const contacts = profileQuery.data?.emergencyContacts ?? [];
 
-  const handleTrigger = () => {
-    setStatus('confirming');
+  const openSmsComposer = () => {
+    if (!contactForSms) return;
+    // This opens the user’s native SMS composer. The user must review and send the message themselves.
+    const smsTarget = smsHref(contactForSms.phone);
+    setContactForSms(null);
+    window.location.assign(smsTarget);
   };
 
-  const handleConfirm = () => {
-    setStatus('processing');
-    setTimeout(() => {
-      setStatus('triggered');
-    }, 1500);
+  const openAmbulanceDialer = () => {
+    setIsAmbulanceConfirmOpen(false);
+    // This opens the dialer only. The user must still choose to place the call.
+    window.location.assign(`tel:${AMBULANCE_EMERGENCY_NUMBER}`);
   };
 
   return (
-    <div className="container" style={{ padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <header className="mb-4" style={{ textAlign: 'center' }}>
-        <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(242,184,75,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--spacing-2)' }}>
-          <ShieldAlert size={32} color="var(--color-secondary)" />
-        </div>
-        <h1 style={{ margin: 0 }}>Emergency Assistance</h1>
-        <p className="caption">Quick emergency contact notification and dispatch simulation.</p>
-        <div style={{ marginTop: 'var(--spacing-2)' }}>
-          <span style={{ display: 'inline-block', padding: '4px 12px', background: 'var(--color-primary)', color: 'var(--color-secondary)', borderRadius: 'var(--border-radius-sm)', fontSize: 'var(--text-caption)', fontWeight: 700, border: '1px solid rgba(242,184,75,0.3)' }}>
-            DEMO ENVIRONMENT • SIMULATED ACTION
-          </span>
+    <div className="container" style={{ padding: 0, maxWidth: '760px' }}>
+      <header className="mb-4">
+        <div className="flex items-center gap-3">
+          <div style={{ width: 52, height: 52, borderRadius: '16px', background: 'rgba(187, 44, 44, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ShieldAlert size={28} color="#B01E1E" />
+          </div>
+          <div>
+            <h1 style={{ margin: 0 }}>Emergency Assistance</h1>
+            <p className="caption" style={{ margin: '4px 0 0' }}>Choose an action yourself. LifeLink does not call emergency services, send messages, or share your location automatically.</p>
+          </div>
         </div>
       </header>
 
-      <Card 
-        variant={status === 'triggered' ? 'emergency' : 'glass'}
-        style={{ 
-          width: '100%', 
-          maxWidth: '540px', 
-          textAlign: 'center', 
-          backgroundColor: status === 'triggered' ? 'var(--color-primary)' : undefined,
-          color: status === 'triggered' ? 'white' : 'var(--color-text)'
-        }}
-      >
-        {status === 'idle' && (
-          <div className="flex-col gap-4 items-center">
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(0,27,48,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldAlert size={40} color="var(--color-secondary)" />
+      <div className="flex-col gap-4">
+        <Card variant="emergency" style={{ padding: 'var(--spacing-5)' }}>
+          <div className="flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <Siren size={24} color="#B01E1E" />
+              <h2 style={{ margin: 0, color: 'var(--color-primary)' }}>Call emergency response</h2>
             </div>
-            <div>
-              <h2 style={{ color: 'var(--color-primary)', margin: '0 0 var(--spacing-1) 0' }}>SOS Emergency Dispatch</h2>
-              <p style={{ margin: 0 }}>Triggering SOS will notify your recorded emergency contacts and transmit your location.</p>
-              <p className="caption" style={{ marginTop: 'var(--spacing-2)', color: 'var(--color-text-muted)' }}>
-                (This is a safe demonstration flow. No real emergency services will be dispatched.)
-              </p>
-            </div>
-            
-            <Button 
-               variant="secondary" 
-               style={{ width: '100%', padding: '16px', fontSize: 'var(--text-h2)', textTransform: 'uppercase', letterSpacing: '1px' }}
-               onClick={handleTrigger}
-            >
-              TRIGGER SOS
+            <p style={{ margin: 0 }}>For an immediate emergency in India, you can open your device dialer for the unified emergency number <strong>{AMBULANCE_EMERGENCY_NUMBER}</strong>. Your device will ask you to place the call.</p>
+            <Button variant="secondary" onClick={() => setIsAmbulanceConfirmOpen(true)}>
+              <Phone size={18} /> Call {AMBULANCE_EMERGENCY_NUMBER}
             </Button>
           </div>
-        )}
+        </Card>
 
-        {(status === 'confirming' || status === 'processing') && (
-          <div className="flex-col gap-4 items-center">
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255, 159, 128, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AlertTriangle size={40} color="var(--color-secondary)" />
-            </div>
+        <Card variant="glass" style={{ padding: 'var(--spacing-5)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <UsersRound size={22} color="var(--color-primary)" />
             <div>
-              <h2 style={{ color: 'var(--color-primary)', margin: '0 0 var(--spacing-1) 0' }}>Confirm Emergency Trigger</h2>
-              <p style={{ margin: 0 }}>Are you sure you want to activate emergency notification mode?</p>
-              <p className="caption" style={{ marginTop: 'var(--spacing-2)', color: '#8C391B', fontWeight: 700 }}>
-                DEMO WARNING: NO REAL EMERGENCY RESPONDERS OR SMS WILL BE CONTACTED.
-              </p>
-            </div>
-            
-            <div className="flex gap-3 w-full">
-              <Button variant="outline" style={{ flex: 1 }} onClick={() => setStatus('idle')} disabled={status === 'processing'}>
-                Cancel
-              </Button>
-              <Button variant="secondary" style={{ flex: 1 }} onClick={handleConfirm} disabled={status === 'processing'}>
-                {status === 'processing' ? 'Activating...' : 'Confirm SOS'}
-              </Button>
+              <h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Emergency contacts</h2>
+              <p className="caption" style={{ margin: '3px 0 0' }}>Preparing a message opens your phone’s SMS composer. Review it and choose whether to send it.</p>
             </div>
           </div>
-        )}
 
-        {status === 'triggered' && (
-          <div className="flex-col gap-4 items-center">
-             <Activity size={64} color="var(--color-secondary)" />
-             <div>
-               <h2 style={{ color: 'white', margin: '0 0 var(--spacing-1) 0' }}>Simulated Emergency Active</h2>
-               <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0 }}>Your emergency contacts have been notified in demo state.</p>
-             </div>
-             
-             <div style={{ width: '100%', textAlign: 'left', background: 'rgba(255,255,255,0.1)', padding: 'var(--spacing-4)', borderRadius: 'var(--border-radius-md)' }}>
-                <p style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)', color: 'white', margin: '0 0 var(--spacing-2) 0' }}>
-                  <MapPin size={18} color="var(--color-secondary)" /> 
-                  Location coordinates transmitted to simulated responder pool.
-                </p>
-                {currentUser.emergencyContacts.map((contact) => (
-                  <p key={contact.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)', color: 'white', margin: 0 }}>
-                    <Phone size={18} color="var(--color-secondary)" /> 
-                    {contact.name} ({contact.relationship}) notified at {contact.phone}.
-                  </p>
-                ))}
-             </div>
+          {profileQuery.isLoading && <p className="caption" style={{ margin: 0 }}>Loading your recorded emergency contacts…</p>}
+          {!profileQuery.isLoading && contacts.length === 0 && (
+            <div className="flex-col gap-3">
+              <p className="caption" style={{ margin: 0 }}>No emergency contacts are recorded in your Health Passport yet.</p>
+              <Button variant="outline" onClick={() => navigate('/patient/passport')}>Manage emergency contacts</Button>
+            </div>
+          )}
+          {!profileQuery.isLoading && contacts.length > 0 && (
+            <div className="flex-col gap-3">
+              {contacts.map((contact) => (
+                <div key={contact.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--spacing-3)', padding: '12px', border: '1px solid var(--color-border)', borderRadius: 'var(--border-radius-md)' }}>
+                  <div>
+                    <strong style={{ color: 'var(--color-primary)' }}>{contact.name}</strong>
+                    <p className="caption" style={{ margin: '2px 0 0' }}>{contact.relationship}</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setContactForSms({ name: contact.name, phone: contact.phone })}>
+                    <MessageCircle size={16} /> Review SOS message
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
 
-             <Button 
-               variant="outline" 
-               style={{ width: '100%', borderColor: 'white', color: 'white' }}
-               onClick={() => setStatus('idle')}
-            >
-              Reset Emergency State
-            </Button>
+      <Popup isOpen={isAmbulanceConfirmOpen} onClose={() => setIsAmbulanceConfirmOpen(false)} title="Open emergency dialer" closeOnBackdrop={false}>
+        <div className="flex-col gap-4">
+          <p style={{ margin: 0 }}>This will open your device dialer with <strong>{AMBULANCE_EMERGENCY_NUMBER}</strong>. LifeLink will not place the call for you; you decide whether to continue in your phone app.</p>
+          <div className="flex gap-3">
+            <Button variant="outline" style={{ flex: 1 }} onClick={() => setIsAmbulanceConfirmOpen(false)}>Cancel</Button>
+            <Button variant="secondary" style={{ flex: 1 }} onClick={openAmbulanceDialer}><Phone size={16} /> Open dialer</Button>
           </div>
-        )}
+        </div>
+      </Popup>
 
-      </Card>
+      <Popup isOpen={Boolean(contactForSms)} onClose={() => setContactForSms(null)} title={SMS_CONFIRMATION_TITLE} closeOnBackdrop={false}>
+        <div className="flex-col gap-4">
+          <p style={{ margin: 0 }}>This will open an SMS draft addressed to <strong>{contactForSms?.name}</strong>. LifeLink will not send it; you can review, edit, or cancel it in your messaging app.</p>
+          <div className="flex gap-3">
+            <Button variant="outline" style={{ flex: 1 }} onClick={() => setContactForSms(null)}>Cancel</Button>
+            <Button variant="secondary" style={{ flex: 1 }} onClick={openSmsComposer}><MessageCircle size={16} /> Open SMS draft</Button>
+          </div>
+        </div>
+      </Popup>
     </div>
   );
 };
