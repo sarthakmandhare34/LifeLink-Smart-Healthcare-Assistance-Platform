@@ -191,3 +191,4 @@
 - [x] Remove dark mode controls and persistence so LifeLink uses one consistent accessible light theme.
 - [x] Refine the patient layout alignment and responsive spacing for a clearer, properly arranged interface.
 - [x] Add focused workflow verification coverage so key patient flows can be checked against their expected outcomes.
+- [x] Investigate why recent published LifeLink checkpoints are not visible in the connected GitHub repository and report the safe resolution path.
