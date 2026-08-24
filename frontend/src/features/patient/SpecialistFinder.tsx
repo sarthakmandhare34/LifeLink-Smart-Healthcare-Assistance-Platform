@@ -264,7 +264,6 @@ export const SpecialistFinder = () => {
               <div><h2 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Interactive Mumbai map</h2><p className="caption">Google Maps base map and controlled directory markers stay in sync.</p></div>
             </div>
             <MumbaiDoctorMap doctors={displayedDoctors} selectedDoctorId={selectedDocId} onSelectDoctor={selectDoctor} browserLocation={browserLocation} />
-            <p className="caption discovery-map-note">The interactive map identifies only controlled directory entries. If you choose to share browser location, it is used only in this page to order entries and center the map; it is not stored or sent to LifeLink. The directory does not claim verified clinicians or live availability.</p>
           </Card>
         </aside>
       </div>

@@ -1,7 +1,6 @@
 /**
- * Development-only directory. These are explicit mock listings generated from
- * owner-supplied station entities; they are not practitioner credentials, real
- * availability, ratings, reviews, or medical recommendations.
+ * Development-only directory. These are explicit mock listings; they are not
+ * practitioner credentials, real availability, ratings, reviews, or medical recommendations.
  */
 import { MUMBAI_RAIL_LINES, MUMBAI_RAIL_STATIONS, type MumbaiRailLine } from "@shared/mumbaiRailNetwork";
 import { MUMBAI_STATION_COORDINATES } from "@shared/mumbaiStationCoordinates";
@@ -31,40 +30,51 @@ export type MockDoctorDirectoryFilters = {
   query?: string;
 };
 
-const DEVELOPMENT_SPECIALTY_PAIRS: readonly (readonly [string, string])[] = [
-  ["General Practice", "Cardiology"],
-  ["Pediatrics", "Dermatology"],
-  ["Orthopedics", "Ophthalmology"],
-  ["Psychiatry", "Endocrinology"],
-  ["Pulmonology", "Gastroenterology"],
-  ["Neurology", "Gynecology"],
-];
+type ControlledDirectoryDefinition = {
+  id: string;
+  specialty: string;
+  station: string;
+  railLine: MumbaiRailLine;
+};
 
 /**
- * Creates exactly two clearly marked mock listings for every owner-supplied
- * station entity. Coordinates are station reference points, never user or
- * clinician locations. The shared station entity remains a single record with
- * every line association preserved on both generated listings.
+ * Compact, balanced development catalog: four specialty examples per primary
+ * corridor. Shared-station connectivity comes from the owner-supplied network.
  */
-export const mockDoctorDirectory: MockDoctorDirectoryEntry[] = MUMBAI_RAIL_STATIONS.flatMap((station, stationIndex) => {
-  const coordinate = MUMBAI_STATION_COORDINATES[station.name];
-  if (!coordinate) throw new Error(`Missing controlled map coordinate for ${station.name}`);
+const CONTROLLED_DIRECTORY_DEFINITIONS: readonly ControlledDirectoryDefinition[] = [
+  { id: "mock-central-cardiology-dadar", specialty: "Cardiology", station: "Dadar", railLine: "Central" },
+  { id: "mock-central-dermatology-ghatkopar", specialty: "Dermatology", station: "Ghatkopar", railLine: "Central" },
+  { id: "mock-central-orthopedics-byculla", specialty: "Orthopedics", station: "Byculla", railLine: "Central" },
+  { id: "mock-central-neurology-kalyan", specialty: "Neurology", station: "Kalyan Junction", railLine: "Central" },
+  { id: "mock-western-general-practice-churchgate", specialty: "General Practice", station: "Churchgate", railLine: "Western" },
+  { id: "mock-western-pediatrics-bandra", specialty: "Pediatrics", station: "Bandra", railLine: "Western" },
+  { id: "mock-western-ophthalmology-andheri", specialty: "Ophthalmology", station: "Andheri", railLine: "Western" },
+  { id: "mock-western-gastroenterology-borivali", specialty: "Gastroenterology", station: "Borivali", railLine: "Western" },
+  { id: "mock-harbour-psychiatry-wadala", specialty: "Psychiatry", station: "Wadala Road", railLine: "Harbour" },
+  { id: "mock-harbour-endocrinology-chembur", specialty: "Endocrinology", station: "Chembur", railLine: "Harbour" },
+  { id: "mock-harbour-pulmonology-vashi", specialty: "Pulmonology", station: "Vashi", railLine: "Harbour" },
+  { id: "mock-harbour-gynecology-panvel", specialty: "Gynecology", station: "Panvel", railLine: "Harbour" },
+];
 
-  const specialties = DEVELOPMENT_SPECIALTY_PAIRS[stationIndex % DEVELOPMENT_SPECIALTY_PAIRS.length];
-  return specialties.map((specialty, specialtyIndex) => ({
-    id: `mock-${station.id}-${specialty.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-    name: `Mock ${specialty} Specialist — ${station.name}`,
-    specialty,
+export const mockDoctorDirectory: MockDoctorDirectoryEntry[] = CONTROLLED_DIRECTORY_DEFINITIONS.map((definition) => {
+  const station = MUMBAI_RAIL_STATIONS.find((candidate) => candidate.name === definition.station);
+  const coordinate = MUMBAI_STATION_COORDINATES[definition.station];
+  if (!station || !coordinate) throw new Error(`Missing controlled directory reference data for ${definition.station}`);
+
+  return {
+    id: definition.id,
+    name: `Mock ${definition.specialty} Specialist — ${definition.station}`,
+    specialty: definition.specialty,
     hospital: "LifeLink development directory",
-    locality: station.name,
-    city: "Mumbai" as const,
-    railLine: station.lines[0],
+    locality: definition.station,
+    city: "Mumbai",
+    railLine: definition.railLine,
     railLines: station.lines,
     station: station.name,
-    latitude: coordinate.latitude + specialtyIndex * 0.00008,
-    longitude: coordinate.longitude + specialtyIndex * 0.00008,
-    isMock: true as const,
-  }));
+    latitude: coordinate.latitude,
+    longitude: coordinate.longitude,
+    isMock: true,
+  };
 });
 
 function normalized(value?: string) {
@@ -90,12 +100,13 @@ export function filterMockDoctorDirectory(filters: MockDoctorDirectoryFilters = 
 }
 
 export function getMockDoctorDirectoryFacets() {
+  const supportedStations = MUMBAI_RAIL_STATIONS.filter((station) => mockDoctorDirectory.some((doctor) => doctor.station === station.name));
   return {
     city: "Mumbai" as const,
     specialties: Array.from(new Set(mockDoctorDirectory.map((doctor) => doctor.specialty))).sort(),
     localities: Array.from(new Set(mockDoctorDirectory.map((doctor) => doctor.locality))).sort(),
     railLines: MUMBAI_RAIL_LINES,
-    stations: MUMBAI_RAIL_STATIONS,
+    stations: supportedStations,
   };
 }
 

@@ -160,3 +160,4 @@
 - [x] Ensure each supported station has two explicitly labeled mock development-directory entries and each rail corridor has at least three specialty categories, without claiming real clinicians or availability.
 - [x] Reconcile the uploaded LifeLink feature inventory against the implemented product and provide a security-safe inventory of configured integration purposes.
 - [x] Make the local LifeLink checkout runnable with standard npm install, npm run dev, npm test, and npm run build commands, without changing application behavior.
+- [x] Remove the Specialist Finder section beneath the map and reduce the controlled mock doctor directory to an orderly specialty-balanced set across Central, Harbour, and Western corridors.

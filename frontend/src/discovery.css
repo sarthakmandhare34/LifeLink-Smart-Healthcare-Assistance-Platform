@@ -64,7 +64,6 @@
 .mumbai-map-retry { margin-top: 8px; border: 1px solid rgba(79, 70, 229, .34); border-radius: 999px; background: rgba(255, 255, 255, .72); color: var(--color-primary); cursor: pointer; font: inherit; font-size: var(--text-caption); font-weight: 700; padding: 6px 10px; }
 .mumbai-map-retry:hover { background: rgba(79, 70, 229, .08); }
 .mumbai-map-status { margin: var(--spacing-2) 0 0; padding: 8px 10px; border-radius: 9px; background: rgba(83, 192, 165, 0.1); color: var(--color-text-muted); font-size: var(--text-caption); }
-.discovery-map-note { margin: var(--spacing-3) 0 0; }
 
 @media (max-width: 1024px) {
   .discovery-workspace { grid-template-columns: 1fr; }
