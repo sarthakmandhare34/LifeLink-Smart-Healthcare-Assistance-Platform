@@ -168,4 +168,5 @@
 - [x] Recluster the controlled mock specialty directory around connected Mumbai interchange stations while retaining Central, Harbour, and Western coverage.
 - [x] Add safe user-initiated SOS actions that prepare an emergency-contact message and open an ambulance-call confirmation without automatic calling or messaging.
 - [x] Require an explicit in-app confirmation before opening either an emergency-contact SMS composer or an ambulance-call dialer.
+- [x] Add refined, reduced-motion-safe interface animations across LifeLink’s shared surfaces and key interactions.
 - [x] Audit the current frontend, backend, database, and shared folder structure against the uploaded LifeLink checklist and report implemented, mock-only, and pending areas.

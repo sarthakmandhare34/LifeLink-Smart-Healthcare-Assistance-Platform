@@ -1400,3 +1400,64 @@ dialog.popup::backdrop {
   .app-sidebar-brand-link { justify-content: flex-start; width: 100%; min-height: 52px; padding: 6px; }
   .app-sidebar-brand-name { display: inline; }
 }
+
+/* Refined motion: short, interruptible feedback and a calm staged entrance for infrequent page changes. */
+@keyframes lifelink-auth-card-in {
+  from { opacity: 0; transform: translateY(18px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes lifelink-field-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lifelink-orb-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(14px, -10px, 0) scale(1.035); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .auth-card {
+    animation: lifelink-auth-card-in 420ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  .auth-form > *,
+  .social-auth,
+  .auth-card-footer {
+    animation: lifelink-field-rise 260ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  .auth-form > *:nth-child(1) { animation-delay: 70ms; }
+  .auth-form > *:nth-child(2) { animation-delay: 110ms; }
+  .auth-form > *:nth-child(3) { animation-delay: 150ms; }
+  .social-auth { animation-delay: 180ms; }
+  .auth-card-footer { animation-delay: 210ms; }
+
+  .auth-page::before { animation: lifelink-orb-drift 15s ease-in-out infinite; }
+  .auth-page::after { animation: lifelink-orb-drift 18s ease-in-out -7s infinite reverse; }
+
+  .app-sidebar-nav-item,
+  .dashboard-stat-card,
+  .dashboard-care-row,
+  .dashboard-record-link {
+    transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), border-color 180ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .app-sidebar-nav-item:hover { transform: translateX(3px); }
+  .dashboard-care-row:hover,
+  .dashboard-record-link:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  .btn:active:not(:disabled) { transform: translateY(1px) scale(.98); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card,
+  .auth-form > *,
+  .social-auth,
+  .auth-card-footer,
+  .auth-page::before,
+  .auth-page::after {
+    animation: none !important;
+    transform: none !important;
+  }
+}
