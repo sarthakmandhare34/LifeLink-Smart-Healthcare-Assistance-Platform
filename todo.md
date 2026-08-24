@@ -181,3 +181,4 @@
 - [x] Refine the patient dashboard Quick Actions card with aligned action rows, clear visual hierarchy, and responsive glass-surface spacing matching the supplied reference.
 - [x] Add a secure optional circular patient profile-photo control with validated upload, patient-only persistence, and a graceful initial-based fallback.
 - [x] Add regression coverage and validate the refined dashboard on mobile and desktop before publishing.
+- [x] Integrate the requested Oxanium font across the LifeLink interface and tune heading/body weights for readable responsive healthcare workflows.
