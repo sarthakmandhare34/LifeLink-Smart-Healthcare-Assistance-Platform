@@ -115,6 +115,26 @@ body {
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
+/* The supplied official lockup is a quiet atmospheric layer only; content remains in the foreground. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url('/assets/branding/lifelink-logo-lockup.jpg') center 46% / min(78vw, 980px) auto no-repeat;
+  filter: blur(30px) saturate(1.08);
+  opacity: .075;
+  transform: scale(1.12);
+}
+
+#root { position: relative; z-index: 1; min-height: 100vh; }
+
+:root[data-theme="dark"] body::before {
+  filter: blur(34px) saturate(1.18) brightness(.86);
+  opacity: .11;
+}
+
 /* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Oxanium', -apple-system, BlinkMacSystemFont, sans-serif;

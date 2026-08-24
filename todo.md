@@ -184,3 +184,5 @@
 - [x] Integrate the requested Oxanium font across the LifeLink interface and tune heading/body weights for readable responsive healthcare workflows.
 - [x] Add a five-minute authenticated-session inactivity timeout that clears the existing LifeLink session and returns the patient to login.
 - [x] Add lifecycle regression coverage for activity reset, timeout cleanup, and secure logout behavior.
+- [x] Add a restrained blurred official LifeLink logo background layer that preserves readable foreground content in light and dark modes.
+- [x] Validate the blurred-logo background on responsive login and patient dashboard views before publishing.
