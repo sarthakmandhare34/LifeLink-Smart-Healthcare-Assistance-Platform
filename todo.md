@@ -186,9 +186,3 @@
 - [x] Add lifecycle regression coverage for activity reset, timeout cleanup, and secure logout behavior.
 - [x] Add a restrained blurred official LifeLink logo background layer that preserves readable foreground content in light and dark modes.
 - [x] Validate the blurred-logo background on responsive login and patient dashboard views before publishing.
-- [x] Strengthen the blurred LifeLink logo background using the supplied lockup reference while retaining high-clarity foreground surfaces.
-- [x] Revalidate the recognisable background treatment on responsive login and patient dashboard views.
-- [x] Remove dark mode controls and persistence so LifeLink uses one consistent accessible light theme.
-- [x] Refine the patient layout alignment and responsive spacing for a clearer, properly arranged interface.
-- [x] Add focused workflow verification coverage so key patient flows can be checked against their expected outcomes.
-- [x] Investigate why recent published LifeLink checkpoints are not visible in the connected GitHub repository and report the safe resolution path.

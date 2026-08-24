@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
 import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
+import { EntryThemeToggle } from '../../components/EntryThemeToggle';
 import { trpc } from '../../lib/trpc';
 import { Chrome } from 'lucide-react';
 import { PATIENT_DASHBOARD_PATH } from './patientAuthRoutes';
@@ -42,6 +43,7 @@ export const PatientLogin = () => {
 
   return (
     <main className="auth-page" aria-labelledby="patient-login-heading">
+      <EntryThemeToggle />
       <Card variant="glass" className="auth-card">
         <header className="auth-card-header">
           <LifeLinkLogo className="lifelink-logo-auth" />
