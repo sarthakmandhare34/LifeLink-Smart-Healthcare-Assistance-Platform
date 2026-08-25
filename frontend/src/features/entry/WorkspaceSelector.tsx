@@ -37,7 +37,7 @@ export const WorkspaceSelector = () => {
           <span className="workspace-portal-mark" aria-hidden="true"><HeartPulse size={22} /></span>
           <span>
             <strong>LifeLink</strong>
-            <small>Patient &amp; controlled clinician portal</small>
+            <small>Secure care portal</small>
           </span>
         </div>
         <div className="workspace-portal-assurance"><ShieldCheck size={16} aria-hidden="true" /><span>Patient-owned records</span></div>

@@ -25,6 +25,8 @@ describe("workspace selector entry flow", () => {
   it("uses the clinical-portal header without unsafe clinical or emergency claims", () => {
     expect(selectorSource).toContain('className="workspace-portal-header"');
     expect(selectorSource).toContain("Patient-owned records");
+    expect(selectorSource).toContain("Secure care portal");
+    expect(selectorSource).not.toContain("controlled clinician portal");
     expect(selectorSource).not.toContain("Emergency assistance is user-controlled.");
     expect(selectorSource).not.toContain("does not dispatch an ambulance");
     expect(selectorSource).not.toContain("Verified clinical practitioner");

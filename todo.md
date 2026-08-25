@@ -301,3 +301,14 @@
 - [x] Remove the requested workspace-entry emergency information block.
 - [x] Correct dark-mode contrast for the workspace-entry header, cards, badges, and privacy text.
 - [x] Add regression coverage and verify the corrected entry page at desktop and mobile widths.
+
+## Clinician Credential Workflow Diagnosis
+
+- [ ] Inspect non-sensitive runtime evidence for the reported clinician account setup or sign-in failure.
+- [ ] Correct any verified credential-flow defect without exposing owner codes or clinician credentials.
+- [ ] Obtain private owner confirmation of clinician sign-in and assigned-appointment access.
+
+## Portal Header Wording Refinement
+
+- [x] Remove the requested controlled-clinician subtitle from the portal header.
+- [x] Verify the focused wording refinement and synchronize it to GitHub.
