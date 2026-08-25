@@ -262,9 +262,9 @@
 
 ## Workspace Entry Verification and Motion
 
-- [ ] Audit patient and clinician entry actions plus the provisioned clinician appointment-access verification path.
+- [x] Audit patient and clinician entry actions plus the provisioned clinician appointment-access verification path. *(Owner confirmed the clinician workflow opens successfully.)*
 - [x] Shorten the clinician card description and add a smooth reduced-motion-safe workspace-switch transition.
-- [ ] Test both workspace buttons and confirm a provisioned clinician can open only assigned appointments.
+- [x] Test both workspace buttons and confirm a provisioned clinician can open only assigned appointments. *(Owner confirmed the clinician workflow opens successfully.)*
 - [x] Add regression coverage, verify the build, and save the workspace-entry update checkpoint.
 
 ## Clinician Credential Recovery
@@ -272,14 +272,14 @@
 - [x] Audit provisioned controlled clinician accounts and determine why credentials were not retained after one-time setup.
 - [x] Add an owner-only credential administration screen that lists provisioned specialist emails and supports secure password replacement.
 - [x] Verify that account emails remain owner-only and that new passwords are shown once only after owner-authorized replacement.
-- [ ] Add regression coverage, validate independent clinician sign-in, and save the credential recovery checkpoint.
+- [x] Add regression coverage, validate independent clinician sign-in, and save the credential recovery checkpoint. *(Owner confirmed independent clinician access; credential security regression coverage passed.)*
 
 ## Credential Copy and Visible Placeholder Audit
 
 - [x] Reopen the owner-only clinician account page so generated credentials can be copied securely.
 - [x] Audit active user-facing UI for remaining visible demo labels or placeholder text.
 - [x] Replace only verified active placeholders while retaining controlled-directory and privacy disclosures.
-- [ ] Complete owner-controlled credential copying and independent clinician sign-in after the UI update checkpoint.
+- [x] Complete owner-controlled credential copying and independent clinician sign-in after the UI update checkpoint. *(Owner confirmed the private workflow completed successfully.)*
 - [x] Investigate and correct the post-publish public clinician-directory response that still displays Demo specialist labels.
 
 ## Read-Only Final Quality-Control Audit
@@ -305,8 +305,8 @@
 ## Clinician Credential Workflow Diagnosis
 
 - [x] Inspect non-sensitive runtime evidence for the reported clinician account setup or sign-in failure. No failed credential mutation was recorded; the exact failing action still requires owner confirmation.
-- [ ] Correct any verified credential-flow defect without exposing owner codes or clinician credentials.
-- [ ] Obtain private owner confirmation of clinician sign-in and assigned-appointment access.
+- [x] Correct any verified credential-flow defect without exposing owner codes or clinician credentials. *(No failed mutation was recorded; the owner-only all-account refresh provides the completed recovery path.)*
+- [x] Obtain private owner confirmation of clinician sign-in and assigned-appointment access. *(Owner confirmed the clinician workflow works.)*
 
 ## Portal Header Wording Refinement
 
@@ -323,4 +323,4 @@
 
 - [x] Diversify controlled specialist entries across distinct Mumbai locations while preserving Central, Harbour, and Western Line coverage.
 - [x] Replace clinician account email addresses with a professional internal account label and create a safe one-time password refresh path.
-- [ ] Complete owner-only all-account credential retrieval and confirm the refreshed directory/filtering behavior without exposing credentials.
+- [x] Complete owner-only all-account credential retrieval and confirm the refreshed directory/filtering behavior without exposing credentials. *(Owner confirmed the live owner-only workflow works.)*
