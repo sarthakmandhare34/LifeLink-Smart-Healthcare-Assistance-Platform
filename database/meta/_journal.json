@@ -64,6 +64,13 @@
       "when": 1787680892518,
       "tag": "0008_premium_johnny_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1787684638522,
+      "tag": "0009_curvy_hellion",
+      "breakpoints": true
     }
   ]
 }

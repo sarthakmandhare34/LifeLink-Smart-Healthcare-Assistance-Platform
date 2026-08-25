@@ -1,6 +1,6 @@
 /**
- * Development-only directory. These are explicit mock listings; they are not
- * practitioner credentials, real availability, ratings, reviews, or medical recommendations.
+ * Controlled directory. These entries are not verified practitioner identities,
+ * live availability, ratings, reviews, or medical recommendations.
  */
 import { MUMBAI_RAIL_LINES, MUMBAI_RAIL_STATIONS, type MumbaiRailLine } from "@shared/mumbaiRailNetwork";
 import { MUMBAI_STATION_COORDINATES } from "@shared/mumbaiStationCoordinates";
@@ -38,7 +38,7 @@ type ControlledDirectoryDefinition = {
 };
 
 /**
- * Compact development catalog clustered around connected interchange areas.
+ * Compact controlled catalog clustered around connected interchange areas.
  * All 12 specialties remain represented, while card and map discovery now focus
  * on four nearby hubs rather than spreading examples across distant endpoints.
  */
@@ -64,9 +64,9 @@ export const mockDoctorDirectory: MockDoctorDirectoryEntry[] = CONTROLLED_DIRECT
 
   return {
     id: definition.id,
-    name: `Mock ${definition.specialty} Specialist — ${definition.station}`,
+    name: `Controlled ${definition.specialty} Specialist — ${definition.station}`,
     specialty: definition.specialty,
-    hospital: "LifeLink development directory",
+    hospital: "LifeLink controlled specialist directory",
     locality: definition.station,
     city: "Mumbai",
     railLine: definition.railLine,
@@ -82,7 +82,7 @@ function normalized(value?: string) {
   return value?.trim().toLowerCase() ?? "";
 }
 
-/** Filters only the controlled development directory; no external provider data is queried. */
+/** Filters only the controlled specialist directory; no external provider data is queried. */
 export function filterMockDoctorDirectory(filters: MockDoctorDirectoryFilters = {}) {
   const specialty = normalized(filters.specialty);
   const locality = normalized(filters.locality);

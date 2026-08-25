@@ -3,13 +3,13 @@ import { filterMockDoctorDirectory, getMockDoctorDirectoryFacets, mockDoctorDire
 import { MUMBAI_RAIL_LINES, getMumbaiRailStation } from "@shared/mumbaiRailNetwork";
 import { MUMBAI_STATION_COORDINATES } from "@shared/mumbaiStationCoordinates";
 
-describe("controlled Mumbai development doctor directory", () => {
-  it("keeps a compact, explicitly mock 12-specialty development catalog", () => {
+describe("controlled Mumbai specialist directory", () => {
+  it("keeps a compact, explicitly controlled 12-specialty catalog", () => {
     expect(mockDoctorDirectory).toHaveLength(12);
     expect(new Set(mockDoctorDirectory.map((entry) => entry.specialty))).toHaveLength(12);
     mockDoctorDirectory.forEach((entry) => {
       expect(entry.isMock).toBe(true);
-      expect(entry.hospital).toBe("LifeLink development directory");
+      expect(entry.hospital).toBe("LifeLink controlled specialist directory");
       expect(entry.latitude).toBe(MUMBAI_STATION_COORDINATES[entry.station].latitude);
       expect(entry.longitude).toBe(MUMBAI_STATION_COORDINATES[entry.station].longitude);
     });

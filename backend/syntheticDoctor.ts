@@ -17,5 +17,5 @@ export function doctorIdFromSyntheticOpenId(openId: string) {
 }
 
 export function doctorDisplayName(doctor: MockDoctorDirectoryEntry) {
-  return `Demo ${doctor.specialty} Specialist — ${doctor.station}`;
+  return `Controlled ${doctor.specialty} Specialist — ${doctor.station}`;
 }

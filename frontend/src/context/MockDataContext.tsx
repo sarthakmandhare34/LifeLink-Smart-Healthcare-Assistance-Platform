@@ -36,8 +36,8 @@ const mockPatients: Patient[] = [
   {
     id: 'p1',
     role: 'patient',
-    name: 'Demo Patient',
-    email: 'patient@demo.com',
+    name: 'Sample Patient',
+    email: 'patient@lifelink.test',
     bloodGroup: 'O+',
     allergies: ['Penicillin', 'Peanuts'],
     conditions: ['Mild Hypertension'],
@@ -52,7 +52,7 @@ const mockDoctors: Doctor[] = [
     id: 'd1',
     role: 'doctor',
     name: 'Dr. Sarah Chen',
-    email: 'doctor@demo.com',
+    email: 'cardiology@lifelink.test',
     specialty: 'Cardiology',
     hospital: 'LifeLink General',
     location: 'New York, NY',
@@ -61,10 +61,10 @@ const mockDoctors: Doctor[] = [
   {
     id: 'd2',
     role: 'doctor',
-    name: 'Demo Doctor',
-    email: 'demo_doctor@demo.com',
+    name: 'Controlled Specialist',
+    email: 'specialist@lifelink.test',
     specialty: 'General Practice',
-    hospital: 'Demo Clinic',
+    hospital: 'LifeLink controlled directory',
     location: 'Remote',
     isVerified: false
   }
@@ -103,7 +103,7 @@ const initialPrescriptions: Prescription[] = [
     patientId: 'p1',
     doctorId: 'd1',
     date: new Date(Date.now() - 86400000 * 10).toISOString(),
-    status: 'UNSIGNED / DEMO',
+    status: 'UNSIGNED / CONTROLLED WORKSPACE',
     medicines: [
       { name: 'Lisinopril', dosage: '10mg', instructions: 'Take one tablet daily in the morning.' }
     ],

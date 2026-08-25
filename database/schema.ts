@@ -161,8 +161,8 @@ export const patientPrescriptions = mysqlTable("patientPrescriptions", {
     .references(() => users.id, { onDelete: "cascade" }),
   doctorId: varchar("doctorId", { length: 80 }).notNull(),
   issuedAt: timestamp("issuedAt").defaultNow().notNull(),
-  status: mysqlEnum("status", ["UNSIGNED / DEMO", "SIGNED — DEMO STATE"])
-    .default("UNSIGNED / DEMO")
+  status: mysqlEnum("status", ["UNSIGNED / CONTROLLED WORKSPACE", "SIGNED — CONTROLLED STATE"])
+    .default("UNSIGNED / CONTROLLED WORKSPACE")
     .notNull(),
   clinicalNotes: text("clinicalNotes"),
   integrityReference: varchar("integrityReference", { length: 255 }),

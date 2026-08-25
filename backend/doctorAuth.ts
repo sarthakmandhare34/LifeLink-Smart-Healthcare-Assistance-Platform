@@ -73,13 +73,13 @@ export const doctorAuthRouter = router({
       throw new TRPCError({ code: "UNAUTHORIZED", message: "The provisioning code is invalid." });
     }
     const doctor = getSyntheticDoctor(input.doctorId);
-    if (!doctor) throw new TRPCError({ code: "NOT_FOUND", message: "Selected controlled demo doctor was not found." });
+    if (!doctor) throw new TRPCError({ code: "NOT_FOUND", message: "Selected controlled specialist was not found." });
     const created = await createSyntheticDoctorCredential({
       doctor,
       email: normalizedEmail(input.email),
       passwordHash: await hashPatientPassword(input.password),
     });
-    if (!created) throw new TRPCError({ code: "CONFLICT", message: "This demo doctor or email already has credentials. Use the doctor sign-in page." });
+    if (!created) throw new TRPCError({ code: "CONFLICT", message: "This clinician account or email already has credentials. Use the clinician sign-in page." });
     return { doctorId: doctor.id, email: created.email, displayName: doctorDisplayName(doctor) };
   }),
   provisionDirectory: publicProcedure

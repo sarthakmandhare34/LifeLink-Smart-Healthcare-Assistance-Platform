@@ -78,7 +78,7 @@ export const doctorWorkspaceRouter = router({
     .query(async ({ ctx, input }) => {
       const doctor = currentDoctor(ctx.user.openId);
       const detail = await getDoctorAuthorizedPatientDetail(doctor.id, input.patientId);
-      if (!detail) throw new TRPCError({ code: "FORBIDDEN", message: "This patient is not assigned to the signed demo doctor." });
+      if (!detail) throw new TRPCError({ code: "FORBIDDEN", message: "This patient is not assigned to the signed clinician account." });
       return detail;
     }),
   prescriptions: router({
@@ -93,7 +93,7 @@ export const doctorWorkspaceRouter = router({
         const prescriptionId = await createDoctorAuthorizedPrescription({ doctorId: doctor.id, patientUserId: input.patientId, clinicalNotes: input.clinicalNotes || null, items: input.items });
         if (!prescriptionId) throw new TRPCError({ code: "FORBIDDEN", message: "A confirmed appointment assigned to this doctor is required before a prescription can be created." });
         await createPatientEvent(input.patientId, "PRESCRIPTION_CREATED", String(prescriptionId));
-        return { id: prescriptionId, status: "UNSIGNED / DEMO" as const };
+        return { id: prescriptionId, status: "UNSIGNED / CONTROLLED WORKSPACE" as const };
       }),
   }),
 });

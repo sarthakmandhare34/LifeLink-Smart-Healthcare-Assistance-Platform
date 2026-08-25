@@ -273,3 +273,10 @@
 - [x] Add an owner-only credential administration screen that lists provisioned specialist emails and supports secure password replacement.
 - [x] Verify that account emails remain owner-only and that new passwords are shown once only after owner-authorized replacement.
 - [ ] Add regression coverage, validate independent clinician sign-in, and save the credential recovery checkpoint.
+
+## Credential Copy and Visible Placeholder Audit
+
+- [x] Reopen the owner-only clinician account page so generated credentials can be copied securely.
+- [x] Audit active user-facing UI for remaining visible demo labels or placeholder text.
+- [x] Replace only verified active placeholders while retaining controlled-directory and privacy disclosures.
+- [ ] Complete owner-controlled credential copying and independent clinician sign-in after the UI update checkpoint.

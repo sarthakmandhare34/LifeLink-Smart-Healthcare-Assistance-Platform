@@ -65,7 +65,7 @@ export interface Prescription {
   patientId: string;
   doctorId: string;
   date: string;
-  status: 'UNSIGNED / DEMO' | 'SIGNED — DEMO STATE';
+  status: 'UNSIGNED / CONTROLLED WORKSPACE' | 'SIGNED — CONTROLLED STATE';
   medicines: { name: string; dosage: string; instructions: string }[];
   clinicalNotes: string;
   integrityReference: string;

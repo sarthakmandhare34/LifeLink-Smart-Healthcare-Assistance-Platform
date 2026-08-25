@@ -183,7 +183,7 @@ export const patientAppointmentRouter = router({
   }),
   request: protectedProcedure.input(appointmentInput).mutation(async ({ ctx, input }) => {
     const doctor = getMockDoctorById(input.doctorId);
-    if (!doctor) throw new TRPCError({ code: "NOT_FOUND", message: "Selected development directory doctor was not found." });
+    if (!doctor) throw new TRPCError({ code: "NOT_FOUND", message: "Selected controlled specialist was not found." });
     if (input.scheduledAt.getTime() <= Date.now()) {
       throw new TRPCError({ code: "BAD_REQUEST", message: "Appointment time must be in the future." });
     }

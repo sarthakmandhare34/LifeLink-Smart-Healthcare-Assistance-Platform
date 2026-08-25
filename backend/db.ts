@@ -18,6 +18,7 @@ import {
   users,
 } from "../database/schema";
 import type { MockDoctorDirectoryEntry } from "./mockDoctorDirectory";
+import { doctorDisplayName } from "./syntheticDoctor";
 import { ENV } from './_core/env';
 import { randomUUID } from "node:crypto";
 import { publishDoctorEvent, publishPatientEvent, type DoctorEventType, type PatientEventType } from "./patientEventBus";
@@ -251,19 +252,20 @@ export async function findOrCreateSyntheticDoctorUser(doctor: MockDoctorDirector
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const openId = `synthetic-doctor:${doctor.id}`;
+  const displayName = doctorDisplayName(doctor);
   const existing = await getUserByOpenId(openId);
   if (existing) {
-    if (existing.role !== "doctor") {
-      await db.update(users).set({ role: "doctor", lastSignedIn: new Date() }).where(eq(users.id, existing.id));
+    if (existing.role !== "doctor" || existing.name !== displayName) {
+      await db.update(users).set({ role: "doctor", name: displayName, lastSignedIn: new Date() }).where(eq(users.id, existing.id));
     }
-    return { ...existing, role: "doctor" as const };
+    return { ...existing, name: displayName, role: "doctor" as const };
   }
 
   await db.insert(users).values({
     openId,
-    name: `Demo ${doctor.specialty} Specialist — ${doctor.station}`,
+    name: displayName,
     email: null,
-    loginMethod: "synthetic-demo-doctor",
+    loginMethod: "synthetic-clinician",
     role: "doctor",
     lastSignedIn: new Date(),
   });
@@ -694,9 +696,9 @@ export async function createDoctorAuthorizedPrescription(input: {
   const result = await db.insert(patientPrescriptions).values({
     userId: input.patientUserId,
     doctorId: input.doctorId,
-    status: "UNSIGNED / DEMO",
+    status: "UNSIGNED / CONTROLLED WORKSPACE",
     clinicalNotes: input.clinicalNotes,
-    integrityReference: `demo-prescription:${randomUUID()}`,
+    integrityReference: `controlled-prescription:${randomUUID()}`,
   });
   const prescriptionId = Number(result[0].insertId);
   await db.insert(patientPrescriptionItems).values(input.items.map((item) => ({ prescriptionId, ...item })));

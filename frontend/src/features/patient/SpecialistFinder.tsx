@@ -16,7 +16,7 @@ const ALL_FILTER = 'all';
 export const RESIDENCE_CORRIDOR_LABEL = 'Which part of Mumbai do you live in?';
 export const RESIDENCE_STATION_LABEL = 'Which station is closest to where you live?';
 export const BROWSER_LOCATION_TITLE = 'Optional browser location';
-export const BROWSER_LOCATION_PRIVACY = 'Optional: use your browser location to order only the visible controlled development entries. Your location is not stored or sent to LifeLink.';
+export const BROWSER_LOCATION_PRIVACY = 'Optional: use your browser location to order only the visible controlled specialist entries. Your location is not stored or sent to LifeLink.';
 export const SPECIALTY_SEARCH_GUIDANCE = 'Free-text search matches specialties only. Use the Mumbai area and station filters below for where you live.';
 export const SPECIALIST_LOAD_ERROR_TITLE = 'We couldn’t load the specialist directory';
 export const SPECIALIST_LOAD_ERROR_MESSAGE = 'Please check your connection and try again. Your filters will stay unchanged.';
@@ -97,7 +97,7 @@ export const SpecialistFinder = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setBrowserLocation({ latitude: position.coords.latitude, longitude: position.coords.longitude });
-        setLocationStatus('Location is active for this page only. Controlled development entries are ordered approximately from your browser location; no coordinates are stored or sent to LifeLink.');
+        setLocationStatus('Location is active for this page only. Controlled specialist entries are ordered approximately from your browser location; no coordinates are stored or sent to LifeLink.');
         setIsLocating(false);
       },
       () => {
@@ -156,7 +156,7 @@ export const SpecialistFinder = () => {
   const displayedDoctors = useMemo(() => browserLocation ? sortByBrowserLocation(filteredDoctors, browserLocation) : filteredDoctors, [browserLocation, filteredDoctors]);
   const activeFilterCount = [specialty !== ALL_FILTER, railLine !== ALL_FILTER, station !== ALL_FILTER, Boolean(searchTerm.trim())].filter(Boolean).length;
 
-  if (directoryQuery.isLoading || facetsQuery.isLoading) return <div className="discovery-state" role="status" aria-live="polite"><RefreshCw size={20} className="discovery-state-icon" aria-hidden="true" /><p className="caption">Loading the controlled Mumbai development directory…</p></div>;
+  if (directoryQuery.isLoading || facetsQuery.isLoading) return <div className="discovery-state" role="status" aria-live="polite"><RefreshCw size={20} className="discovery-state-icon" aria-hidden="true" /><p className="caption">Loading the controlled Mumbai specialist directory…</p></div>;
 
   if (directoryQuery.isError || facetsQuery.isError) return (
     <div className="container" style={{ padding: 0 }}>
@@ -183,7 +183,7 @@ export const SpecialistFinder = () => {
         </div>
         <div>
           <h1 style={{ margin: 0 }}>Specialist Finder</h1>
-          <p className="caption">Browse controlled Mumbai development entries by specialty and the Mumbai area closest to where you live, then send a patient-owned appointment request.</p>
+          <p className="caption">Browse controlled Mumbai specialist entries by specialty and the Mumbai area closest to where you live, then send a patient-owned appointment request.</p>
         </div>
       </header>
 
@@ -191,7 +191,7 @@ export const SpecialistFinder = () => {
         <div className="discovery-refinement-content">
           <div className="mock-directory-notice" role="note">
             <MapIcon size={18} aria-hidden="true" />
-            <span><strong>Development directory only.</strong> These are controlled mock entries, not verified clinicians, availability, ratings, or medical recommendations.</span>
+            <span><strong>Controlled directory only.</strong> These are controlled specialist entries, not verified clinicians, live availability, ratings, or medical recommendations.</span>
           </div>
           <div className="discovery-search-field">
             <Search size={20} color="var(--color-primary)" style={{ flexShrink: 0 }} />
@@ -252,7 +252,7 @@ export const SpecialistFinder = () => {
         <section>
           <div className="discovery-results-heading">
             <div>
-              <h2 style={{ fontSize: 'var(--text-h2)', margin: 0 }}>Mumbai Development Directory</h2>
+              <h2 style={{ fontSize: 'var(--text-h2)', margin: 0 }}>Mumbai Specialist Directory</h2>
               <p className="caption">{displayedDoctors.length} controlled {displayedDoctors.length === 1 ? 'entry' : 'entries'} match the current filters.{browserLocation ? ' They are ordered approximately from your browser location.' : ''}</p>
             </div>
             <Badge status="neutral">Mumbai only</Badge>

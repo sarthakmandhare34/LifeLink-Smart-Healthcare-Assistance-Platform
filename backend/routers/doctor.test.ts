@@ -98,10 +98,10 @@ describe("doctor workspace authorization", () => {
     expect(mocks.getDoctorAuthorizedPatientDetail).toHaveBeenCalledWith("mock-central-cardiology-dadar", 9);
   });
 
-  it("creates a demo prescription only through the signed doctor’s confirmed appointment relationship", async () => {
+  it("creates an unsigned controlled-workspace prescription only through the signed clinician’s confirmed appointment relationship", async () => {
     mocks.createDoctorAuthorizedPrescription.mockResolvedValue(91);
 
-    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).prescriptions.create({ patientId: 9, clinicalNotes: "Review completed", items: [{ name: "Demo medicine", dosage: "1 tablet", instructions: "Follow the demo care plan" }] })).resolves.toEqual({ id: 91, status: "UNSIGNED / DEMO" });
+    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).prescriptions.create({ patientId: 9, clinicalNotes: "Review completed", items: [{ name: "Example medicine", dosage: "1 tablet", instructions: "Follow the documented care plan" }] })).resolves.toEqual({ id: 91, status: "UNSIGNED / CONTROLLED WORKSPACE" });
 
     expect(mocks.createDoctorAuthorizedPrescription).toHaveBeenCalledWith(expect.objectContaining({ doctorId: "mock-central-cardiology-dadar", patientUserId: 9 }));
     expect(mocks.createPatientEvent).toHaveBeenCalledWith(9, "PRESCRIPTION_CREATED", "91");
@@ -110,7 +110,7 @@ describe("doctor workspace authorization", () => {
   it("does not create a prescription when no confirmed appointment relationship is available", async () => {
     mocks.createDoctorAuthorizedPrescription.mockResolvedValue(null);
 
-    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).prescriptions.create({ patientId: 14, items: [{ name: "Demo medicine", dosage: "1 tablet", instructions: "Follow the demo care plan" }] })).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).prescriptions.create({ patientId: 14, items: [{ name: "Example medicine", dosage: "1 tablet", instructions: "Follow the documented care plan" }] })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
   it("does not return a patient detail record when no assignment exists", async () => {
