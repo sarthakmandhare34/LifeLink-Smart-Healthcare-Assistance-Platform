@@ -20,4 +20,12 @@ describe("workspace selector entry flow", () => {
     expect(selectorSource).toContain("Opening clinician workspace");
     expect(selectorSource).toContain("prefers-reduced-motion: reduce");
   });
+
+  it("uses the clinical-portal header without unsafe clinical or emergency claims", () => {
+    expect(selectorSource).toContain('className="workspace-portal-header"');
+    expect(selectorSource).toContain("Patient-owned records");
+    expect(selectorSource).toContain("Emergency assistance is user-controlled.");
+    expect(selectorSource).not.toContain("Verified clinical practitioner");
+    expect(selectorSource).not.toContain("Ambulance dispatch");
+  });
 });

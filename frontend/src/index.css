@@ -1234,9 +1234,74 @@ dialog.popup::backdrop {
 /* Patient entry pages: light and dark modes use dedicated, high-contrast glass surfaces. */
 .workspace-entry {
   min-height: 100vh;
-  padding: clamp(5.5rem, 8vw, 7rem) 1.25rem 2.5rem;
+  padding: 1.1rem 1.25rem 2.5rem;
   color: var(--color-text);
 }
+
+.workspace-portal-header {
+  width: min(100%, 1320px);
+  min-height: 68px;
+  margin: 0 auto clamp(1.9rem, 4vw, 3.4rem);
+  padding: 0.7rem 1rem 0.7rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(114, 143, 242, 0.24);
+  border-radius: 1rem;
+  background: linear-gradient(112deg, rgba(14, 37, 94, 0.96), rgba(47, 75, 170, 0.94) 60%, rgba(34, 125, 165, 0.9));
+  box-shadow: 0 18px 36px rgba(29, 48, 120, 0.18), inset 0 1px 0 rgba(230, 240, 255, 0.28);
+  color: #f5f8ff;
+}
+
+.workspace-portal-brand {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.workspace-portal-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #3eb9e9, #4773de);
+  color: #f8fcff;
+  box-shadow: 0 5px 15px rgba(5, 19, 62, 0.24);
+}
+.workspace-portal-brand > span { display: grid; gap: 0.08rem; min-width: 0; }
+.workspace-portal-brand strong { font-size: 1rem; letter-spacing: -0.015em; }
+.workspace-portal-brand small { color: rgba(236, 243, 255, 0.76); font-size: 0.72rem; white-space: nowrap; }
+
+.workspace-portal-assurance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  padding: 0.38rem 0.64rem;
+  border: 1px solid rgba(220, 245, 255, 0.26);
+  border-radius: 999px;
+  background: rgba(225, 246, 255, 0.1);
+  color: rgba(245, 252, 255, 0.94);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.workspace-portal-header .auth-theme-toggle {
+  position: static;
+  flex: 0 0 auto;
+  min-height: 36px;
+  margin-left: 0.2rem;
+  border-color: rgba(220, 236, 255, 0.28);
+  background: rgba(9, 25, 80, 0.24);
+  box-shadow: inset 0 1px 0 rgba(239, 248, 255, 0.15);
+  color: #f7f9ff;
+}
+
+.workspace-portal-header .auth-theme-toggle:hover { background: rgba(218, 240, 255, 0.16); box-shadow: 0 9px 20px rgba(7, 20, 67, 0.22), inset 0 1px 0 rgba(239, 248, 255, 0.2); }
 
 .workspace-entry-shell {
   width: min(100%, 1080px);
@@ -1352,6 +1417,22 @@ dialog.popup::backdrop {
 .workspace-entry-note svg { flex: 0 0 auto; margin-top: 0.1rem; color: var(--color-primary); }
 .workspace-entry-note p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
 
+.workspace-entry-emergency {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(216, 47, 97, 0.19);
+  border-radius: 1rem;
+  background: linear-gradient(105deg, rgba(255, 248, 251, 0.7), rgba(255, 255, 255, 0.48));
+}
+
+.workspace-entry-emergency > svg { flex: 0 0 auto; color: #bd2d5b; }
+.workspace-entry-emergency div { min-width: 0; }
+.workspace-entry-emergency strong { color: var(--color-text); font-size: 0.94rem; }
+.workspace-entry-emergency p { margin: 0.2rem 0 0; color: var(--color-text-muted); font-size: 0.86rem; line-height: 1.45; }
+
 .workspace-choice-spinner {
   animation: workspace-spinner 720ms linear infinite;
 }
@@ -1388,10 +1469,20 @@ dialog.popup::backdrop {
 }
 
 @media (max-width: 720px) {
-  .workspace-entry { padding-top: 5rem; }
+  .workspace-entry { padding-top: 0.8rem; }
+  .workspace-portal-header { min-height: 58px; margin-bottom: 1.8rem; padding: 0.55rem 0.65rem 0.55rem 0.75rem; border-radius: 0.85rem; }
+  .workspace-portal-mark { width: 34px; height: 34px; border-radius: 10px; }
+  .workspace-portal-brand small,
+  .workspace-portal-assurance { display: none; }
+  .workspace-portal-header .auth-theme-toggle { min-height: 34px; padding: 7px 10px; }
+  .workspace-portal-header .auth-theme-toggle span { display: none; }
   .workspace-entry-grid { grid-template-columns: 1fr; }
   .workspace-choice-card { min-height: 0; }
+  .workspace-entry-emergency { align-items: flex-start; }
 }
+
+:root[data-theme="dark"] .workspace-entry-emergency { border-color: rgba(255, 128, 166, 0.24); background: linear-gradient(105deg, rgba(62, 22, 52, 0.5), rgba(21, 29, 71, 0.6)); }
+:root[data-theme="dark"] .workspace-entry-emergency strong { color: #f6f8ff; }
 
 .auth-page {
   --entry-canvas-start: #edf5ff;

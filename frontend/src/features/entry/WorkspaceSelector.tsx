@@ -32,13 +32,23 @@ export const WorkspaceSelector = () => {
   const openingClinician = switchingTo === "clinician";
   return (
     <main className={`workspace-entry${switchingTo ? " is-switching" : ""}`} aria-labelledby="workspace-entry-heading" aria-busy={Boolean(switchingTo)}>
-      <EntryThemeToggle />
+      <header className="workspace-portal-header" aria-label="LifeLink portal header">
+        <div className="workspace-portal-brand">
+          <span className="workspace-portal-mark" aria-hidden="true"><HeartPulse size={22} /></span>
+          <span>
+            <strong>LifeLink</strong>
+            <small>Patient &amp; controlled clinician portal</small>
+          </span>
+        </div>
+        <div className="workspace-portal-assurance"><ShieldCheck size={16} aria-hidden="true" /><span>Patient-owned records</span></div>
+        <EntryThemeToggle />
+      </header>
       <section className="workspace-entry-shell">
         <header className="workspace-entry-header">
           <LifeLinkLogo className="lifelink-logo-auth workspace-entry-logo" />
           <span className="workspace-entry-kicker">LifeLink connected care</span>
-          <h1 id="workspace-entry-heading">Choose your workspace</h1>
-          <p>Choose the workspace that matches your account.</p>
+          <h1 id="workspace-entry-heading">Choose your care workspace</h1>
+          <p>Select the secure account space that matches your care task. Directory specialist records remain controlled and non-verified.</p>
         </header>
 
         <div className="workspace-entry-grid">
@@ -61,6 +71,7 @@ export const WorkspaceSelector = () => {
         </div>
 
         <aside className="workspace-entry-note"><ShieldCheck size={18} /><p><strong>Privacy boundary:</strong> patient records remain patient-owned. The controlled clinician workspace can access only server-authorized, assigned appointment information.</p></aside>
+        <aside className="workspace-entry-emergency" aria-label="Emergency assistance boundary"><HeartPulse size={20} aria-hidden="true" /><div><strong>Emergency assistance is user-controlled.</strong><p>LifeLink can help you open emergency options after confirmation; it does not dispatch an ambulance, send messages, or share your location automatically.</p></div></aside>
       </section>
       {switchingTo ? <div className="workspace-switch-status" role="status" aria-live="polite"><LoaderCircle size={20} className="workspace-choice-spinner" /> Opening {switchingTo === "patient" ? "Patient Portal" : "Doctor Workstation"}…</div> : null}
     </main>
