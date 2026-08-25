@@ -1,7 +1,8 @@
 import type { Express, Request, Response } from "express";
-import { getPatientEventsSince } from "./db";
-import { type RealtimePatientEvent, subscribeToPatientEvents } from "./patientEventBus";
+import { getDoctorEventsSince, getPatientEventsSince } from "./db";
+import { type RealtimeDoctorEvent, type RealtimePatientEvent, subscribeToDoctorEvents, subscribeToPatientEvents } from "./patientEventBus";
 import { sdk } from "./_core/sdk";
+import { doctorIdFromSyntheticOpenId } from "./syntheticDoctor";
 
 const HEARTBEAT_MS = 25_000;
 
@@ -19,6 +20,26 @@ function writeEvent(res: Response, event: RealtimePatientEvent) {
   })}\n\n`);
 }
 
+function writeDoctorEvent(res: Response, event: RealtimeDoctorEvent) {
+  res.write(`id: ${event.id}\nevent: doctor-event\ndata: ${JSON.stringify({
+    id: event.id,
+    type: event.type,
+    entityId: event.entityId,
+    createdAt: event.createdAt.toISOString(),
+  })}\n\n`);
+}
+
+function openStream(res: Response) {
+  res.status(200).set({
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.flushHeaders();
+  res.write("retry: 3000\n\n");
+}
+
 export function registerPatientRealtimeRoute(app: Express) {
   app.get("/api/patient-events", async (req: Request, res: Response) => {
     let user;
@@ -28,21 +49,12 @@ export function registerPatientRealtimeRoute(app: Express) {
       res.status(401).json({ error: "Authentication is required." });
       return;
     }
-
     if (!user) {
       res.status(401).json({ error: "Authentication is required." });
       return;
     }
 
-    res.status(200).set({
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive",
-      "X-Accel-Buffering": "no",
-    });
-    res.flushHeaders();
-    res.write("retry: 3000\n\n");
-
+    openStream(res);
     try {
       const lastEventId = parseLastEventId(req.header("last-event-id") ?? req.query.lastEventId);
       const backlog = await getPatientEventsSince(user.id, lastEventId);
@@ -58,7 +70,43 @@ export function registerPatientRealtimeRoute(app: Express) {
       clearInterval(heartbeat);
       unsubscribe();
     };
+    req.on("close", cleanup);
+    req.on("aborted", cleanup);
+  });
+}
 
+/** Same authenticated SSE mechanism, restricted to the signed controlled synthetic doctor identity. */
+export function registerDoctorRealtimeRoute(app: Express) {
+  app.get("/api/doctor-events", async (req: Request, res: Response) => {
+    let user;
+    try {
+      user = await sdk.authenticateRequest(req);
+    } catch {
+      res.status(401).json({ error: "Authentication is required." });
+      return;
+    }
+    const doctorId = user?.role === "doctor" ? doctorIdFromSyntheticOpenId(user.openId) : null;
+    if (!doctorId) {
+      res.status(403).json({ error: "A synthetic doctor session is required." });
+      return;
+    }
+
+    openStream(res);
+    try {
+      const lastEventId = parseLastEventId(req.header("last-event-id") ?? req.query.lastEventId);
+      const backlog = await getDoctorEventsSince(doctorId, lastEventId);
+      backlog.forEach((event) => writeDoctorEvent(res, event));
+    } catch (error) {
+      console.error("[Realtime] Unable to load doctor event backlog", error);
+      res.write("event: stream-error\ndata: {\"message\":\"Unable to load updates.\"}\n\n");
+    }
+
+    const unsubscribe = subscribeToDoctorEvents(doctorId, (event) => writeDoctorEvent(res, event));
+    const heartbeat = setInterval(() => res.write(": keepalive\n\n"), HEARTBEAT_MS);
+    const cleanup = () => {
+      clearInterval(heartbeat);
+      unsubscribe();
+    };
     req.on("close", cleanup);
     req.on("aborted", cleanup);
   });

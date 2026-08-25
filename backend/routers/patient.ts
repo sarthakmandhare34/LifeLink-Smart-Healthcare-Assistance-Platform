@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   cancelOwnedPatientAppointment,
   createPatientAppointment,
+  createDoctorEvent,
   createPatientEmergencyContact,
   createNativePatient,
   createPatientMedicine,
@@ -187,6 +188,7 @@ export const patientAppointmentRouter = router({
     }
     const id = await createPatientAppointment(ctx.user.id, doctor.id, input.scheduledAt);
     await createPatientEvent(ctx.user.id, "APPOINTMENT_UPDATED", String(id));
+    await createDoctorEvent(doctor.id, ctx.user.id, "APPOINTMENT_UPDATED", String(id));
     return { id, status: "Requested" as const };
   }),
   cancel: protectedProcedure.input(z.object({ id: z.number().int().positive() })).mutation(async ({ ctx, input }) => {

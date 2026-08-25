@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { publishPatientEvent, subscribeToPatientEvents } from "./patientEventBus";
+import { publishDoctorEvent, publishPatientEvent, subscribeToDoctorEvents, subscribeToPatientEvents } from "./patientEventBus";
 import { parseLastEventId } from "./patientRealtime";
 
 describe("patient realtime isolation", () => {
@@ -21,5 +21,19 @@ describe("patient realtime isolation", () => {
     expect(parseLastEventId("42")).toBe(42);
     expect(parseLastEventId("0")).toBeUndefined();
     expect(parseLastEventId("not-an-id")).toBeUndefined();
+  });
+
+  it("only delivers a doctor event to the matching controlled synthetic doctor channel", () => {
+    const primaryDoctorEvents: number[] = [];
+    const otherDoctorEvents: number[] = [];
+    const stopPrimary = subscribeToDoctorEvents("mock-central-cardiology-dadar", (event) => primaryDoctorEvents.push(event.id));
+    const stopOther = subscribeToDoctorEvents("mock-western-general-practice-dadar", (event) => otherDoctorEvents.push(event.id));
+
+    publishDoctorEvent({ id: 72, doctorId: "mock-central-cardiology-dadar", patientUserId: 9, type: "APPOINTMENT_UPDATED", entityId: "22", createdAt: new Date() });
+
+    stopPrimary();
+    stopOther();
+    expect(primaryDoctorEvents).toEqual([72]);
+    expect(otherDoctorEvents).toEqual([]);
   });
 });

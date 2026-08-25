@@ -1,36 +1,46 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Card } from '../../components/ui/Card';
-import { LifeLinkLogo } from '../../components/brand/LifeLinkLogo';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { Card } from "../../components/ui/Card";
+import { LifeLinkLogo } from "../../components/brand/LifeLinkLogo";
+import { trpc } from "../../lib/trpc";
 
 export const DoctorLogin = () => {
   const navigate = useNavigate();
+  const utils = trpc.useUtils();
+  const [accessCode, setAccessCode] = useState("");
+  const [error, setError] = useState("");
+  const login = trpc.doctorAuth.login.useMutation({
+    onSuccess: async (doctor) => {
+      utils.doctorAuth.me.setData(undefined, doctor);
+      await utils.auth.me.invalidate();
+      navigate("/doctor/dashboard", { replace: true });
+    },
+    onError: () => setError("The synthetic doctor access code was not accepted."),
+  });
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate('/doctor/dashboard');
+  const handleLogin = (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    login.mutate({ accessCode });
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--color-background)' }}>
-      <Card style={{ width: '100%', maxWidth: '400px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-4)' }}>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "var(--color-background)", padding: "var(--spacing-4)" }}>
+      <Card style={{ width: "100%", maxWidth: "400px" }}>
+        <div style={{ textAlign: "center", marginBottom: "var(--spacing-4)" }}>
           <LifeLinkLogo className="lifelink-logo-auth" />
-          <p className="caption">Clinical Portal Login</p>
+          <p className="caption">Synthetic Clinical Workstation</p>
+          <p className="caption" style={{ marginTop: "var(--spacing-1)" }}>Controlled demo identity. No real clinician account is represented.</p>
         </div>
-        
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-3)" }}>
           <div>
-            <label style={{ display: 'block', marginBottom: 'var(--spacing-1)', fontWeight: 600 }}>Doctor ID</label>
-            <Input type="text" placeholder="Enter your ID" required />
+            <label htmlFor="doctor-access-code" style={{ display: "block", marginBottom: "var(--spacing-1)", fontWeight: 600 }}>Demo workstation access code</label>
+            <Input id="doctor-access-code" type="password" value={accessCode} onChange={(event) => setAccessCode(event.target.value)} autoComplete="current-password" required />
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: 'var(--spacing-1)', fontWeight: 600 }}>Password</label>
-            <Input type="password" placeholder="Enter password" required />
-          </div>
-          <Button type="submit" variant="primary" style={{ marginTop: 'var(--spacing-2)' }}>Secure Login</Button>
+          {error ? <p role="alert" style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p> : null}
+          <Button type="submit" variant="primary" disabled={login.isPending} style={{ marginTop: "var(--spacing-2)" }}>{login.isPending ? "Opening workspace…" : "Open demo workspace"}</Button>
         </form>
       </Card>
     </div>

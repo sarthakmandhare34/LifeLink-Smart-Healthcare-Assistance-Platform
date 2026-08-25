@@ -4,6 +4,8 @@ import { createPatientAssessment, createPatientEvent, getPatientAssessments } fr
 import { analyzeAssessmentWithGemini, assessmentRequestInput } from "./assessmentService";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { getProviderAvailability } from "./providerAuth";
+import { doctorAuthRouter } from "./doctorAuth";
+import { doctorWorkspaceRouter } from "./routers/doctor";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import {
@@ -33,6 +35,8 @@ export const appRouter = router({
     }),
   }),
   patientAuth: patientAuthRouter,
+  doctorAuth: doctorAuthRouter,
+  doctorWorkspace: doctorWorkspaceRouter,
   patientProfile: patientProfileRouter,
   patientDashboard: patientDashboardRouter,
   patientMedicine: patientMedicineRouter,

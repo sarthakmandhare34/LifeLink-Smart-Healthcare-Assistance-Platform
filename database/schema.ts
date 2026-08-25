@@ -16,7 +16,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "doctor", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -185,6 +185,22 @@ export const patientEvents = mysqlTable("patientEvents", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
+/**
+ * Delivery records for the existing realtime layer when a controlled synthetic
+ * doctor needs to refetch an appointment assigned to that doctor. The payload
+ * remains notification-only; patient health data is never copied into events.
+ */
+export const doctorEvents = mysqlTable("doctorEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  doctorId: varchar("doctorId", { length: 80 }).notNull(),
+  patientUserId: int("patientUserId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: mysqlEnum("type", ["APPOINTMENT_UPDATED"]).notNull(),
+  entityId: varchar("entityId", { length: 80 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
 export type PatientCredential = typeof patientCredentials.$inferSelect;
 export type PatientProfile = typeof patientProfiles.$inferSelect;
 export type PatientEmergencyContact = typeof patientEmergencyContacts.$inferSelect;
@@ -193,3 +209,4 @@ export type PatientAppointment = typeof patientAppointments.$inferSelect;
 export type PatientPrescription = typeof patientPrescriptions.$inferSelect;
 export type PatientPrescriptionItem = typeof patientPrescriptionItems.$inferSelect;
 export type PatientEvent = typeof patientEvents.$inferSelect;
+export type DoctorEvent = typeof doctorEvents.$inferSelect;

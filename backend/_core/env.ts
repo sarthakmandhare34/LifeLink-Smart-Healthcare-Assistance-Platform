@@ -11,4 +11,5 @@ export const ENV = {
   authPublicBaseUrl: process.env.AUTH_PUBLIC_BASE_URL ?? "",
   googleOAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
   googleOAuthClientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "",
+  demoDoctorAccessCode: process.env.LIFELINK_DEMO_DOCTOR_ACCESS_CODE ?? "",
 };

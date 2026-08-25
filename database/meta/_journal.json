@@ -43,6 +43,13 @@
       "when": 1787594118357,
       "tag": "0005_loud_eternity",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1787672502972,
+      "tag": "0006_parched_leper_queen",
+      "breakpoints": true
     }
   ]
 }

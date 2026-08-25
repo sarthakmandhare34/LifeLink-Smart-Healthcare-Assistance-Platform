@@ -1,0 +1,75 @@
+import { TRPCError } from "@trpc/server";
+import { z } from "zod";
+import { createPatientEvent, listDoctorAppointments, updateDoctorAppointmentStatus } from "../db";
+import { doctorProcedure, router } from "../_core/trpc";
+import { doctorIdFromSyntheticOpenId, doctorDisplayName, getWorkstationDoctor } from "../syntheticDoctor";
+
+function currentDoctor(openId: string) {
+  const doctorId = doctorIdFromSyntheticOpenId(openId);
+  const doctor = getWorkstationDoctor();
+  if (!doctorId || doctorId !== doctor.id) {
+    throw new TRPCError({ code: "FORBIDDEN", message: "This synthetic doctor session is not authorized." });
+  }
+  return doctor;
+}
+
+function appointmentView(appointment: Awaited<ReturnType<typeof listDoctorAppointments>>[number]) {
+  return {
+    id: appointment.id,
+    scheduledAt: appointment.scheduledAt,
+    status: appointment.status,
+    createdAt: appointment.createdAt,
+    patient: { id: appointment.patientId, name: appointment.patientName || "LifeLink patient" },
+  };
+}
+
+export const doctorWorkspaceRouter = router({
+  profile: doctorProcedure.query(({ ctx }) => {
+    const doctor = currentDoctor(ctx.user.openId);
+    return {
+      id: doctor.id,
+      displayName: doctorDisplayName(doctor),
+      specialty: doctor.specialty,
+      locality: doctor.locality,
+      railLine: doctor.railLine,
+      isSynthetic: true as const,
+    };
+  }),
+  dashboard: doctorProcedure.query(async ({ ctx }) => {
+    const doctor = currentDoctor(ctx.user.openId);
+    const appointments = await listDoctorAppointments(doctor.id);
+    const now = Date.now();
+    const patients = new Set(appointments.map((appointment) => appointment.patientId));
+    return {
+      appointmentCount: appointments.length,
+      pendingCount: appointments.filter((appointment) => appointment.status === "Requested" || appointment.status === "Pending").length,
+      upcomingCount: appointments.filter((appointment) => appointment.scheduledAt.getTime() >= now && appointment.status !== "Cancelled").length,
+      patientCount: patients.size,
+      appointments: appointments.slice(0, 5).map(appointmentView),
+    };
+  }),
+  appointments: router({
+    list: doctorProcedure.query(async ({ ctx }) => {
+      const doctor = currentDoctor(ctx.user.openId);
+      return (await listDoctorAppointments(doctor.id)).map(appointmentView);
+    }),
+    updateStatus: doctorProcedure
+      .input(z.object({ id: z.number().int().positive(), status: z.enum(["Confirmed", "Cancelled"]) }))
+      .mutation(async ({ ctx, input }) => {
+        const doctor = currentDoctor(ctx.user.openId);
+        const updated = await updateDoctorAppointmentStatus(doctor.id, input.id, input.status);
+        if (!updated) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Appointment was not found or is no longer awaiting a decision." });
+        }
+        await createPatientEvent(updated.userId, "APPOINTMENT_UPDATED", String(input.id));
+        return { success: true } as const;
+      }),
+  }),
+  patients: doctorProcedure.query(async ({ ctx }) => {
+    const doctor = currentDoctor(ctx.user.openId);
+    const appointments = await listDoctorAppointments(doctor.id);
+    return Array.from(
+      new Map(appointments.map((appointment) => [appointment.patientId, { id: appointment.patientId, name: appointment.patientName || "LifeLink patient" }])).values(),
+    );
+  }),
+});

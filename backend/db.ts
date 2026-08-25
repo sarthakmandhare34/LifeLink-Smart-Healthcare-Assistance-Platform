@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertPatientAssessment,
   InsertUser,
+  doctorEvents,
   patientAppointments,
   patientAssessments,
   patientCredentials,
@@ -15,9 +16,10 @@ import {
   patientProfiles,
   users,
 } from "../database/schema";
+import type { MockDoctorDirectoryEntry } from "./mockDoctorDirectory";
 import { ENV } from './_core/env';
 import { randomUUID } from "node:crypto";
-import { publishPatientEvent, type PatientEventType } from "./patientEventBus";
+import { publishDoctorEvent, publishPatientEvent, type DoctorEventType, type PatientEventType } from "./patientEventBus";
 import { storageGet } from "./storage";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -243,6 +245,32 @@ export async function getNativePatientByEmail(email: string) {
   return rows[0] ?? null;
 }
 
+/** Ensures the signed synthetic workstation identity is a real, stable backend user. */
+export async function findOrCreateSyntheticDoctorUser(doctor: MockDoctorDirectoryEntry) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const openId = `synthetic-doctor:${doctor.id}`;
+  const existing = await getUserByOpenId(openId);
+  if (existing) {
+    if (existing.role !== "doctor") {
+      await db.update(users).set({ role: "doctor", lastSignedIn: new Date() }).where(eq(users.id, existing.id));
+    }
+    return { ...existing, role: "doctor" as const };
+  }
+
+  await db.insert(users).values({
+    openId,
+    name: `Demo ${doctor.specialty} Specialist — ${doctor.station}`,
+    email: null,
+    loginMethod: "synthetic-demo-doctor",
+    role: "doctor",
+    lastSignedIn: new Date(),
+  });
+  const user = await getUserByOpenId(openId);
+  if (!user) throw new Error("Synthetic doctor user could not be created");
+  return user;
+}
+
 function parseList(value: string | null | undefined) {
   if (!value) return [] as string[];
   try {
@@ -398,6 +426,36 @@ export async function getPatientEventsSince(userId: number, lastEventId?: number
   return db.select().from(patientEvents).where(where).orderBy(patientEvents.id);
 }
 
+export async function createDoctorEvent(
+  doctorId: string,
+  patientUserId: number,
+  type: DoctorEventType,
+  entityId?: string,
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db.insert(doctorEvents).values({ doctorId, patientUserId, type, entityId: entityId ?? null });
+  const event = {
+    id: Number(result[0].insertId),
+    doctorId,
+    patientUserId,
+    type,
+    entityId: entityId ?? null,
+    createdAt: new Date(),
+  };
+  publishDoctorEvent(event);
+  return event;
+}
+
+export async function getDoctorEventsSince(doctorId: string, lastEventId?: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const where = lastEventId
+    ? and(eq(doctorEvents.doctorId, doctorId), gt(doctorEvents.id, lastEventId))
+    : eq(doctorEvents.doctorId, doctorId);
+  return db.select().from(doctorEvents).where(where).orderBy(doctorEvents.id);
+}
+
 export async function listPatientMedicines(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -453,6 +511,46 @@ export async function cancelOwnedPatientAppointment(userId: number, appointmentI
     .set({ status: "Cancelled" })
     .where(and(eq(patientAppointments.id, appointmentId), eq(patientAppointments.userId, userId)));
   return Number(result[0].affectedRows) > 0;
+}
+
+export async function listDoctorAppointments(doctorId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db
+    .select({
+      id: patientAppointments.id,
+      scheduledAt: patientAppointments.scheduledAt,
+      status: patientAppointments.status,
+      createdAt: patientAppointments.createdAt,
+      patientId: users.id,
+      patientName: users.name,
+    })
+    .from(patientAppointments)
+    .innerJoin(users, eq(patientAppointments.userId, users.id))
+    .where(eq(patientAppointments.doctorId, doctorId))
+    .orderBy(patientAppointments.scheduledAt);
+}
+
+export async function updateDoctorAppointmentStatus(
+  doctorId: string,
+  appointmentId: number,
+  status: "Confirmed" | "Cancelled",
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .select({ userId: patientAppointments.userId, status: patientAppointments.status })
+    .from(patientAppointments)
+    .where(and(eq(patientAppointments.id, appointmentId), eq(patientAppointments.doctorId, doctorId)))
+    .limit(1);
+  const appointment = rows[0];
+  if (!appointment || (appointment.status !== "Requested" && appointment.status !== "Pending")) return null;
+
+  await db
+    .update(patientAppointments)
+    .set({ status })
+    .where(and(eq(patientAppointments.id, appointmentId), eq(patientAppointments.doctorId, doctorId)));
+  return { userId: appointment.userId };
 }
 
 export async function listPatientPrescriptions(userId: number) {

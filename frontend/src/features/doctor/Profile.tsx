@@ -1,39 +1,20 @@
-import React from 'react';
-import { Card } from '../../components/ui/Card';
-import { Input } from '../../components/ui/Input';
-import { Button } from '../../components/ui/Button';
+import { Card } from "../../components/ui/Card";
+import { ShieldCheck } from "lucide-react";
+import { trpc } from "../../lib/trpc";
 
 export const DoctorProfile = () => {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-4)' }}>
-      <header>
-        <h1>Clinical Profile</h1>
-        <p className="caption">Manage your professional information.</p>
-      </header>
-
-      <Card style={{ maxWidth: '600px' }}>
-        <form style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
-          <div style={{ display: 'flex', gap: 'var(--spacing-3)' }}>
-             <div style={{ flex: 1 }}>
-               <label style={{ display: 'block', marginBottom: 'var(--spacing-1)', fontWeight: 600 }}>First Name</label>
-               <Input type="text" defaultValue="Ananya" />
-             </div>
-             <div style={{ flex: 1 }}>
-               <label style={{ display: 'block', marginBottom: 'var(--spacing-1)', fontWeight: 600 }}>Last Name</label>
-               <Input type="text" defaultValue="Sharma" />
-             </div>
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: 'var(--spacing-1)', fontWeight: 600 }}>Specialty</label>
-            <Input type="text" defaultValue="Cardiology" />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: 'var(--spacing-1)', fontWeight: 600 }}>License Number</label>
-            <Input type="text" defaultValue="MC-992384" readOnly style={{ background: 'var(--color-background)', color: 'var(--color-text-muted)' }} />
-          </div>
-          <Button type="button" variant="primary" style={{ marginTop: 'var(--spacing-2)', alignSelf: 'flex-start' }}>Save Changes</Button>
-        </form>
-      </Card>
-    </div>
-  );
+  const profile = trpc.doctorWorkspace.profile.useQuery();
+  if (profile.isLoading) return <p>Loading synthetic profile…</p>;
+  if (profile.isError || !profile.data) return <p role="alert">Unable to load the synthetic profile. Please try again.</p>;
+  return <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-4)" }}>
+    <header><h1>Clinical Profile</h1><p className="caption">Controlled synthetic demo identity for LifeLink development.</p></header>
+    <Card style={{ maxWidth: "600px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-3)" }}>
+        <div><p className="caption">Display name</p><h2 style={{ margin: 0 }}>{profile.data.displayName}</h2></div>
+        <div><p className="caption">Specialty</p><p>{profile.data.specialty}</p></div>
+        <div><p className="caption">Directory locality</p><p>{profile.data.locality} · {profile.data.railLine} Line</p></div>
+        <p className="caption" style={{ display: "inline-flex", alignItems: "center", gap: "6px", margin: 0 }}><ShieldCheck size={15} /> This is a synthetic LifeLink demo profile, not a real clinician, credential, or registration record.</p>
+      </div>
+    </Card>
+  </div>;
 };
