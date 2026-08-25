@@ -14,7 +14,6 @@ const patientHighlights = [
 const doctorHighlights = [
   "Open the protected clinician workspace",
   "Review only appointments assigned to the signed clinician account",
-  "Accept or decline pending appointment requests",
 ];
 
 export const WorkspaceSelector = () => {
@@ -27,7 +26,7 @@ export const WorkspaceSelector = () => {
           <LifeLinkLogo className="lifelink-logo-auth workspace-entry-logo" />
           <span className="workspace-entry-kicker">LifeLink connected care</span>
           <h1 id="workspace-entry-heading">Choose your workspace</h1>
-          <p>Continue to the Patient Portal or the protected Doctor Workspace.</p>
+          <p>Choose the workspace that matches your account.</p>
         </header>
 
         <div className="workspace-entry-grid">
@@ -46,7 +45,6 @@ export const WorkspaceSelector = () => {
             <p>Access the protected LifeLink clinician workflow. Specialist records are controlled directory entries and do not represent verified clinicians.</p>
             <ul className="workspace-choice-list">{doctorHighlights.map((item) => <li key={item}><ShieldCheck size={16} />{item}</li>)}</ul>
             <Button type="button" variant="primary" className="workspace-choice-action" onClick={() => navigate("/doctor/login")}>Doctor sign in <ArrowRight size={18} /></Button>
-            <p className="caption workspace-choice-note"><CalendarCheck size={15} /> Requires this clinician&apos;s separate email and password.</p>
           </Card>
         </div>
 

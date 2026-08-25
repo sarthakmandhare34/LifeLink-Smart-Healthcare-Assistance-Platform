@@ -254,3 +254,8 @@
 - [x] Replace visible demo language with professional controlled-clinician terminology while retaining accurate safety disclosures.
 - [x] Verify revised entry and clinician-workspace wording across desktop and mobile views.
 - [x] Save the verified terminology update checkpoint.
+
+## Workspace Selector Simplification
+
+- [x] Remove the owner-identified pending-appointment and separate-credential labels from the clinician workspace card.
+- [x] Verify the simplified selector and save the focused update checkpoint.

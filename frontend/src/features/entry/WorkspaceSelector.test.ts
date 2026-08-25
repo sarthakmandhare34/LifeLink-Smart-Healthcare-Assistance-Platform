@@ -15,6 +15,7 @@ describe("workspace selector entry flow", () => {
   it("labels the doctor path as a controlled clinician workspace", () => {
     expect(selectorSource).toContain("Controlled clinician workspace");
     expect(selectorSource).toContain("do not represent verified clinicians");
-    expect(selectorSource).toContain("separate email and password");
+    expect(selectorSource).not.toContain("separate email and password");
+    expect(selectorSource).not.toContain("Accept or decline pending appointment requests");
   });
 });
