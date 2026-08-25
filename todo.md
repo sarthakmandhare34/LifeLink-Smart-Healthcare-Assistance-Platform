@@ -253,4 +253,4 @@
 - [x] Audit visible clinician labels and explanatory copy for unnecessary demo wording.
 - [x] Replace visible demo language with professional controlled-clinician terminology while retaining accurate safety disclosures.
 - [x] Verify revised entry and clinician-workspace wording across desktop and mobile views.
-- [ ] Save the verified terminology update checkpoint.
+- [x] Save the verified terminology update checkpoint.
