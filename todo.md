@@ -324,3 +324,9 @@
 - [x] Diversify controlled specialist entries across distinct Mumbai locations while preserving Central, Harbour, and Western Line coverage.
 - [x] Replace clinician account email addresses with a professional internal account label and create a safe one-time password refresh path.
 - [x] Complete owner-only all-account credential retrieval and confirm the refreshed directory/filtering behavior without exposing credentials. *(Owner confirmed the live owner-only workflow works.)*
+
+## Specialist Finder Form Refinement
+
+- [x] Improve Specialist Finder dark-mode contrast, form hierarchy, field sizing, and spacing based on the supplied screenshot.
+- [x] Preserve protected discovery filters, controlled-directory disclosure, browser-location privacy, and appointment-request behavior.
+- [x] Add regression coverage and verify the refined form on desktop and mobile before publishing.

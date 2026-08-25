@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { BROWSER_LOCATION_PRIVACY, BROWSER_LOCATION_TITLE, RESIDENCE_CORRIDOR_LABEL, RESIDENCE_STATION_LABEL, SPECIALTY_SEARCH_GUIDANCE, SPECIALIST_LOAD_ERROR_MESSAGE, SPECIALIST_LOAD_ERROR_TITLE } from './SpecialistFinder';
 
+const finderSource = readFileSync(resolve(process.cwd(), 'frontend/src/features/patient/SpecialistFinder.tsx'), 'utf8');
+const finderStyles = readFileSync(resolve(process.cwd(), 'frontend/src/features/patient/specialistFinder.css'), 'utf8');
 
 describe('specialist finder residence prompts', () => {
   it('uses patient-centred wording for the Mumbai corridor and station choices', () => {
@@ -23,5 +27,13 @@ describe('specialist finder residence prompts', () => {
     expect(SPECIALIST_LOAD_ERROR_TITLE).toBe('We couldn’t load the specialist directory');
     expect(SPECIALIST_LOAD_ERROR_MESSAGE).toContain('check your connection');
     expect(SPECIALIST_LOAD_ERROR_MESSAGE).not.toContain('TRPC');
+  });
+
+  it('uses structured request fields and explicit dark-mode form contrast rules', () => {
+    expect(finderSource).toContain('className="discovery-request-grid"');
+    expect(finderSource).toContain('id="requested-visit-at"');
+    expect(finderStyles).toContain(':root[data-theme="dark"] .discovery-refinement-card');
+    expect(finderStyles).toContain(':root[data-theme="dark"] .discovery-request-field textarea');
+    expect(finderStyles).toContain('.discovery-request-grid {');
   });
 });

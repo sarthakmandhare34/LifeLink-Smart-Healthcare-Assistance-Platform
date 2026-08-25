@@ -235,14 +235,17 @@ export const SpecialistFinder = () => {
               </select>
             </div>
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }}>Requested visit date and time</label>
-            <Input type="datetime-local" value={requestedAt} onChange={(event) => setRequestedAt(event.target.value)} />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }} htmlFor="appointment-reason">Reason for this appointment</label>
-            <textarea id="appointment-reason" value={appointmentReason} onChange={(event) => setAppointmentReason(event.target.value)} maxLength={1000} rows={3} placeholder="Briefly describe what you would like the specialist to review." style={{ width: '100%', resize: 'vertical', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)' }} />
-            <p className="caption" style={{ margin: '6px 0 0' }}>This reason is visible only to you and the assigned clinician workspace.</p>
+          <div className="discovery-request-grid">
+            <div className="discovery-request-field">
+              <label className="discovery-filter-label" htmlFor="requested-visit-at">Requested visit date and time</label>
+              <Input id="requested-visit-at" type="datetime-local" value={requestedAt} onChange={(event) => setRequestedAt(event.target.value)} />
+              <p className="caption">Choose a preferred time; availability is confirmed later.</p>
+            </div>
+            <div className="discovery-request-field discovery-appointment-reason">
+              <label className="discovery-filter-label" htmlFor="appointment-reason">Reason for this appointment</label>
+              <textarea id="appointment-reason" value={appointmentReason} onChange={(event) => setAppointmentReason(event.target.value)} maxLength={1000} rows={4} placeholder="Briefly describe what you would like the specialist to review." />
+              <p className="caption">This reason is visible only to you and the assigned clinician workspace.</p>
+            </div>
           </div>
           {requestError && <div className="alert-panel"><span className="caption">{requestError}</span></div>}
         </div>
