@@ -198,3 +198,6 @@
 
 - [x] Remove the oversized Specialist Finder Refine results / Sort / Clear filters toolbar while retaining the essential directory filters.
 - [x] Validate the streamlined Specialist Finder on desktop and mobile before publishing.
+
+- [x] Optimize remaining Specialist Finder filters for mobile tap targets, spacing, focus clarity, and one-handed navigation.
+- [x] Validate the optimized mobile filter layout and preserve desktop behavior before publishing.

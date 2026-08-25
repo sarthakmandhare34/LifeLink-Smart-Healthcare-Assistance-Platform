@@ -324,3 +324,53 @@
   .discovery-filter-grid > div { padding: 10px; }
 }
 
+
+/* Phase 44: mobile filter usability */
+@media (max-width: 640px) {
+  .discovery-refinement-card .discovery-filter-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-top: 2px;
+  }
+
+  .discovery-refinement-card .discovery-filter-grid > div {
+    min-height: 96px;
+    padding: 13px;
+    scroll-margin-top: 16px;
+  }
+
+  .discovery-refinement-card .discovery-filter-label {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+    margin-bottom: 9px;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .discovery-refinement-card .discovery-filter-select {
+    min-height: 52px;
+    padding: 0 44px 0 14px;
+    font-size: 16px;
+    line-height: 1.2;
+    touch-action: manipulation;
+  }
+
+  .discovery-refinement-card .discovery-filter-select:focus,
+  .discovery-refinement-card .discovery-filter-select:focus-visible {
+    outline: 3px solid rgba(98, 89, 228, 0.2);
+    outline-offset: 2px;
+    border-color: rgba(98, 89, 228, 0.56);
+    box-shadow: 0 0 0 4px rgba(91, 194, 211, 0.1);
+  }
+
+  .discovery-refinement-card .discovery-location-actions .btn {
+    min-height: 48px;
+    padding-inline: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .discovery-refinement-card .discovery-filter-grid > div { padding: 12px; }
+  .discovery-refinement-card .discovery-filter-select { padding-inline: 12px 40px; }
+}

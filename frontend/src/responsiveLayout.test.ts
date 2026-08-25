@@ -17,6 +17,10 @@ describe('multi-display responsive layout system', () => {
     expect(discoveryStyles).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))');
     expect(discoveryStyles).toContain('grid-template-columns: 1fr;');
     expect(discoveryStyles).toContain('height: clamp(280px, 62vw, 360px)');
+    expect(discoveryStyles).toContain('@media (max-width: 640px)');
+    expect(discoveryStyles).toContain('min-height: 52px');
+    expect(discoveryStyles).toContain('touch-action: manipulation');
+    expect(discoveryStyles).toContain('outline: 3px solid');
   });
 
   it('keeps the mobile drawer compact with its official brand first and every navigation label readable', () => {
