@@ -208,13 +208,13 @@ export const SpecialistFinder = () => {
         </div>
       </header>
 
-      <Card variant="glass" className="mb-4">
-        <div className="flex-col gap-3">
+      <Card variant="glass" className="discovery-refinement-card mb-4">
+        <div className="discovery-refinement-content">
           <div className="mock-directory-notice" role="note">
             <MapIcon size={18} aria-hidden="true" />
             <span><strong>Development directory only.</strong> These are controlled mock entries, not verified clinicians, availability, ratings, or medical recommendations.</span>
           </div>
-          <div style={{ display: 'flex', gap: 'var(--spacing-3)', alignItems: 'center' }}>
+          <div className="discovery-search-field">
             <Search size={20} color="var(--color-primary)" style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <Input placeholder="Search by specialty…" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />

@@ -192,3 +192,6 @@
 - [x] Add focused Specialist Finder filtering and sorting controls that preserve the controlled-directory scope.
 - [x] Improve Specialist Finder loading and data-failure states with friendly recovery guidance.
 - [x] Add regression coverage and validate the Specialist Finder enhancement before publishing.
+
+- [x] Redesign the complete Specialist Finder filter, sort, empty, and retry interface to match the LifeLink glass visual system.
+- [x] Validate the redesigned Specialist Finder at desktop and mobile breakpoints, including the controlled-directory and error-recovery states.

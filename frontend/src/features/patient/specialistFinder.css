@@ -201,3 +201,125 @@
 @media (max-width: 480px) {
   .discovery-load-error { flex-direction: column; }
 }
+
+/* Phase 42: composed refinement panel */
+.discovery-refinement-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(18px, 2.7vw, 30px) !important;
+  border-color: rgba(98, 89, 228, 0.18) !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(91, 194, 211, 0.13), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(245, 249, 255, 0.56)) !important;
+}
+
+.discovery-refinement-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  content: '';
+  background: linear-gradient(180deg, var(--color-primary), var(--color-success));
+}
+
+.discovery-refinement-content {
+  position: relative;
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.discovery-refinement-content > * { min-width: 0; }
+
+.discovery-refinement-card .mock-directory-notice {
+  padding: 12px 14px;
+  border-color: rgba(98, 89, 228, 0.18);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.discovery-search-field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: 12px 14px;
+  border: 1px solid rgba(98, 89, 228, 0.16);
+  border-radius: calc(var(--border-radius-md) + 2px);
+  background: rgba(255, 255, 255, 0.46);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.discovery-search-field > svg { flex: 0 0 auto; }
+.discovery-search-field .discovery-search-guidance { margin: 6px 0 0; }
+
+.discovery-refinement-card .discovery-location-control {
+  padding: 13px 14px;
+  border-color: rgba(83, 192, 165, 0.2);
+  background: linear-gradient(110deg, rgba(83, 192, 165, 0.1), rgba(91, 194, 211, 0.055));
+}
+
+.discovery-refinement-card .discovery-filter-grid {
+  gap: 14px;
+  padding: 4px 0 0;
+}
+
+.discovery-filter-grid > div {
+  padding: 12px;
+  border: 1px solid rgba(98, 89, 228, 0.12);
+  border-radius: var(--border-radius-md);
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.discovery-filter-grid .discovery-filter-label { margin-bottom: 8px; }
+.discovery-filter-grid .discovery-filter-select { background: rgba(255, 255, 255, 0.76); }
+
+.discovery-refinement-card .discovery-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.42fr) auto;
+  align-items: end;
+  gap: 14px;
+  padding: 14px;
+  border-color: rgba(98, 89, 228, 0.2);
+  background: linear-gradient(120deg, rgba(98, 89, 228, 0.095), rgba(91, 194, 211, 0.07));
+}
+
+.discovery-refinement-card .discovery-toolbar-intro { align-self: center; }
+.discovery-refinement-card .discovery-toolbar-intro > svg {
+  width: 36px;
+  height: 36px;
+  padding: 9px;
+  border-radius: 12px;
+  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.discovery-refinement-card .discovery-sort-control { flex: initial; }
+.discovery-refinement-card .discovery-sort-control .discovery-filter-select { background: rgba(255, 255, 255, 0.76); }
+.discovery-refinement-card .discovery-toolbar > .btn { margin-bottom: 1px; }
+
+.discovery-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-2);
+  border-style: dashed !important;
+  border-color: rgba(98, 89, 228, 0.25) !important;
+  background: rgba(255, 255, 255, 0.36) !important;
+}
+
+.discovery-load-error {
+  border-color: rgba(229, 91, 108, 0.25) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.83), rgba(255, 244, 246, 0.65)) !important;
+  box-shadow: 0 22px 54px rgba(24, 44, 90, 0.1);
+}
+
+.discovery-load-error-icon { box-shadow: 0 8px 20px rgba(229, 91, 108, 0.15); }
+
+@media (max-width: 1024px) {
+  .discovery-refinement-card .discovery-toolbar { grid-template-columns: minmax(0, 1fr) minmax(190px, 0.48fr); }
+  .discovery-refinement-card .discovery-toolbar > .btn { grid-column: 1 / -1; justify-self: end; }
+}
+
+@media (max-width: 768px) {
+  .discovery-refinement-card { padding: 16px !important; }
+  .discovery-refinement-card .discovery-toolbar { display: flex; gap: 12px; padding: 12px; }
+  .discovery-refinement-card .discovery-toolbar > .btn { justify-self: auto; }
+  .discovery-search-field { align-items: flex-start; }
+  .discovery-filter-grid > div { padding: 10px; }
+}
