@@ -189,3 +189,6 @@
 - [x] Add lifecycle regression coverage for activity reset, timeout cleanup, and secure logout behavior.
 - [x] Add a restrained blurred official LifeLink logo background layer that preserves readable foreground content in light and dark modes.
 - [x] Validate the blurred-logo background on responsive login and patient dashboard views before publishing.
+- [x] Add focused Specialist Finder filtering and sorting controls that preserve the controlled-directory scope.
+- [x] Improve Specialist Finder loading and data-failure states with friendly recovery guidance.
+- [x] Add regression coverage and validate the Specialist Finder enhancement before publishing.

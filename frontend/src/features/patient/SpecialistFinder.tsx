@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
-import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route, TrainFront, LocateFixed, X } from 'lucide-react';
+import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route, TrainFront, LocateFixed, X, SlidersHorizontal, ArrowUpDown, AlertCircle, RefreshCw, RotateCcw } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trpc } from '../../lib/trpc';
 import { MumbaiDoctorMap } from '../../components/MumbaiDoctorMap';
@@ -18,6 +18,32 @@ export const RESIDENCE_STATION_LABEL = 'Which station is closest to where you li
 export const BROWSER_LOCATION_TITLE = 'Optional browser location';
 export const BROWSER_LOCATION_PRIVACY = 'Optional: use your browser location to order only the visible controlled development entries. Your location is not stored or sent to LifeLink.';
 export const SPECIALTY_SEARCH_GUIDANCE = 'Free-text search matches specialties only. Use the Mumbai area and station filters below for where you live.';
+export type SpecialistSort = 'recommended' | 'name' | 'specialty' | 'station';
+export const SPECIALIST_SORT_LABELS: Record<SpecialistSort, string> = {
+  recommended: 'Recommended',
+  name: 'Name A–Z',
+  specialty: 'Specialty A–Z',
+  station: 'Station A–Z',
+};
+export const SPECIALIST_LOAD_ERROR_TITLE = 'We couldn’t load the specialist directory';
+export const SPECIALIST_LOAD_ERROR_MESSAGE = 'Please check your connection and try again. Your filters will stay unchanged.';
+
+type SortableSpecialist = {
+  id: string;
+  name: string;
+  specialty: string;
+  station: string;
+  latitude: number;
+  longitude: number;
+};
+
+export function sortSpecialistDirectory<T extends SortableSpecialist>(entries: readonly T[], sortBy: SpecialistSort, browserLocation: BrowserLocation | null) {
+  if (sortBy === 'recommended' && browserLocation) return sortByBrowserLocation(entries, browserLocation);
+  if (sortBy === 'recommended') return [...entries];
+
+  const field = sortBy === 'name' ? 'name' : sortBy === 'specialty' ? 'specialty' : 'station';
+  return [...entries].sort((left, right) => left[field].localeCompare(right[field]) || left.id.localeCompare(right.id));
+}
 
 export const SpecialistFinder = () => {
   const trpcUtils = trpc.useUtils();
@@ -27,6 +53,7 @@ export const SpecialistFinder = () => {
   const [railLine, setRailLine] = useState(ALL_FILTER);
   const [station, setStation] = useState(ALL_FILTER);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<SpecialistSort>('recommended');
   const discoveryFilters = useMemo(() => ({
     city: 'Mumbai' as const,
     specialty: specialty === ALL_FILTER ? undefined : specialty,
@@ -110,6 +137,20 @@ export const SpecialistFinder = () => {
     setLocationStatus('Browser location cleared. Directory results return to their standard controlled order; no location was stored.');
   };
 
+  const clearFilters = () => {
+    updateSpecialty(ALL_FILTER);
+    setRailLine(ALL_FILTER);
+    setStation(ALL_FILTER);
+    setSearchTerm('');
+    setSortBy('recommended');
+    setRequestError('');
+  };
+
+  const retryDirectory = () => {
+    void directoryQuery.refetch();
+    void facetsQuery.refetch();
+  };
+
   const handleRequest = async (doctorId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     if (!requestedAt) {
@@ -133,9 +174,25 @@ export const SpecialistFinder = () => {
   };
 
   const filteredDoctors = directoryQuery.data ?? [];
-  const displayedDoctors = useMemo(() => browserLocation ? sortByBrowserLocation(filteredDoctors, browserLocation) : filteredDoctors, [browserLocation, filteredDoctors]);
+  const displayedDoctors = useMemo(() => sortSpecialistDirectory(filteredDoctors, sortBy, browserLocation), [browserLocation, filteredDoctors, sortBy]);
+  const activeFilterCount = [specialty !== ALL_FILTER, railLine !== ALL_FILTER, station !== ALL_FILTER, Boolean(searchTerm.trim())].filter(Boolean).length;
 
-  if (directoryQuery.isLoading || facetsQuery.isLoading) return <div className="flex items-center justify-center h-full"><p className="caption">Loading the controlled Mumbai development directory…</p></div>;
+  if (directoryQuery.isLoading || facetsQuery.isLoading) return <div className="discovery-state" role="status" aria-live="polite"><RefreshCw size={20} className="discovery-state-icon" aria-hidden="true" /><p className="caption">Loading the controlled Mumbai development directory…</p></div>;
+
+  if (directoryQuery.isError || facetsQuery.isError) return (
+    <div className="container" style={{ padding: 0 }}>
+      <div role="alert"><Card variant="glass" className="discovery-load-error">
+        <div className="discovery-load-error-icon"><AlertCircle size={24} aria-hidden="true" /></div>
+        <div>
+          <h1>{SPECIALIST_LOAD_ERROR_TITLE}</h1>
+          <p className="caption">{SPECIALIST_LOAD_ERROR_MESSAGE}</p>
+          <Button type="button" variant="primary" onClick={retryDirectory} disabled={directoryQuery.isFetching || facetsQuery.isFetching}>
+            <RefreshCw size={16} aria-hidden="true" /> {directoryQuery.isFetching || facetsQuery.isFetching ? 'Trying again…' : 'Try again'}
+          </Button>
+        </div>
+      </Card></div>
+    </div>
+  );
 
   const facets = facetsQuery.data;
 
@@ -199,6 +256,24 @@ export const SpecialistFinder = () => {
               </select>
             </div>
           </div>
+          <div className="discovery-toolbar">
+            <div className="discovery-toolbar-intro">
+              <SlidersHorizontal size={17} aria-hidden="true" />
+              <div>
+                <p className="discovery-location-title">Refine results</p>
+                <p className="caption">Filters apply to the controlled directory only.</p>
+              </div>
+            </div>
+            <label className="discovery-sort-control" htmlFor="specialist-sort">
+              <span><ArrowUpDown size={14} aria-hidden="true" /> Sort results</span>
+              <select id="specialist-sort" className="discovery-filter-select" value={sortBy} onChange={(event) => setSortBy(event.target.value as SpecialistSort)}>
+                {Object.entries(SPECIALIST_SORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </label>
+            <Button type="button" variant="outline" size="sm" onClick={clearFilters} disabled={activeFilterCount === 0 && sortBy === 'recommended'}>
+              <RotateCcw size={15} aria-hidden="true" /> Clear filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            </Button>
+          </div>
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }}>Requested visit date and time</label>
             <Input type="datetime-local" value={requestedAt} onChange={(event) => setRequestedAt(event.target.value)} />
@@ -251,7 +326,7 @@ export const SpecialistFinder = () => {
             })}
             {displayedDoctors.length === 0 && (
               <BentoItem colSpan={4}>
-                <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}><p className="text-muted" style={{ margin: 0 }}>No controlled directory entries match the selected Mumbai filters. Clear a filter to view the available development entries.</p></Card>
+                <Card variant="glass" className="discovery-empty-state" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}><p className="text-muted" style={{ margin: 0 }}>No controlled directory entries match the selected filters. Clear a filter to view the available development entries.</p>{activeFilterCount > 0 && <Button type="button" variant="outline" size="sm" onClick={clearFilters}><RotateCcw size={15} aria-hidden="true" /> Reset filters</Button>}</Card>
               </BentoItem>
             )}
           </BentoGrid>
