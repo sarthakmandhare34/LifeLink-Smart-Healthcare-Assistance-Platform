@@ -195,3 +195,6 @@
 
 - [x] Redesign the complete Specialist Finder filter, sort, empty, and retry interface to match the LifeLink glass visual system.
 - [x] Validate the redesigned Specialist Finder at desktop and mobile breakpoints, including the controlled-directory and error-recovery states.
+
+- [x] Remove the oversized Specialist Finder Refine results / Sort / Clear filters toolbar while retaining the essential directory filters.
+- [x] Validate the streamlined Specialist Finder on desktop and mobile before publishing.

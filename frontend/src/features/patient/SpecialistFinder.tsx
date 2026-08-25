@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
-import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route, TrainFront, LocateFixed, X, SlidersHorizontal, ArrowUpDown, AlertCircle, RefreshCw, RotateCcw } from 'lucide-react';
+import { UserCheck, Search, MapPin, Building, Map as MapIcon, Route, TrainFront, LocateFixed, X, AlertCircle, RefreshCw, RotateCcw } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trpc } from '../../lib/trpc';
 import { MumbaiDoctorMap } from '../../components/MumbaiDoctorMap';
@@ -18,32 +18,8 @@ export const RESIDENCE_STATION_LABEL = 'Which station is closest to where you li
 export const BROWSER_LOCATION_TITLE = 'Optional browser location';
 export const BROWSER_LOCATION_PRIVACY = 'Optional: use your browser location to order only the visible controlled development entries. Your location is not stored or sent to LifeLink.';
 export const SPECIALTY_SEARCH_GUIDANCE = 'Free-text search matches specialties only. Use the Mumbai area and station filters below for where you live.';
-export type SpecialistSort = 'recommended' | 'name' | 'specialty' | 'station';
-export const SPECIALIST_SORT_LABELS: Record<SpecialistSort, string> = {
-  recommended: 'Recommended',
-  name: 'Name A–Z',
-  specialty: 'Specialty A–Z',
-  station: 'Station A–Z',
-};
 export const SPECIALIST_LOAD_ERROR_TITLE = 'We couldn’t load the specialist directory';
 export const SPECIALIST_LOAD_ERROR_MESSAGE = 'Please check your connection and try again. Your filters will stay unchanged.';
-
-type SortableSpecialist = {
-  id: string;
-  name: string;
-  specialty: string;
-  station: string;
-  latitude: number;
-  longitude: number;
-};
-
-export function sortSpecialistDirectory<T extends SortableSpecialist>(entries: readonly T[], sortBy: SpecialistSort, browserLocation: BrowserLocation | null) {
-  if (sortBy === 'recommended' && browserLocation) return sortByBrowserLocation(entries, browserLocation);
-  if (sortBy === 'recommended') return [...entries];
-
-  const field = sortBy === 'name' ? 'name' : sortBy === 'specialty' ? 'specialty' : 'station';
-  return [...entries].sort((left, right) => left[field].localeCompare(right[field]) || left.id.localeCompare(right.id));
-}
 
 export const SpecialistFinder = () => {
   const trpcUtils = trpc.useUtils();
@@ -53,7 +29,6 @@ export const SpecialistFinder = () => {
   const [railLine, setRailLine] = useState(ALL_FILTER);
   const [station, setStation] = useState(ALL_FILTER);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<SpecialistSort>('recommended');
   const discoveryFilters = useMemo(() => ({
     city: 'Mumbai' as const,
     specialty: specialty === ALL_FILTER ? undefined : specialty,
@@ -142,7 +117,6 @@ export const SpecialistFinder = () => {
     setRailLine(ALL_FILTER);
     setStation(ALL_FILTER);
     setSearchTerm('');
-    setSortBy('recommended');
     setRequestError('');
   };
 
@@ -174,7 +148,7 @@ export const SpecialistFinder = () => {
   };
 
   const filteredDoctors = directoryQuery.data ?? [];
-  const displayedDoctors = useMemo(() => sortSpecialistDirectory(filteredDoctors, sortBy, browserLocation), [browserLocation, filteredDoctors, sortBy]);
+  const displayedDoctors = useMemo(() => browserLocation ? sortByBrowserLocation(filteredDoctors, browserLocation) : filteredDoctors, [browserLocation, filteredDoctors]);
   const activeFilterCount = [specialty !== ALL_FILTER, railLine !== ALL_FILTER, station !== ALL_FILTER, Boolean(searchTerm.trim())].filter(Boolean).length;
 
   if (directoryQuery.isLoading || facetsQuery.isLoading) return <div className="discovery-state" role="status" aria-live="polite"><RefreshCw size={20} className="discovery-state-icon" aria-hidden="true" /><p className="caption">Loading the controlled Mumbai development directory…</p></div>;
@@ -255,24 +229,6 @@ export const SpecialistFinder = () => {
                 {availableStations.map((value) => <option key={value.id} value={value.name}>{value.name}{value.lines.length > 1 ? ` · ${value.lines.join(" + ")}` : ""}</option>)}
               </select>
             </div>
-          </div>
-          <div className="discovery-toolbar">
-            <div className="discovery-toolbar-intro">
-              <SlidersHorizontal size={17} aria-hidden="true" />
-              <div>
-                <p className="discovery-location-title">Refine results</p>
-                <p className="caption">Filters apply to the controlled directory only.</p>
-              </div>
-            </div>
-            <label className="discovery-sort-control" htmlFor="specialist-sort">
-              <span><ArrowUpDown size={14} aria-hidden="true" /> Sort results</span>
-              <select id="specialist-sort" className="discovery-filter-select" value={sortBy} onChange={(event) => setSortBy(event.target.value as SpecialistSort)}>
-                {Object.entries(SPECIALIST_SORT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-              </select>
-            </label>
-            <Button type="button" variant="outline" size="sm" onClick={clearFilters} disabled={activeFilterCount === 0 && sortBy === 'recommended'}>
-              <RotateCcw size={15} aria-hidden="true" /> Clear filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
-            </Button>
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }}>Requested visit date and time</label>
