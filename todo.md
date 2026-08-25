@@ -235,8 +235,8 @@
 - [x] Implement owner-authorized doctor password reset and change-password controls without exposing stored passwords.
 - [x] Implement server-authorized patient detail queries that require an appointment assigned to the signed doctor.
 - [x] Update the doctor portal for password recovery and appointment-scoped patient details without fabricating clinical data.
-- [ ] Provision directory-aligned synthetic doctor testing identities after the secure administration workflows are complete.
-- [ ] Add regression coverage, validate the build, document secure administration, and save the completed workflow checkpoint.
+- [x] Provision directory-aligned synthetic doctor testing identities after the secure administration workflows are complete.
+- [x] Add regression coverage, validate the build, document secure administration, and save the completed workflow checkpoint.
 - [x] Refine the controlled doctor administration UI while preserving the secure provisioning, reset, and appointment-detail workflows.
 - [x] Remove public setup and reset links from the doctor sign-in page so it presents only email/password login and patient sign-in navigation.
 
