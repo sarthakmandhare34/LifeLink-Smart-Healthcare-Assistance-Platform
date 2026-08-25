@@ -15,5 +15,6 @@ describe("workspace selector entry flow", () => {
   it("labels the doctor path as a controlled synthetic workspace", () => {
     expect(selectorSource).toContain("Controlled demo clinician workspace");
     expect(selectorSource).toContain("no real clinician account is represented");
+    expect(selectorSource).toContain("separate demo email and password");
   });
 });

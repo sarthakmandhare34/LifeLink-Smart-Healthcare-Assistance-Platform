@@ -14,6 +14,7 @@ import {
   patientPrescriptionItems,
   patientPrescriptions,
   patientProfiles,
+  syntheticDoctorCredentials,
   users,
 } from "../database/schema";
 import type { MockDoctorDirectoryEntry } from "./mockDoctorDirectory";
@@ -269,6 +270,43 @@ export async function findOrCreateSyntheticDoctorUser(doctor: MockDoctorDirector
   const user = await getUserByOpenId(openId);
   if (!user) throw new Error("Synthetic doctor user could not be created");
   return user;
+}
+
+export async function getSyntheticDoctorCredentialByEmail(email: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .select({ user: users, credential: syntheticDoctorCredentials })
+    .from(syntheticDoctorCredentials)
+    .innerJoin(users, eq(syntheticDoctorCredentials.userId, users.id))
+    .where(eq(syntheticDoctorCredentials.email, email))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function createSyntheticDoctorCredential(input: {
+  doctor: MockDoctorDirectoryEntry;
+  email: string;
+  passwordHash: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existingByEmail = await getSyntheticDoctorCredentialByEmail(input.email);
+  if (existingByEmail) return null;
+  const user = await findOrCreateSyntheticDoctorUser(input.doctor);
+  const existingByDoctor = await db
+    .select()
+    .from(syntheticDoctorCredentials)
+    .where(eq(syntheticDoctorCredentials.doctorId, input.doctor.id))
+    .limit(1);
+  if (existingByDoctor[0]) return null;
+  await db.insert(syntheticDoctorCredentials).values({
+    userId: user.id,
+    doctorId: input.doctor.id,
+    email: input.email,
+    passwordHash: input.passwordHash,
+  });
+  return { user, doctorId: input.doctor.id, email: input.email };
 }
 
 function parseList(value: string | null | undefined) {

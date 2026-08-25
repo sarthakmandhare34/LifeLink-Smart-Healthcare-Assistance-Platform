@@ -52,6 +52,17 @@ describe("doctor workspace authorization", () => {
     expect(patients).toEqual([{ id: 9, name: "Patient record" }]);
   });
 
+  it("keeps a second signed synthetic doctor on a separate appointment channel", async () => {
+    mocks.listDoctorAppointments.mockResolvedValue([]);
+    const secondDoctor = context("doctor");
+    secondDoctor.user.openId = "synthetic-doctor:mock-western-general-practice-dadar";
+
+    await doctorWorkspaceRouter.createCaller(secondDoctor).appointments.list();
+
+    expect(mocks.listDoctorAppointments).toHaveBeenCalledWith("mock-western-general-practice-dadar");
+    expect(mocks.listDoctorAppointments).not.toHaveBeenCalledWith("mock-central-cardiology-dadar");
+  });
+
   it("rejects a patient session before any doctor data helper is called", async () => {
     await expect(doctorWorkspaceRouter.createCaller(context("user")).patients()).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(mocks.listDoctorAppointments).not.toHaveBeenCalled();

@@ -62,6 +62,20 @@ export const patientCredentials = mysqlTable("patientCredentials", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
+/** Synthetic doctor credentials map one stable controlled directory doctor to one login identity. */
+export const syntheticDoctorCredentials = mysqlTable("syntheticDoctorCredentials", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  doctorId: varchar("doctorId", { length: 80 }).notNull().unique(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 512 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 /** Provider identities are separate from native credentials and are added only after a verified provider callback. */
 export const patientProviderIdentities = mysqlTable("patientProviderIdentities", {
   id: int("id").autoincrement().primaryKey(),
@@ -202,6 +216,7 @@ export const doctorEvents = mysqlTable("doctorEvents", {
 });
 
 export type PatientCredential = typeof patientCredentials.$inferSelect;
+export type SyntheticDoctorCredential = typeof syntheticDoctorCredentials.$inferSelect;
 export type PatientProfile = typeof patientProfiles.$inferSelect;
 export type PatientEmergencyContact = typeof patientEmergencyContacts.$inferSelect;
 export type PatientMedicine = typeof patientMedicines.$inferSelect;

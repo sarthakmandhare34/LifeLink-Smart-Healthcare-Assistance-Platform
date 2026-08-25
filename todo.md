@@ -220,3 +220,11 @@
 - [x] Add a responsive LifeLink workspace-selection page with distinct Patient Portal and Doctor Workstation entry actions.
 - [x] Add regression coverage and validate separate portal navigation at desktop and mobile widths.
 - [x] Save the verified separate-entry workflow checkpoint.
+
+## Per-Doctor Synthetic Credentials
+
+- [x] Audit the controlled doctor directory and current single-session implementation before introducing distinct demo clinician accounts.
+- [x] Add a minimal server-authorized credential model that assigns each controlled synthetic doctor a stable independent identity.
+- [x] Update the doctor login and workspace authorization so each signed synthetic doctor sees only their own assigned appointments.
+- [x] Add isolation regression coverage and validate independent doctor login sessions without exposing credentials.
+- [x] Document safe credential administration, verify the build, and save the per-doctor account checkpoint.

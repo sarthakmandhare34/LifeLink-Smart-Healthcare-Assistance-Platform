@@ -2,12 +2,12 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createPatientEvent, listDoctorAppointments, updateDoctorAppointmentStatus } from "../db";
 import { doctorProcedure, router } from "../_core/trpc";
-import { doctorIdFromSyntheticOpenId, doctorDisplayName, getWorkstationDoctor } from "../syntheticDoctor";
+import { doctorIdFromSyntheticOpenId, doctorDisplayName, getSyntheticDoctor } from "../syntheticDoctor";
 
 function currentDoctor(openId: string) {
   const doctorId = doctorIdFromSyntheticOpenId(openId);
-  const doctor = getWorkstationDoctor();
-  if (!doctorId || doctorId !== doctor.id) {
+  const doctor = doctorId ? getSyntheticDoctor(doctorId) : null;
+  if (!doctor) {
     throw new TRPCError({ code: "FORBIDDEN", message: "This synthetic doctor session is not authorized." });
   }
   return doctor;

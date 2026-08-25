@@ -46,7 +46,7 @@ export const WorkspaceSelector = () => {
             <p>Access the stable LifeLink synthetic-doctor workflow; no real clinician account is represented.</p>
             <ul className="workspace-choice-list">{doctorHighlights.map((item) => <li key={item}><ShieldCheck size={16} />{item}</li>)}</ul>
             <Button type="button" variant="primary" className="workspace-choice-action" onClick={() => navigate("/doctor/login")}>Doctor sign in <ArrowRight size={18} /></Button>
-            <p className="caption workspace-choice-note"><CalendarCheck size={15} /> Requires the private demo workstation access code.</p>
+            <p className="caption workspace-choice-note"><CalendarCheck size={15} /> Requires this doctor&apos;s separate demo email and password.</p>
           </Card>
         </div>
 
