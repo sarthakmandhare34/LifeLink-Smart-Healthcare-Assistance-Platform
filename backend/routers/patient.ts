@@ -170,6 +170,7 @@ export const patientMedicineRouter = router({
 const appointmentInput = z.object({
   doctorId: z.string().trim().min(1).max(80),
   scheduledAt: z.coerce.date(),
+  reason: z.string().trim().min(3).max(1000),
 });
 
 export const patientAppointmentRouter = router({
@@ -186,7 +187,7 @@ export const patientAppointmentRouter = router({
     if (input.scheduledAt.getTime() <= Date.now()) {
       throw new TRPCError({ code: "BAD_REQUEST", message: "Appointment time must be in the future." });
     }
-    const id = await createPatientAppointment(ctx.user.id, doctor.id, input.scheduledAt);
+    const id = await createPatientAppointment(ctx.user.id, doctor.id, input.scheduledAt, input.reason);
     await createPatientEvent(ctx.user.id, "APPOINTMENT_UPDATED", String(id));
     await createDoctorEvent(doctor.id, ctx.user.id, "APPOINTMENT_UPDATED", String(id));
     return { id, status: "Requested" as const };

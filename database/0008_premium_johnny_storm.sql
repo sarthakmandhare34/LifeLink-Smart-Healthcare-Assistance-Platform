@@ -1,0 +1,1 @@
+ALTER TABLE `patientAppointments` ADD `reason` text;

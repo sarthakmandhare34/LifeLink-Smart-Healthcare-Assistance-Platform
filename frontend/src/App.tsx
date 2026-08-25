@@ -20,6 +20,7 @@ import { Profile } from './features/patient/Profile';
 import { Settings } from './features/patient/Settings';
 import { DoctorLogin } from './features/doctor/Login';
 import { DoctorSetup } from './features/doctor/Setup';
+import { DoctorResetPassword } from './features/doctor/ResetPassword';
 import { DoctorDashboard } from './features/doctor/Dashboard';
 import { Patients } from './features/doctor/Patients';
 import { DoctorAppointments } from './features/doctor/Appointments';
@@ -40,6 +41,7 @@ function App() {
         <Route path="/register" element={<PatientRegistration />} />
         <Route path="/doctor/login" element={<DoctorLogin />} />
         <Route path="/doctor/setup" element={<DoctorSetup />} />
+        <Route path="/doctor/reset" element={<DoctorResetPassword />} />
 
         <Route path="/patient" element={<AppShell />}>
           <Route path="dashboard" element={<PatientDashboard />} />

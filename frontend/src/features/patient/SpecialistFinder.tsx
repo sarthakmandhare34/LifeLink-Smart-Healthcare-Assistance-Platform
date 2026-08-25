@@ -44,6 +44,7 @@ export const SpecialistFinder = () => {
   const requestMutation = trpc.patientAppointment.request.useMutation();
   const navigate = useNavigate();
   const [requestedAt, setRequestedAt] = useState('');
+  const [appointmentReason, setAppointmentReason] = useState('');
   const [requestedDocId, setRequestedDocId] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
@@ -131,11 +132,15 @@ export const SpecialistFinder = () => {
       setRequestError('Choose a requested visit date and time before sending an appointment request.');
       return;
     }
+    if (appointmentReason.trim().length < 3) {
+      setRequestError('Briefly tell the assigned specialist why you are requesting this appointment.');
+      return;
+    }
 
     setProcessingId(doctorId);
     setRequestError('');
     try {
-      await requestMutation.mutateAsync({ doctorId, scheduledAt: new Date(requestedAt) });
+      await requestMutation.mutateAsync({ doctorId, scheduledAt: new Date(requestedAt), reason: appointmentReason.trim() });
       await trpcUtils.patientAppointment.list.invalidate();
       await trpcUtils.patientDashboard.summary.invalidate();
       setRequestedDocId(doctorId);
@@ -233,6 +238,11 @@ export const SpecialistFinder = () => {
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }}>Requested visit date and time</label>
             <Input type="datetime-local" value={requestedAt} onChange={(event) => setRequestedAt(event.target.value)} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }} htmlFor="appointment-reason">Reason for this appointment</label>
+            <textarea id="appointment-reason" value={appointmentReason} onChange={(event) => setAppointmentReason(event.target.value)} maxLength={1000} rows={3} placeholder="Briefly describe what you would like the specialist to review." style={{ width: '100%', resize: 'vertical', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)' }} />
+            <p className="caption" style={{ margin: '6px 0 0' }}>This reason is visible only to you and the assigned doctor workspace.</p>
           </div>
           {requestError && <div className="alert-panel"><span className="caption">{requestError}</span></div>}
         </div>

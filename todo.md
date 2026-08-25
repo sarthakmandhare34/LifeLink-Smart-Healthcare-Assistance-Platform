@@ -228,3 +228,22 @@
 - [x] Update the doctor login and workspace authorization so each signed synthetic doctor sees only their own assigned appointments.
 - [x] Add isolation regression coverage and validate independent doctor login sessions without exposing credentials.
 - [x] Document safe credential administration, verify the build, and save the per-doctor account checkpoint.
+
+## Secure Doctor Administration and Patient Details
+
+- [x] Audit current doctor credential, appointment, and patient-record helpers for secure reset and appointment-scoped detail access.
+- [x] Implement owner-authorized doctor password reset and change-password controls without exposing stored passwords.
+- [x] Implement server-authorized patient detail queries that require an appointment assigned to the signed doctor.
+- [x] Update the doctor portal for password recovery and appointment-scoped patient details without fabricating clinical data.
+- [ ] Provision directory-aligned synthetic doctor testing identities after the secure administration workflows are complete.
+- [ ] Add regression coverage, validate the build, document secure administration, and save the completed workflow checkpoint.
+- [x] Refine the controlled doctor administration UI while preserving the secure provisioning, reset, and appointment-detail workflows.
+- [x] Remove public setup and reset links from the doctor sign-in page so it presents only email/password login and patient sign-in navigation.
+
+## Appointment Context and Doctor Prescriptions
+
+- [x] Audit existing assessment, appointment, and prescription records for appointment-scoped doctor workflow integration.
+- [x] Add server-authorized appointment reason and assessment context for the signed doctor assigned to the patient appointment.
+- [x] Add doctor-authored prescription creation and review for assigned patients without fabricating diagnosis or medicine data.
+- [x] Update clinician views so appointment context, assessment summary, and prescription actions follow the assigned patient relationship.
+- [x] Add authorization and workflow regression coverage, then verify the completed build.

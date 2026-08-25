@@ -144,6 +144,8 @@ export const patientAppointments = mysqlTable("patientAppointments", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   doctorId: varchar("doctorId", { length: 80 }).notNull(),
+  /** Patient-provided booking context, visible only to the patient and the assigned synthetic doctor. */
+  reason: text("reason"),
   scheduledAt: timestamp("scheduledAt").notNull(),
   status: mysqlEnum("status", ["Requested", "Pending", "Confirmed", "Completed", "Cancelled"])
     .default("Requested")

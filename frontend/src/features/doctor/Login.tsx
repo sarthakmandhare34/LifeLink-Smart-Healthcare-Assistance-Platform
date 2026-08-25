@@ -47,7 +47,7 @@ export const DoctorLogin = () => {
           {error ? <p role="alert" style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p> : null}
           <Button type="submit" variant="primary" disabled={login.isPending} style={{ marginTop: "var(--spacing-2)" }}>{login.isPending ? "Opening workspace…" : "Doctor sign in"}</Button>
         </form>
-        <footer className="auth-card-footer" style={{ marginTop: "var(--spacing-4)" }}><span className="caption">Need to create a controlled demo account?</span><button type="button" className="auth-link-button" onClick={() => navigate("/doctor/setup")}>Set up demo doctor</button><span className="caption">Looking for your patient account?</span><button type="button" className="auth-link-button" onClick={() => navigate("/login")}>Patient sign in</button></footer>
+        <footer className="auth-card-footer" style={{ marginTop: "var(--spacing-4)" }}><span className="caption">Looking for your patient account?</span><button type="button" className="auth-link-button" onClick={() => navigate("/login")}>Patient sign in</button></footer>
       </Card>
     </div>
   );

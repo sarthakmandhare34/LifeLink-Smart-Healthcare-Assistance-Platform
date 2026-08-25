@@ -4,12 +4,16 @@ const mocks = vi.hoisted(() => ({
   listDoctorAppointments: vi.fn(),
   updateDoctorAppointmentStatus: vi.fn(),
   createPatientEvent: vi.fn(),
+  getDoctorAuthorizedPatientDetail: vi.fn(),
+  createDoctorAuthorizedPrescription: vi.fn(),
 }));
 
 vi.mock("../db", () => ({
   listDoctorAppointments: mocks.listDoctorAppointments,
   updateDoctorAppointmentStatus: mocks.updateDoctorAppointmentStatus,
   createPatientEvent: mocks.createPatientEvent,
+  getDoctorAuthorizedPatientDetail: mocks.getDoctorAuthorizedPatientDetail,
+  createDoctorAuthorizedPrescription: mocks.createDoctorAuthorizedPrescription,
 }));
 
 import { doctorWorkspaceRouter } from "./doctor";
@@ -39,6 +43,8 @@ describe("doctor workspace authorization", () => {
     mocks.listDoctorAppointments.mockReset();
     mocks.updateDoctorAppointmentStatus.mockReset();
     mocks.createPatientEvent.mockReset();
+    mocks.getDoctorAuthorizedPatientDetail.mockReset();
+    mocks.createDoctorAuthorizedPrescription.mockReset();
   });
 
   it("uses the signed synthetic doctor identity instead of a browser-supplied doctor identifier", async () => {
@@ -63,6 +69,14 @@ describe("doctor workspace authorization", () => {
     expect(mocks.listDoctorAppointments).not.toHaveBeenCalledWith("mock-central-cardiology-dadar");
   });
 
+  it("exposes a patient-provided booking reason only on the signed doctor’s assigned appointment list", async () => {
+    mocks.listDoctorAppointments.mockResolvedValue([{ id: 23, scheduledAt: new Date("2026-08-25T10:00:00Z"), status: "Requested", reason: "Review submitted symptom assessment", createdAt: new Date(), patientId: 9, patientName: "Patient record" }]);
+
+    const appointments = await doctorWorkspaceRouter.createCaller(context("doctor")).appointments.list();
+
+    expect(appointments[0]).toMatchObject({ reason: "Review submitted symptom assessment", patient: { id: 9 } });
+  });
+
   it("rejects a patient session before any doctor data helper is called", async () => {
     await expect(doctorWorkspaceRouter.createCaller(context("user")).patients()).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(mocks.listDoctorAppointments).not.toHaveBeenCalled();
@@ -75,5 +89,32 @@ describe("doctor workspace authorization", () => {
 
     expect(mocks.updateDoctorAppointmentStatus).toHaveBeenCalledWith("mock-central-cardiology-dadar", 22, "Confirmed");
     expect(mocks.createPatientEvent).toHaveBeenCalledWith(9, "APPOINTMENT_UPDATED", "22");
+  });
+
+  it("returns the minimum patient detail only through the signed doctor’s assigned appointment relationship", async () => {
+    mocks.getDoctorAuthorizedPatientDetail.mockResolvedValue({ patient: { id: 9, name: "Patient record", bloodGroup: "Not recorded", allergies: [], conditions: [] }, appointments: [], medicines: [], assessments: [{ id: 3, symptoms: "Persistent cough", duration: "3 days", urgency: "MODERATE", reason: "Patient-provided context", specialty: "Pulmonology", guidance: "Seek review", createdAt: new Date() }] });
+
+    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).patientDetail({ patientId: 9 })).resolves.toMatchObject({ patient: { id: 9 } });
+    expect(mocks.getDoctorAuthorizedPatientDetail).toHaveBeenCalledWith("mock-central-cardiology-dadar", 9);
+  });
+
+  it("creates a demo prescription only through the signed doctor’s confirmed appointment relationship", async () => {
+    mocks.createDoctorAuthorizedPrescription.mockResolvedValue(91);
+
+    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).prescriptions.create({ patientId: 9, clinicalNotes: "Review completed", items: [{ name: "Demo medicine", dosage: "1 tablet", instructions: "Follow the demo care plan" }] })).resolves.toEqual({ id: 91, status: "UNSIGNED / DEMO" });
+
+    expect(mocks.createDoctorAuthorizedPrescription).toHaveBeenCalledWith(expect.objectContaining({ doctorId: "mock-central-cardiology-dadar", patientUserId: 9 }));
+    expect(mocks.createPatientEvent).toHaveBeenCalledWith(9, "PRESCRIPTION_CREATED", "91");
+  });
+
+  it("does not create a prescription when no confirmed appointment relationship is available", async () => {
+    mocks.createDoctorAuthorizedPrescription.mockResolvedValue(null);
+
+    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).prescriptions.create({ patientId: 14, items: [{ name: "Demo medicine", dosage: "1 tablet", instructions: "Follow the demo care plan" }] })).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("does not return a patient detail record when no assignment exists", async () => {
+    mocks.getDoctorAuthorizedPatientDetail.mockResolvedValue(null);
+    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).patientDetail({ patientId: 14 })).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });

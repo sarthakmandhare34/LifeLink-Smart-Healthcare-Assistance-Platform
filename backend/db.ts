@@ -284,6 +284,37 @@ export async function getSyntheticDoctorCredentialByEmail(email: string) {
   return rows[0] ?? null;
 }
 
+export async function getSyntheticDoctorCredentialByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const rows = await db
+    .select()
+    .from(syntheticDoctorCredentials)
+    .where(eq(syntheticDoctorCredentials.userId, userId))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function updateSyntheticDoctorPasswordByEmail(email: string, passwordHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db
+    .update(syntheticDoctorCredentials)
+    .set({ passwordHash })
+    .where(eq(syntheticDoctorCredentials.email, email));
+  return Number(result[0].affectedRows) > 0;
+}
+
+export async function updateSyntheticDoctorPasswordByUserId(userId: number, passwordHash: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const result = await db
+    .update(syntheticDoctorCredentials)
+    .set({ passwordHash })
+    .where(eq(syntheticDoctorCredentials.userId, userId));
+  return Number(result[0].affectedRows) > 0;
+}
+
 export async function createSyntheticDoctorCredential(input: {
   doctor: MockDoctorDirectoryEntry;
   email: string;
@@ -534,10 +565,10 @@ export async function listPatientAppointments(userId: number) {
   return db.select().from(patientAppointments).where(eq(patientAppointments.userId, userId)).orderBy(desc(patientAppointments.scheduledAt));
 }
 
-export async function createPatientAppointment(userId: number, doctorId: string, scheduledAt: Date) {
+export async function createPatientAppointment(userId: number, doctorId: string, scheduledAt: Date, reason: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const result = await db.insert(patientAppointments).values({ userId, doctorId, scheduledAt, status: "Requested" });
+  const result = await db.insert(patientAppointments).values({ userId, doctorId, scheduledAt, reason, status: "Requested" });
   return Number(result[0].insertId);
 }
 
@@ -559,6 +590,7 @@ export async function listDoctorAppointments(doctorId: string) {
       id: patientAppointments.id,
       scheduledAt: patientAppointments.scheduledAt,
       status: patientAppointments.status,
+      reason: patientAppointments.reason,
       createdAt: patientAppointments.createdAt,
       patientId: users.id,
       patientName: users.name,
@@ -589,6 +621,77 @@ export async function updateDoctorAppointmentStatus(
     .set({ status })
     .where(and(eq(patientAppointments.id, appointmentId), eq(patientAppointments.doctorId, doctorId)));
   return { userId: appointment.userId };
+}
+
+/** Returns only the minimum clinical profile and medicine data for a patient with an appointment assigned to this doctor. */
+export async function getDoctorAuthorizedPatientDetail(doctorId: string, patientUserId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const appointments = await db
+    .select({ id: patientAppointments.id, scheduledAt: patientAppointments.scheduledAt, status: patientAppointments.status, reason: patientAppointments.reason })
+    .from(patientAppointments)
+    .where(and(eq(patientAppointments.doctorId, doctorId), eq(patientAppointments.userId, patientUserId)))
+    .orderBy(desc(patientAppointments.scheduledAt));
+  if (!appointments.length) return null;
+
+  const rows = await db
+    .select({ name: users.name, bloodGroup: patientProfiles.bloodGroup, allergiesJson: patientProfiles.allergiesJson, conditionsJson: patientProfiles.conditionsJson })
+    .from(users)
+    .leftJoin(patientProfiles, eq(patientProfiles.userId, users.id))
+    .where(eq(users.id, patientUserId))
+    .limit(1);
+  const patient = rows[0];
+  if (!patient) return null;
+  const medicines = await db
+    .select({ id: patientMedicines.id, name: patientMedicines.name, dosage: patientMedicines.dosage, frequency: patientMedicines.frequency, schedule: patientMedicines.schedule })
+    .from(patientMedicines)
+    .where(eq(patientMedicines.userId, patientUserId))
+    .orderBy(desc(patientMedicines.updatedAt));
+  const assessments = await db
+    .select({ id: patientAssessments.id, symptoms: patientAssessments.symptoms, duration: patientAssessments.duration, urgency: patientAssessments.urgency, reason: patientAssessments.reason, specialty: patientAssessments.specialty, guidance: patientAssessments.guidance, createdAt: patientAssessments.createdAt })
+    .from(patientAssessments)
+    .where(eq(patientAssessments.userId, patientUserId))
+    .orderBy(desc(patientAssessments.createdAt))
+    .limit(3);
+
+  return {
+    patient: {
+      id: patientUserId,
+      name: patient.name || "LifeLink patient",
+      bloodGroup: patient.bloodGroup || "Not recorded",
+      allergies: parseList(patient.allergiesJson),
+      conditions: parseList(patient.conditionsJson),
+    },
+    appointments,
+    medicines,
+    assessments,
+  };
+}
+
+export async function createDoctorAuthorizedPrescription(input: {
+  doctorId: string;
+  patientUserId: number;
+  clinicalNotes: string | null;
+  items: Array<{ name: string; dosage: string; instructions: string }>;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const assignment = await db
+    .select({ id: patientAppointments.id })
+    .from(patientAppointments)
+    .where(and(eq(patientAppointments.doctorId, input.doctorId), eq(patientAppointments.userId, input.patientUserId), eq(patientAppointments.status, "Confirmed")))
+    .limit(1);
+  if (!assignment[0]) return null;
+  const result = await db.insert(patientPrescriptions).values({
+    userId: input.patientUserId,
+    doctorId: input.doctorId,
+    status: "UNSIGNED / DEMO",
+    clinicalNotes: input.clinicalNotes,
+    integrityReference: `demo-prescription:${randomUUID()}`,
+  });
+  const prescriptionId = Number(result[0].insertId);
+  await db.insert(patientPrescriptionItems).values(input.items.map((item) => ({ prescriptionId, ...item })));
+  return prescriptionId;
 }
 
 export async function listPatientPrescriptions(userId: number) {
