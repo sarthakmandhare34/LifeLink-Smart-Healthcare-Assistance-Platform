@@ -1417,22 +1417,6 @@ dialog.popup::backdrop {
 .workspace-entry-note svg { flex: 0 0 auto; margin-top: 0.1rem; color: var(--color-primary); }
 .workspace-entry-note p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
 
-.workspace-entry-emergency {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1rem 0 0;
-  padding: 1rem 1.15rem;
-  border: 1px solid rgba(216, 47, 97, 0.19);
-  border-radius: 1rem;
-  background: linear-gradient(105deg, rgba(255, 248, 251, 0.7), rgba(255, 255, 255, 0.48));
-}
-
-.workspace-entry-emergency > svg { flex: 0 0 auto; color: #bd2d5b; }
-.workspace-entry-emergency div { min-width: 0; }
-.workspace-entry-emergency strong { color: var(--color-text); font-size: 0.94rem; }
-.workspace-entry-emergency p { margin: 0.2rem 0 0; color: var(--color-text-muted); font-size: 0.86rem; line-height: 1.45; }
-
 .workspace-choice-spinner {
   animation: workspace-spinner 720ms linear infinite;
 }
@@ -1478,11 +1462,42 @@ dialog.popup::backdrop {
   .workspace-portal-header .auth-theme-toggle span { display: none; }
   .workspace-entry-grid { grid-template-columns: 1fr; }
   .workspace-choice-card { min-height: 0; }
-  .workspace-entry-emergency { align-items: flex-start; }
 }
 
-:root[data-theme="dark"] .workspace-entry-emergency { border-color: rgba(255, 128, 166, 0.24); background: linear-gradient(105deg, rgba(62, 22, 52, 0.5), rgba(21, 29, 71, 0.6)); }
-:root[data-theme="dark"] .workspace-entry-emergency strong { color: #f6f8ff; }
+:root[data-theme="dark"] .workspace-entry {
+  color: #f7f9ff;
+  background: radial-gradient(circle at 14% 16%, rgba(98, 121, 255, 0.16), transparent 32rem), radial-gradient(circle at 84% 84%, rgba(36, 193, 205, 0.12), transparent 30rem);
+}
+
+:root[data-theme="dark"] .workspace-entry-header h1 { color: #fbfcff; text-shadow: 0 4px 18px rgba(0, 0, 0, 0.28); }
+:root[data-theme="dark"] .workspace-entry-header > p { color: #d3dcf4; }
+:root[data-theme="dark"] .workspace-entry-kicker,
+:root[data-theme="dark"] .workspace-choice-label { border-color: rgba(180, 194, 255, 0.42); background: rgba(94, 117, 234, 0.22); color: #e7edff; }
+
+:root[data-theme="dark"] .workspace-choice-card {
+  border-color: rgba(177, 194, 255, 0.24);
+  background: linear-gradient(140deg, rgba(29, 43, 99, 0.96), rgba(18, 29, 70, 0.93));
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(225, 234, 255, 0.1);
+}
+
+:root[data-theme="dark"] .workspace-choice-card h2 { color: #fbfcff; }
+:root[data-theme="dark"] .workspace-choice-card > p { color: #cbd5ee; }
+:root[data-theme="dark"] .workspace-choice-list { border-color: rgba(186, 201, 255, 0.2); }
+:root[data-theme="dark"] .workspace-choice-list li { color: #edf1ff; }
+:root[data-theme="dark"] .workspace-choice-list svg { color: #aebdff; }
+:root[data-theme="dark"] .workspace-choice-icon { background: rgba(139, 157, 255, 0.2); color: #cad4ff; }
+:root[data-theme="dark"] .workspace-choice-icon.doctor { background: rgba(70, 211, 194, 0.18); color: #8df3e7; }
+:root[data-theme="dark"] .workspace-secondary-link { color: #bcc8ff; }
+
+:root[data-theme="dark"] .workspace-entry-note {
+  border-color: rgba(177, 194, 255, 0.26);
+  background: rgba(18, 30, 73, 0.86);
+  color: #dce5fa;
+}
+
+:root[data-theme="dark"] .workspace-entry-note strong { color: #fbfcff; }
+:root[data-theme="dark"] .workspace-entry-note svg { color: #b6c4ff; }
+:root[data-theme="dark"] .workspace-switch-status { border-color: rgba(178, 194, 255, 0.28); background: rgba(18, 30, 73, 0.96); color: #eef2ff; }
 
 .auth-page {
   --entry-canvas-start: #edf5ff;

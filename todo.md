@@ -295,3 +295,9 @@
 - [x] Verify the updated entry UI on desktop and mobile, then run type checking, full tests, and the production build.
 - [x] Review the maintained frontend/backend/database/shared folder boundaries and synchronize the finalized project state to GitHub.
 - [x] Repeat the complete final read-only quality-control audit and update the verification report after the header refinement.
+
+## Entry Dark-Mode Contrast Correction
+
+- [x] Remove the requested workspace-entry emergency information block.
+- [x] Correct dark-mode contrast for the workspace-entry header, cards, badges, and privacy text.
+- [x] Add regression coverage and verify the corrected entry page at desktop and mobile widths.

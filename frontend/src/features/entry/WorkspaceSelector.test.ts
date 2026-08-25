@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 
 const selectorSource = readFileSync(resolve(process.cwd(), "frontend/src/features/entry/WorkspaceSelector.tsx"), "utf8");
 const appSource = readFileSync(resolve(process.cwd(), "frontend/src/App.tsx"), "utf8");
+const styleSource = readFileSync(resolve(process.cwd(), "frontend/src/index.css"), "utf8");
 
 describe("workspace selector entry flow", () => {
   it("keeps separate patient and doctor login destinations", () => {
@@ -24,8 +25,15 @@ describe("workspace selector entry flow", () => {
   it("uses the clinical-portal header without unsafe clinical or emergency claims", () => {
     expect(selectorSource).toContain('className="workspace-portal-header"');
     expect(selectorSource).toContain("Patient-owned records");
-    expect(selectorSource).toContain("Emergency assistance is user-controlled.");
+    expect(selectorSource).not.toContain("Emergency assistance is user-controlled.");
+    expect(selectorSource).not.toContain("does not dispatch an ambulance");
     expect(selectorSource).not.toContain("Verified clinical practitioner");
     expect(selectorSource).not.toContain("Ambulance dispatch");
+  });
+
+  it("keeps entry text and glass cards high contrast in dark mode", () => {
+    expect(styleSource).toContain(':root[data-theme="dark"] .workspace-choice-card');
+    expect(styleSource).toContain(':root[data-theme="dark"] .workspace-entry-note');
+    expect(styleSource).toContain(':root[data-theme="dark"] .workspace-entry-header h1');
   });
 });

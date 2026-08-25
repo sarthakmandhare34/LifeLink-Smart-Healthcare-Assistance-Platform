@@ -71,7 +71,6 @@ export const WorkspaceSelector = () => {
         </div>
 
         <aside className="workspace-entry-note"><ShieldCheck size={18} /><p><strong>Privacy boundary:</strong> patient records remain patient-owned. The controlled clinician workspace can access only server-authorized, assigned appointment information.</p></aside>
-        <aside className="workspace-entry-emergency" aria-label="Emergency assistance boundary"><HeartPulse size={20} aria-hidden="true" /><div><strong>Emergency assistance is user-controlled.</strong><p>LifeLink can help you open emergency options after confirmation; it does not dispatch an ambulance, send messages, or share your location automatically.</p></div></aside>
       </section>
       {switchingTo ? <div className="workspace-switch-status" role="status" aria-live="polite"><LoaderCircle size={20} className="workspace-choice-spinner" /> Opening {switchingTo === "patient" ? "Patient Portal" : "Doctor Workstation"}…</div> : null}
     </main>
