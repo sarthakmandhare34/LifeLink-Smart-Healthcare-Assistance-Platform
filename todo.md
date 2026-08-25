@@ -247,3 +247,10 @@
 - [x] Add doctor-authored prescription creation and review for assigned patients without fabricating diagnosis or medicine data.
 - [x] Update clinician views so appointment context, assessment summary, and prescription actions follow the assigned patient relationship.
 - [x] Add authorization and workflow regression coverage, then verify the completed build.
+
+## Professional Clinician Language
+
+- [x] Audit visible clinician labels and explanatory copy for unnecessary demo wording.
+- [x] Replace visible demo language with professional controlled-clinician terminology while retaining accurate safety disclosures.
+- [x] Verify revised entry and clinician-workspace wording across desktop and mobile views.
+- [ ] Save the verified terminology update checkpoint.

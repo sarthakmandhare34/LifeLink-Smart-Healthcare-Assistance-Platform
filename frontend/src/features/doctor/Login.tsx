@@ -18,7 +18,7 @@ export const DoctorLogin = () => {
       await utils.auth.me.invalidate();
       navigate("/doctor/dashboard", { replace: true });
     },
-    onError: () => setError("The demo doctor email or password was not accepted."),
+    onError: () => setError("The clinician email or password was not accepted."),
   });
 
   const handleLogin = (event: React.FormEvent) => {
@@ -32,12 +32,12 @@ export const DoctorLogin = () => {
       <Card style={{ width: "100%", maxWidth: "400px" }}>
         <div style={{ textAlign: "center", marginBottom: "var(--spacing-4)" }}>
           <LifeLinkLogo className="lifelink-logo-auth" />
-          <p className="caption">Synthetic Clinical Workstation</p>
-          <p className="caption" style={{ marginTop: "var(--spacing-1)" }}>Controlled demo identity. No real clinician account is represented.</p>
+          <p className="caption">Clinician Workspace</p>
+          <p className="caption" style={{ marginTop: "var(--spacing-1)" }}>Controlled directory account. Specialist records are not verified clinician identities.</p>
         </div>
         <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-3)" }}>
           <div>
-            <label htmlFor="doctor-email" style={{ display: "block", marginBottom: "var(--spacing-1)", fontWeight: 600 }}>Demo doctor email</label>
+            <label htmlFor="doctor-email" style={{ display: "block", marginBottom: "var(--spacing-1)", fontWeight: 600 }}>Clinician email</label>
             <Input id="doctor-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="username" required />
           </div>
           <div>

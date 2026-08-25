@@ -12,9 +12,9 @@ describe("workspace selector entry flow", () => {
     expect(appSource).toContain('<Route path="/" element={<WorkspaceSelector />} />');
   });
 
-  it("labels the doctor path as a controlled synthetic workspace", () => {
-    expect(selectorSource).toContain("Controlled demo clinician workspace");
-    expect(selectorSource).toContain("no real clinician account is represented");
-    expect(selectorSource).toContain("separate demo email and password");
+  it("labels the doctor path as a controlled clinician workspace", () => {
+    expect(selectorSource).toContain("Controlled clinician workspace");
+    expect(selectorSource).toContain("do not represent verified clinicians");
+    expect(selectorSource).toContain("separate email and password");
   });
 });
