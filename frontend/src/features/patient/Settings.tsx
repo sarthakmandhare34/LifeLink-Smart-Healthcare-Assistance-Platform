@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { useMockData } from '../../context/MockDataContext';
-import { Settings as SettingsIcon, Bell, Shield, Trash2 } from 'lucide-react';
+import { Settings as SettingsIcon, Bell, Shield } from 'lucide-react';
 import { BentoGrid, BentoItem } from '../../components/layout/Bento';
 
 export const Settings = () => {
@@ -43,8 +43,8 @@ export const Settings = () => {
           <SettingsIcon size={24} color="var(--color-primary)" />
         </div>
         <div>
-          <h1 style={{ margin: 0 }}>Workspace Settings</h1>
-          <p className="caption">Configure notification preferences and privacy defaults.</p>
+          <h1 style={{ margin: 0 }}>Workspace Preferences</h1>
+          <p className="caption">Review future notification preferences and account options.</p>
         </div>
       </header>
 
@@ -56,14 +56,14 @@ export const Settings = () => {
             <div>
               <div className="flex items-center gap-2 mb-4 pb-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <Bell size={20} color="var(--color-primary)" />
-                <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>Clinical Notifications</h2>
+                <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>Notification Preferences</h2>
               </div>
               
               <div className="flex-col gap-3">
                 <div className="flex items-center justify-between py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
                    <div>
-                     <p style={{ margin: 0, fontWeight: 600 }}>Appointment Reminders</p>
-                     <span className="caption">Receive SMS/Email reminders 24h prior to consultations</span>
+                     <p style={{ margin: 0, fontWeight: 600 }}>Appointment reminder preference</p>
+                     <span className="caption">Reminder delivery is not active yet. This preference is saved only for the current workspace session.</span>
                    </div>
                    <input 
                      type="checkbox" 
@@ -75,8 +75,8 @@ export const Settings = () => {
 
                 <div className="flex items-center justify-between py-2">
                    <div>
-                     <p style={{ margin: 0, fontWeight: 600 }}>Medication Low-Stock Alerts</p>
-                     <span className="caption">Receive alerts when prescription quantities drop below 3-day supply</span>
+                     <p style={{ margin: 0, fontWeight: 600 }}>Medicine inventory preference</p>
+                     <span className="caption">Inventory alerts are not active yet. This preference is saved only for the current workspace session.</span>
                    </div>
                    <input 
                      type="checkbox" 
@@ -90,9 +90,9 @@ export const Settings = () => {
 
             <div className="flex items-center gap-3 mt-4 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
               <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? 'Saving Settings...' : 'Save Notification Preferences'}
+                {isSaving ? 'Saving preferences...' : 'Save preferences'}
               </Button>
-              {success && <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Saved!</span>}
+              {success && <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Saved for this session</span>}
             </div>
           </Card>
         </BentoItem>
@@ -103,24 +103,24 @@ export const Settings = () => {
             <div>
               <div className="flex items-center gap-2 mb-4 pb-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <Shield size={20} color="var(--color-primary)" />
-                <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>Security & Account Privileges</h2>
+                <h2 style={{ margin: 0, fontSize: 'var(--text-h2)' }}>Account Options</h2>
               </div>
               
               <div className="flex items-center justify-between py-2 mb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <div>
-                  <p style={{ margin: 0, fontWeight: 600 }}>Account Security Password</p>
-                  <span className="caption">Last updated 30 days ago</span>
+                  <p style={{ margin: 0, fontWeight: 600 }}>Patient password changes</p>
+                  <span className="caption">Password changes are not available in this workspace.</span>
                 </div>
-                <Button variant="secondary" size="sm">Change Password</Button>
+                <Button variant="secondary" size="sm" disabled>Not available</Button>
               </div>
 
               <div className="flex items-center justify-between py-2">
                 <div>
                   <p style={{ margin: 0, fontWeight: 600, color: 'var(--color-text-muted)' }}>Delete Account</p>
-                  <span className="caption">Contact platform administrator to revoke record access</span>
+                  <span className="caption">Deletion requests are not available in this workspace.</span>
                 </div>
                 <Button variant="outline" size="sm" disabled style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
-                  <Trash2 size={14} /> Request Deletion
+                  Not available
                 </Button>
               </div>
             </div>

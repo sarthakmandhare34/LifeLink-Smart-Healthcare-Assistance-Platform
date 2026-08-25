@@ -304,7 +304,7 @@
 
 ## Clinician Credential Workflow Diagnosis
 
-- [ ] Inspect non-sensitive runtime evidence for the reported clinician account setup or sign-in failure.
+- [x] Inspect non-sensitive runtime evidence for the reported clinician account setup or sign-in failure. No failed credential mutation was recorded; the exact failing action still requires owner confirmation.
 - [ ] Correct any verified credential-flow defect without exposing owner codes or clinician credentials.
 - [ ] Obtain private owner confirmation of clinician sign-in and assigned-appointment access.
 
@@ -312,3 +312,9 @@
 
 - [x] Remove the requested controlled-clinician subtitle from the portal header.
 - [x] Verify the focused wording refinement and synchronize it to GitHub.
+
+## Complete Active UI Text Audit
+
+- [x] Inventory all active patient, clinician, entry, authentication, discovery, and emergency UI wording for unprofessional, placeholder, inconsistent, or unsafe text.
+- [x] Correct only verified active UI wording while retaining necessary controlled-directory, security, and safety disclosures.
+- [x] Add regression coverage and verify corrected wording across representative desktop and mobile routes.

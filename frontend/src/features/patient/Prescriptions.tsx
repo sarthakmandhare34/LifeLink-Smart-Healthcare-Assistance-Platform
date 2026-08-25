@@ -31,8 +31,8 @@ export const Prescriptions = () => {
         <Card variant="solid" style={{ maxWidth: '720px', margin: '0 auto' }}>
           <div className="flex justify-between items-start mb-4" style={{ borderBottom: '2px solid var(--color-border)', paddingBottom: 'var(--spacing-4)' }}>
             <div>
-              <h2 style={{ fontSize: 'var(--text-h2)', margin: 0 }}>{prescribingDoctor?.name || 'Mock directory specialist'}</h2>
-              <p className="caption" style={{ margin: '4px 0' }}>{prescribingDoctor?.specialty || 'Specialty pending'} • {prescribingDoctor?.hospital || 'Development directory'}</p>
+              <h2 style={{ fontSize: 'var(--text-h2)', margin: 0 }}>{prescribingDoctor?.name || 'Controlled directory specialist'}</h2>
+              <p className="caption" style={{ margin: '4px 0' }}>{prescribingDoctor?.specialty || 'Specialty not recorded'} • {prescribingDoctor?.hospital || 'Controlled directory'}</p>
               <p className="caption" style={{ margin: 0 }}>Issue Date: {new Date(selectedRx.issuedAt).toLocaleDateString()}</p>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -89,7 +89,7 @@ export const Prescriptions = () => {
                   <div className="flex items-center gap-3">
                     <div style={{ padding: '10px', borderRadius: '12px', background: 'rgba(0,27,48,0.06)' }}><FileText size={22} color="var(--color-primary)" /></div>
                     <div>
-                      <h3 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Prescription from {prescription.doctor?.name || 'mock directory specialist'}</h3>
+                      <h3 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>Prescription from {prescription.doctor?.name || 'controlled directory specialist'}</h3>
                       <span className="caption">{new Date(prescription.issuedAt).toLocaleDateString()}</span>
                     </div>
                   </div>

@@ -80,8 +80,8 @@ export const Appointments = () => {
                           {doctor?.name.charAt(0) || <User size={20} />}
                         </div>
                         <div>
-                          <h3 style={{ margin: 0 }}>{doctor?.name || 'Mock directory specialist'}</h3>
-                          <span className="caption">{doctor?.specialty || 'Specialty pending'} • {doctor?.hospital || 'Development directory'}</span>
+                          <h3 style={{ margin: 0 }}>{doctor?.name || 'Controlled directory specialist'}</h3>
+                          <span className="caption">{doctor?.specialty || 'Specialty not recorded'} • {doctor?.hospital || 'Controlled directory'}</span>
                         </div>
                       </div>
                       <Badge variant={getStatusVariant(appointment.status) as any}>
@@ -128,12 +128,12 @@ export const Appointments = () => {
               <Card key={appointment.id} variant="solid" className="flex justify-between items-center" style={{ opacity: 0.85 }}>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>{doctor?.name || 'Mock directory specialist'}</h3>
+                    <h3 style={{ margin: 0, fontSize: 'var(--text-h3)' }}>{doctor?.name || 'Controlled directory specialist'}</h3>
                     <Badge variant={getStatusVariant(appointment.status) as any}>
                       {getStatusIcon(appointment.status)} {appointment.status}
                     </Badge>
                   </div>
-                  <span className="caption">{doctor?.specialty || 'Specialty pending'} • {new Date(appointment.scheduledAt).toLocaleDateString()} at {new Date(appointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
+                  <span className="caption">{doctor?.specialty || 'Specialty not recorded'} • {new Date(appointment.scheduledAt).toLocaleDateString()} at {new Date(appointment.scheduledAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>
                 </div>
               </Card>
             );

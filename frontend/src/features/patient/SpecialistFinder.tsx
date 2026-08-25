@@ -242,7 +242,7 @@ export const SpecialistFinder = () => {
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, fontSize: 'var(--text-caption)', color: 'var(--color-primary)' }} htmlFor="appointment-reason">Reason for this appointment</label>
             <textarea id="appointment-reason" value={appointmentReason} onChange={(event) => setAppointmentReason(event.target.value)} maxLength={1000} rows={3} placeholder="Briefly describe what you would like the specialist to review." style={{ width: '100%', resize: 'vertical', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)' }} />
-            <p className="caption" style={{ margin: '6px 0 0' }}>This reason is visible only to you and the assigned doctor workspace.</p>
+            <p className="caption" style={{ margin: '6px 0 0' }}>This reason is visible only to you and the assigned clinician workspace.</p>
           </div>
           {requestError && <div className="alert-panel"><span className="caption">{requestError}</span></div>}
         </div>
@@ -269,7 +269,7 @@ export const SpecialistFinder = () => {
                           <h3 style={{ margin: 0, color: 'var(--color-primary)' }}>{doctor.name}</h3>
                           <p style={{ color: 'var(--color-success)', fontWeight: 600, margin: '2px 0 0 0' }}>{doctor.specialty}</p>
                         </div>
-                        <Badge status="neutral">Development mock</Badge>
+                        <Badge status="neutral">Controlled directory</Badge>
                       </div>
                       <div className="flex-col gap-1 mt-2">
                         <div className="caption flex items-center gap-1"><Building size={14} /> {doctor.hospital}</div>
