@@ -316,6 +316,23 @@ export async function updateSyntheticDoctorPasswordByEmail(email: string, passwo
   return Number(result[0].affectedRows) > 0;
 }
 
+/** Owner-authorized account rotation changes only the login address and hash for one stable controlled doctor identity. */
+export async function refreshSyntheticDoctorCredentialByDoctorId(input: { doctorId: string; email: string; passwordHash: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const emailOwner = await db
+    .select({ doctorId: syntheticDoctorCredentials.doctorId })
+    .from(syntheticDoctorCredentials)
+    .where(eq(syntheticDoctorCredentials.email, input.email))
+    .limit(1);
+  if (emailOwner[0] && emailOwner[0].doctorId !== input.doctorId) return "email-conflict" as const;
+  const result = await db
+    .update(syntheticDoctorCredentials)
+    .set({ email: input.email, passwordHash: input.passwordHash })
+    .where(eq(syntheticDoctorCredentials.doctorId, input.doctorId));
+  return Number(result[0].affectedRows) > 0 ? "updated" as const : "not-found" as const;
+}
+
 export async function updateSyntheticDoctorPasswordByUserId(userId: number, passwordHash: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

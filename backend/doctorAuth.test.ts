@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   getSyntheticDoctorCredentialByEmail: vi.fn(),
   getSyntheticDoctorCredentialByUserId: vi.fn(),
   listSyntheticDoctorCredentialAccounts: vi.fn(),
+  refreshSyntheticDoctorCredentialByDoctorId: vi.fn(),
   updateSyntheticDoctorPasswordByEmail: vi.fn(),
   updateSyntheticDoctorPasswordByUserId: vi.fn(),
   hashPatientPassword: vi.fn(),
@@ -17,6 +18,7 @@ vi.mock("./db", () => ({
   getSyntheticDoctorCredentialByEmail: mocks.getSyntheticDoctorCredentialByEmail,
   getSyntheticDoctorCredentialByUserId: mocks.getSyntheticDoctorCredentialByUserId,
   listSyntheticDoctorCredentialAccounts: mocks.listSyntheticDoctorCredentialAccounts,
+  refreshSyntheticDoctorCredentialByDoctorId: mocks.refreshSyntheticDoctorCredentialByDoctorId,
   updateSyntheticDoctorPasswordByEmail: mocks.updateSyntheticDoctorPasswordByEmail,
   updateSyntheticDoctorPasswordByUserId: mocks.updateSyntheticDoctorPasswordByUserId,
 }));
@@ -38,7 +40,7 @@ function context() {
 
 function doctorContext() {
   return {
-    user: { id: 73, openId: "synthetic-doctor:mock-central-cardiology-dadar", role: "doctor", name: "Demo doctor", email: null, loginMethod: null, createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() },
+    user: { id: 73, openId: "synthetic-doctor:mock-central-cardiology-csmt", role: "doctor", name: "Controlled cardiology specialist", email: null, loginMethod: null, createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() },
     req: { protocol: "https", headers: {} },
     res: { cookie: vi.fn() },
   } as any;
@@ -55,26 +57,26 @@ describe("synthetic doctor credentials", () => {
     const provisioningCode = process.env.LIFELINK_DEMO_DOCTOR_ACCESS_CODE;
     expect(provisioningCode?.length ?? 0).toBeGreaterThanOrEqual(16);
     mocks.createSyntheticDoctorCredential.mockResolvedValue({
-      user: { id: 73, openId: "synthetic-doctor:mock-central-cardiology-dadar", role: "doctor" },
-      doctorId: "mock-central-cardiology-dadar",
+      user: { id: 73, openId: "synthetic-doctor:mock-central-cardiology-csmt", role: "doctor" },
+      doctorId: "mock-central-cardiology-csmt",
       email: "cardiology-demo@lifelink.example",
     });
 
     const result = await doctorAuthRouter.createCaller(context().ctx).provision({
-      doctorId: "mock-central-cardiology-dadar",
+      doctorId: "mock-central-cardiology-csmt",
       email: "cardiology-demo@lifelink.example",
       password: "SeparateDemoPass1!",
       provisioningCode: provisioningCode!,
     });
 
-    expect(result).toMatchObject({ doctorId: "mock-central-cardiology-dadar" });
+    expect(result).toMatchObject({ doctorId: "mock-central-cardiology-csmt" });
     expect(JSON.stringify(result)).not.toContain(provisioningCode!);
     expect(mocks.createSyntheticDoctorCredential).toHaveBeenCalledWith(expect.objectContaining({ email: "cardiology-demo@lifelink.example", passwordHash: "hashed-separate-password" }));
   });
 
   it("provisions only unprovisioned controlled doctors and never returns the owner code", async () => {
     const provisioningCode = process.env.LIFELINK_DEMO_DOCTOR_ACCESS_CODE;
-    mocks.createSyntheticDoctorCredential.mockResolvedValueOnce({ user: { id: 73 }, doctorId: "mock-central-cardiology-dadar", email: "first@demo.lifelink.test" }).mockResolvedValue(null);
+    mocks.createSyntheticDoctorCredential.mockResolvedValueOnce({ user: { id: 73 }, doctorId: "mock-central-cardiology-csmt", email: "first@accounts.lifelink.test" }).mockResolvedValue(null);
 
     const result = await doctorAuthRouter.createCaller(context().ctx).provisionDirectory({ provisioningCode: provisioningCode! });
 
@@ -82,19 +84,32 @@ describe("synthetic doctor credentials", () => {
     expect(result.skipped).toBeGreaterThan(0);
     expect(JSON.stringify(result)).not.toContain(provisioningCode!);
     expect(result.created[0]?.password).toMatch(/^LL-/);
+    expect(result.created[0]?.email).toMatch(/@accounts\.lifelink\.test$/);
+  });
+
+  it("rotates every controlled clinician email and password only after owner authorization", async () => {
+    const provisioningCode = process.env.LIFELINK_DEMO_DOCTOR_ACCESS_CODE;
+    mocks.refreshSyntheticDoctorCredentialByDoctorId.mockResolvedValue("updated");
+
+    const result = await doctorAuthRouter.createCaller(context().ctx).refreshDirectoryCredentials({ provisioningCode: provisioningCode! });
+
+    expect(result.refreshed).toHaveLength(12);
+    expect(result.refreshed.every((credential) => credential.email.endsWith("@accounts.lifelink.test") && credential.password.startsWith("LL-"))).toBe(true);
+    expect(mocks.refreshSyntheticDoctorCredentialByDoctorId).toHaveBeenCalledTimes(12);
+    expect(JSON.stringify(result)).not.toContain(provisioningCode!);
   });
 
   it("creates a session only for a doctor matching the supplied email and password", async () => {
     mocks.getSyntheticDoctorCredentialByEmail.mockResolvedValue({
-      user: { id: 73, openId: "synthetic-doctor:mock-western-general-practice-dadar", role: "doctor" },
-      credential: { doctorId: "mock-western-general-practice-dadar", passwordHash: "stored-hash" },
+      user: { id: 73, openId: "synthetic-doctor:mock-western-general-practice-churchgate", role: "doctor" },
+      credential: { doctorId: "mock-western-general-practice-churchgate", passwordHash: "stored-hash" },
     });
     mocks.verifyPatientPassword.mockResolvedValue(true);
     const { ctx, cookie } = context();
 
     const result = await doctorAuthRouter.createCaller(ctx).login({ email: "general-demo@lifelink.example", password: "SeparateDemoPass1!" });
 
-    expect(result).toMatchObject({ id: "mock-western-general-practice-dadar", isSynthetic: true });
+    expect(result).toMatchObject({ id: "mock-western-general-practice-churchgate", isSynthetic: true });
     expect(cookie).toHaveBeenCalledWith(expect.any(String), "signed-demo-doctor-session", expect.any(Object));
   });
 
@@ -108,11 +123,11 @@ describe("synthetic doctor credentials", () => {
 
   it("lists provisioned clinician emails only after owner authorization and never includes password hashes", async () => {
     const provisioningCode = process.env.LIFELINK_DEMO_DOCTOR_ACCESS_CODE;
-    mocks.listSyntheticDoctorCredentialAccounts.mockResolvedValue([{ doctorId: "mock-central-cardiology-dadar", email: "cardiology@lifelink.test" }]);
+    mocks.listSyntheticDoctorCredentialAccounts.mockResolvedValue([{ doctorId: "mock-central-cardiology-csmt", email: "cardiology@lifelink.test" }]);
 
     const result = await doctorAuthRouter.createCaller(context().ctx).ownerAccounts({ provisioningCode: provisioningCode! });
 
-    expect(result).toEqual([{ doctorId: "mock-central-cardiology-dadar", displayName: expect.any(String), email: "cardiology@lifelink.test" }]);
+    expect(result).toEqual([{ doctorId: "mock-central-cardiology-csmt", displayName: expect.any(String), email: "cardiology@lifelink.test" }]);
     expect(JSON.stringify(result)).not.toContain("passwordHash");
   });
 

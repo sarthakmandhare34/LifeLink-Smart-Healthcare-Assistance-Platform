@@ -26,10 +26,10 @@ describe("patient realtime isolation", () => {
   it("only delivers a doctor event to the matching controlled synthetic doctor channel", () => {
     const primaryDoctorEvents: number[] = [];
     const otherDoctorEvents: number[] = [];
-    const stopPrimary = subscribeToDoctorEvents("mock-central-cardiology-dadar", (event) => primaryDoctorEvents.push(event.id));
-    const stopOther = subscribeToDoctorEvents("mock-western-general-practice-dadar", (event) => otherDoctorEvents.push(event.id));
+    const stopPrimary = subscribeToDoctorEvents("mock-central-cardiology-csmt", (event) => primaryDoctorEvents.push(event.id));
+    const stopOther = subscribeToDoctorEvents("mock-western-general-practice-churchgate", (event) => otherDoctorEvents.push(event.id));
 
-    publishDoctorEvent({ id: 72, doctorId: "mock-central-cardiology-dadar", patientUserId: 9, type: "APPOINTMENT_UPDATED", entityId: "22", createdAt: new Date() });
+    publishDoctorEvent({ id: 72, doctorId: "mock-central-cardiology-csmt", patientUserId: 9, type: "APPOINTMENT_UPDATED", entityId: "22", createdAt: new Date() });
 
     stopPrimary();
     stopOther();

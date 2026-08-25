@@ -15,8 +15,8 @@ describe("controlled Mumbai specialist directory", () => {
     });
   });
 
-  it("clusters all controlled specialties around connected interchange stations while retaining three-corridor coverage", () => {
-    expect(new Set(mockDoctorDirectory.map((entry) => entry.station))).toEqual(new Set(["Dadar", "Kurla", "Bandra", "Wadala Road"]));
+  it("spreads controlled specialties across distinct Mumbai locations while retaining three-corridor coverage", () => {
+    expect(new Set(mockDoctorDirectory.map((entry) => entry.station))).toEqual(new Set(["CSMT", "Ghatkopar", "Bhandup", "Thane", "Churchgate", "Andheri", "Goregaon", "Borivali", "Sewri", "Chembur", "Vashi", "Panvel"]));
     MUMBAI_RAIL_LINES.forEach((railLine) => {
       const primaryEntries = mockDoctorDirectory.filter((entry) => entry.railLine === railLine);
       const specialties = new Set(filterMockDoctorDirectory({ railLine }).map((entry) => entry.specialty));
@@ -26,17 +26,17 @@ describe("controlled Mumbai specialist directory", () => {
   });
 
   it("preserves supplied shared-station associations without multiplying the catalog", () => {
-    expect(filterMockDoctorDirectory({ station: "Dadar", railLine: "Western" })).toHaveLength(3);
-    expect(filterMockDoctorDirectory({ station: "Dadar", railLine: "Central" })).toHaveLength(3);
-    expect(filterMockDoctorDirectory({ station: "Kurla", railLine: "Central" })).toHaveLength(3);
-    expect(filterMockDoctorDirectory({ station: "Kurla", railLine: "Harbour" })).toHaveLength(3);
-    expect(getMumbaiRailStation("Dadar")?.lines).toEqual(["Western", "Central"]);
-    expect(getMumbaiRailStation("Wadala Road")?.lines).toEqual(["Harbour"]);
+    expect(filterMockDoctorDirectory({ station: "CSMT", railLine: "Central" })).toHaveLength(1);
+    expect(filterMockDoctorDirectory({ station: "CSMT", railLine: "Harbour" })).toHaveLength(1);
+    expect(filterMockDoctorDirectory({ station: "Andheri", railLine: "Western" })).toHaveLength(1);
+    expect(filterMockDoctorDirectory({ station: "Andheri", railLine: "Harbour" })).toHaveLength(1);
+    expect(getMumbaiRailStation("CSMT")?.lines).toEqual(["Central", "Harbour"]);
+    expect(getMumbaiRailStation("Panvel")?.lines).toEqual(["Harbour"]);
   });
 
   it("publishes only supported station facets and specialty-only free-text matching", () => {
     const facets = getMockDoctorDirectoryFacets();
-    expect(facets.stations).toHaveLength(4);
+    expect(facets.stations).toHaveLength(12);
     expect(facets).toMatchObject({
       city: "Mumbai",
       specialties: expect.arrayContaining(["Cardiology", "Dermatology", "General Practice", "Pediatrics"]),

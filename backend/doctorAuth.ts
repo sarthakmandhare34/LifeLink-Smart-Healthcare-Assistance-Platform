@@ -1,7 +1,7 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createSyntheticDoctorCredential, getSyntheticDoctorCredentialByEmail, getSyntheticDoctorCredentialByUserId, listSyntheticDoctorCredentialAccounts, updateSyntheticDoctorPasswordByEmail, updateSyntheticDoctorPasswordByUserId } from "./db";
+import { createSyntheticDoctorCredential, getSyntheticDoctorCredentialByEmail, getSyntheticDoctorCredentialByUserId, listSyntheticDoctorCredentialAccounts, refreshSyntheticDoctorCredentialByDoctorId, updateSyntheticDoctorPasswordByEmail, updateSyntheticDoctorPasswordByUserId } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { ENV } from "./_core/env";
 import { sdk } from "./_core/sdk";
@@ -26,6 +26,11 @@ const changePasswordInput = z.object({ currentPassword: z.string().min(10).max(1
 
 function normalizedEmail(email: string) {
   return email.trim().toLowerCase();
+}
+
+function controlledClinicianEmail(doctor: (typeof mockDoctorDirectory)[number]) {
+  const local = `${doctor.railLine}-${doctor.specialty}-${doctor.station}`.replace(/[^a-z0-9]+/gi, ".").replace(/^\.|\.$/g, "").toLowerCase();
+  return `${local}@accounts.lifelink.test`;
 }
 
 /** The existing secret now protects account provisioning; it is never used for doctor sign-in or returned to clients. */
@@ -90,12 +95,35 @@ export const doctorAuthRouter = router({
       }
       const created: Array<{ doctorId: string; displayName: string; email: string; password: string }> = [];
       for (const doctor of mockDoctorDirectory) {
-        const email = `${doctor.id.replace(/[^a-z0-9]+/gi, ".").replace(/^\.|\.$/g, "").toLowerCase()}@demo.lifelink.test`;
+        const email = controlledClinicianEmail(doctor);
         const password = `LL-${randomBytes(14).toString("base64url")}`;
         const account = await createSyntheticDoctorCredential({ doctor, email, passwordHash: await hashPatientPassword(password) });
         if (account) created.push({ doctorId: doctor.id, displayName: doctorDisplayName(doctor), email, password });
       }
       return { created, skipped: mockDoctorDirectory.length - created.length };
+    }),
+  refreshDirectoryCredentials: publicProcedure
+    .input(z.object({ provisioningCode: z.string().min(1).max(256) }))
+    .mutation(async ({ input }) => {
+      if (!matchesProvisioningCode(input.provisioningCode)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "The provisioning code is invalid." });
+      }
+      const refreshed: Array<{ doctorId: string; displayName: string; email: string; password: string }> = [];
+      for (const doctor of mockDoctorDirectory) {
+        const email = controlledClinicianEmail(doctor);
+        const password = `LL-${randomBytes(14).toString("base64url")}`;
+        const passwordHash = await hashPatientPassword(password);
+        const rotation = await refreshSyntheticDoctorCredentialByDoctorId({ doctorId: doctor.id, email, passwordHash });
+        if (rotation === "email-conflict") {
+          throw new TRPCError({ code: "CONFLICT", message: "A refreshed clinician email conflicts with another account." });
+        }
+        if (rotation === "not-found") {
+          const created = await createSyntheticDoctorCredential({ doctor, email, passwordHash });
+          if (!created) throw new TRPCError({ code: "CONFLICT", message: "A clinician account could not be refreshed safely." });
+        }
+        refreshed.push({ doctorId: doctor.id, displayName: doctorDisplayName(doctor), email, password });
+      }
+      return { refreshed };
     }),
   ownerAccounts: publicProcedure
     .input(z.object({ provisioningCode: z.string().min(1).max(256) }))

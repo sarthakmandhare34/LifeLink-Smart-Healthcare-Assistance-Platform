@@ -263,9 +263,9 @@
 ## Workspace Entry Verification and Motion
 
 - [ ] Audit patient and clinician entry actions plus the provisioned clinician appointment-access verification path.
-- [ ] Shorten the clinician card description and add a smooth reduced-motion-safe workspace-switch transition.
+- [x] Shorten the clinician card description and add a smooth reduced-motion-safe workspace-switch transition.
 - [ ] Test both workspace buttons and confirm a provisioned clinician can open only assigned appointments.
-- [ ] Add regression coverage, verify the build, and save the workspace-entry update checkpoint.
+- [x] Add regression coverage, verify the build, and save the workspace-entry update checkpoint.
 
 ## Clinician Credential Recovery
 
@@ -318,3 +318,9 @@
 - [x] Inventory all active patient, clinician, entry, authentication, discovery, and emergency UI wording for unprofessional, placeholder, inconsistent, or unsafe text.
 - [x] Correct only verified active UI wording while retaining necessary controlled-directory, security, and safety disclosures.
 - [x] Add regression coverage and verify corrected wording across representative desktop and mobile routes.
+
+## Controlled Directory Location and Credential Refresh
+
+- [x] Diversify controlled specialist entries across distinct Mumbai locations while preserving Central, Harbour, and Western Line coverage.
+- [x] Replace clinician account email addresses with a professional internal account label and create a safe one-time password refresh path.
+- [ ] Complete owner-only all-account credential retrieval and confirm the refreshed directory/filtering behavior without exposing credentials.
