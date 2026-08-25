@@ -81,6 +81,8 @@ export const PatientLogin = () => {
         <footer className="auth-card-footer">
           <span className="caption">Don&apos;t have an account?</span>
           <button type="button" className="auth-link-button" onClick={() => navigate('/register')}>Register</button>
+          <span className="caption">Need the demo clinician workspace?</span>
+          <button type="button" className="auth-link-button" onClick={() => navigate('/doctor/login')}>Doctor sign in</button>
         </footer>
       </Card>
     </main>

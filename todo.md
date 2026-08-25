@@ -213,3 +213,10 @@
 - [x] Implement the first verified safe connected-platform increment using the existing backend, Drizzle database, synthetic doctor dataset, and realtime layer.
 - [x] Add regression coverage and validate the affected patient and synthetic doctor workflows without inserting fabricated patient medical data.
 - [x] Record results, verify the production build, and save the connected-platform implementation checkpoint.
+
+## Separate Patient and Doctor Entry
+
+- [x] Review the active entry routes and preserve existing patient and protected synthetic doctor authentication surfaces.
+- [x] Add a responsive LifeLink workspace-selection page with distinct Patient Portal and Doctor Workstation entry actions.
+- [x] Add regression coverage and validate separate portal navigation at desktop and mobile widths.
+- [x] Save the verified separate-entry workflow checkpoint.

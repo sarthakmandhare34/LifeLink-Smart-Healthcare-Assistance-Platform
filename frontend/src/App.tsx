@@ -28,11 +28,13 @@ import { Assessments } from './features/doctor/Assessments';
 import { DoctorProfile } from './features/doctor/Profile';
 import { DoctorSettings } from './features/doctor/Settings';
 import { PatientView } from './features/doctor/PatientView';
+import { WorkspaceSelector } from './features/entry/WorkspaceSelector';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<WorkspaceSelector />} />
         <Route path="/login" element={<PatientLogin />} />
         <Route path="/register" element={<PatientRegistration />} />
         <Route path="/doctor/login" element={<DoctorLogin />} />
@@ -65,8 +67,7 @@ function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
         </Route>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

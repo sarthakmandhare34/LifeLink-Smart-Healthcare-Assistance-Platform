@@ -1232,6 +1232,124 @@ dialog.popup::backdrop {
 }
 
 /* Patient entry pages: light and dark modes use dedicated, high-contrast glass surfaces. */
+.workspace-entry {
+  min-height: 100vh;
+  padding: clamp(5.5rem, 8vw, 7rem) 1.25rem 2.5rem;
+  color: var(--color-text);
+}
+
+.workspace-entry-shell {
+  width: min(100%, 1080px);
+  margin: 0 auto;
+}
+
+.workspace-entry-header {
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  text-align: center;
+}
+
+.workspace-entry-logo {
+  width: min(100%, 300px);
+  margin-bottom: 1rem;
+}
+
+.workspace-entry-kicker,
+.workspace-choice-label {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(68, 101, 209, 0.18);
+  border-radius: 999px;
+  background: rgba(228, 239, 255, 0.58);
+  color: var(--color-primary);
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  padding: 0.38rem 0.72rem;
+}
+
+.workspace-entry-header h1 {
+  margin: 0.9rem 0 0.55rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.workspace-entry-header > p {
+  max-width: 620px;
+  margin: 0 auto;
+  color: var(--color-text-muted);
+}
+
+.workspace-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.workspace-choice-card {
+  display: flex;
+  min-height: 390px;
+  flex-direction: column;
+  padding: clamp(1.35rem, 3vw, 2rem);
+}
+
+.workspace-choice-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.workspace-choice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0.9rem;
+  background: rgba(83, 116, 225, 0.14);
+  color: var(--color-primary);
+}
+
+.workspace-choice-icon.doctor { background: rgba(42, 173, 163, 0.14); color: #15877f; }
+.workspace-choice-card h2 { margin: 1.25rem 0 0.45rem; font-size: 1.45rem; }
+.workspace-choice-card > p { margin: 0; color: var(--color-text-muted); }
+
+.workspace-choice-list {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1.35rem 0 1.75rem;
+  padding: 1.15rem 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.workspace-choice-list li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.92rem; line-height: 1.45; }
+.workspace-choice-list svg { flex: 0 0 auto; margin-top: 0.15rem; color: var(--color-primary); }
+.workspace-choice-action { width: 100%; margin-top: auto; justify-content: center; gap: 0.45rem; }
+.workspace-secondary-link { margin: 0.8rem auto 0; }
+.workspace-choice-note { display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; margin: 0.8rem 0 0; text-align: center; }
+
+.workspace-entry-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin: 1.25rem 0 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(68, 101, 209, 0.14);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.48);
+  color: var(--color-text-muted);
+}
+
+.workspace-entry-note svg { flex: 0 0 auto; margin-top: 0.1rem; color: var(--color-primary); }
+.workspace-entry-note p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
+
+@media (max-width: 720px) {
+  .workspace-entry { padding-top: 5rem; }
+  .workspace-entry-grid { grid-template-columns: 1fr; }
+  .workspace-choice-card { min-height: 0; }
+}
+
 .auth-page {
   --entry-canvas-start: #edf5ff;
   --entry-canvas-mid: #f4f1ff;
