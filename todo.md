@@ -259,3 +259,17 @@
 
 - [x] Remove the owner-identified pending-appointment and separate-credential labels from the clinician workspace card.
 - [x] Verify the simplified selector and save the focused update checkpoint.
+
+## Workspace Entry Verification and Motion
+
+- [ ] Audit patient and clinician entry actions plus the provisioned clinician appointment-access verification path.
+- [ ] Shorten the clinician card description and add a smooth reduced-motion-safe workspace-switch transition.
+- [ ] Test both workspace buttons and confirm a provisioned clinician can open only assigned appointments.
+- [ ] Add regression coverage, verify the build, and save the workspace-entry update checkpoint.
+
+## Clinician Credential Recovery
+
+- [x] Audit provisioned controlled clinician accounts and determine why credentials were not retained after one-time setup.
+- [x] Add an owner-only credential administration screen that lists provisioned specialist emails and supports secure password replacement.
+- [x] Verify that account emails remain owner-only and that new passwords are shown once only after owner-authorized replacement.
+- [ ] Add regression coverage, validate independent clinician sign-in, and save the credential recovery checkpoint.

@@ -1,7 +1,7 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createSyntheticDoctorCredential, getSyntheticDoctorCredentialByEmail, getSyntheticDoctorCredentialByUserId, updateSyntheticDoctorPasswordByEmail, updateSyntheticDoctorPasswordByUserId } from "./db";
+import { createSyntheticDoctorCredential, getSyntheticDoctorCredentialByEmail, getSyntheticDoctorCredentialByUserId, listSyntheticDoctorCredentialAccounts, updateSyntheticDoctorPasswordByEmail, updateSyntheticDoctorPasswordByUserId } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { ENV } from "./_core/env";
 import { sdk } from "./_core/sdk";
@@ -97,12 +97,36 @@ export const doctorAuthRouter = router({
       }
       return { created, skipped: mockDoctorDirectory.length - created.length };
     }),
+  ownerAccounts: publicProcedure
+    .input(z.object({ provisioningCode: z.string().min(1).max(256) }))
+    .mutation(async ({ input }) => {
+      if (!matchesProvisioningCode(input.provisioningCode)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "The provisioning code is invalid." });
+      }
+      const accounts = await listSyntheticDoctorCredentialAccounts();
+      return accounts.flatMap((account) => {
+        const doctor = getSyntheticDoctor(account.doctorId);
+        return doctor ? [{ doctorId: account.doctorId, displayName: doctorDisplayName(doctor), email: account.email }] : [];
+      });
+    }),
+  replacePassword: publicProcedure
+    .input(z.object({ email: z.string().trim().email().max(320), provisioningCode: z.string().min(1).max(256) }))
+    .mutation(async ({ input }) => {
+      if (!matchesProvisioningCode(input.provisioningCode)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "The provisioning code is invalid." });
+      }
+      const email = normalizedEmail(input.email);
+      const password = `LL-${randomBytes(14).toString("base64url")}`;
+      const updated = await updateSyntheticDoctorPasswordByEmail(email, await hashPatientPassword(password));
+      if (!updated) throw new TRPCError({ code: "NOT_FOUND", message: "No controlled clinician account uses that email." });
+      return { email, password };
+    }),
   login: publicProcedure.input(credentialInput).mutation(async ({ ctx, input }) => {
     const record = await getSyntheticDoctorCredentialByEmail(normalizedEmail(input.email));
     const valid = record ? await verifyPatientPassword(input.password, record.credential.passwordHash) : false;
     const doctorId = record ? doctorIdFromSyntheticOpenId(record.user.openId) : null;
     if (!record || !valid || record.user.role !== "doctor" || !doctorId || record.credential.doctorId !== doctorId) {
-      throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid demo doctor email or password." });
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid clinician email or password." });
     }
     return establishDoctorSession(ctx, record.user.openId);
   }),
@@ -111,7 +135,7 @@ export const doctorAuthRouter = router({
       throw new TRPCError({ code: "UNAUTHORIZED", message: "The controlled reset code is invalid." });
     }
     const updated = await updateSyntheticDoctorPasswordByEmail(normalizedEmail(input.email), await hashPatientPassword(input.password));
-    if (!updated) throw new TRPCError({ code: "NOT_FOUND", message: "No controlled demo doctor account uses that email." });
+    if (!updated) throw new TRPCError({ code: "NOT_FOUND", message: "No controlled clinician account uses that email." });
     return { success: true } as const;
   }),
   changePassword: doctorProcedure.input(changePasswordInput).mutation(async ({ ctx, input }) => {
@@ -119,7 +143,7 @@ export const doctorAuthRouter = router({
     const valid = credential ? await verifyPatientPassword(input.currentPassword, credential.passwordHash) : false;
     if (!credential || !valid) throw new TRPCError({ code: "UNAUTHORIZED", message: "Current password was not accepted." });
     const updated = await updateSyntheticDoctorPasswordByUserId(ctx.user.id, await hashPatientPassword(input.newPassword));
-    if (!updated) throw new TRPCError({ code: "NOT_FOUND", message: "Controlled demo doctor credentials are unavailable." });
+    if (!updated) throw new TRPCError({ code: "NOT_FOUND", message: "Controlled clinician credentials are unavailable." });
     return { success: true } as const;
   }),
   me: protectedProcedure.query(({ ctx }) => doctorSessionView(ctx.user.openId)),

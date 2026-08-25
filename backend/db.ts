@@ -295,6 +295,15 @@ export async function getSyntheticDoctorCredentialByUserId(userId: number) {
   return rows[0] ?? null;
 }
 
+/** Returns only controlled account routing information for an owner-authorized recovery view; password hashes are never selected. */
+export async function listSyntheticDoctorCredentialAccounts() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db
+    .select({ doctorId: syntheticDoctorCredentials.doctorId, email: syntheticDoctorCredentials.email })
+    .from(syntheticDoctorCredentials);
+}
+
 export async function updateSyntheticDoctorPasswordByEmail(email: string, passwordHash: string) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   createSyntheticDoctorCredential: vi.fn(),
   getSyntheticDoctorCredentialByEmail: vi.fn(),
   getSyntheticDoctorCredentialByUserId: vi.fn(),
+  listSyntheticDoctorCredentialAccounts: vi.fn(),
   updateSyntheticDoctorPasswordByEmail: vi.fn(),
   updateSyntheticDoctorPasswordByUserId: vi.fn(),
   hashPatientPassword: vi.fn(),
@@ -15,6 +16,7 @@ vi.mock("./db", () => ({
   createSyntheticDoctorCredential: mocks.createSyntheticDoctorCredential,
   getSyntheticDoctorCredentialByEmail: mocks.getSyntheticDoctorCredentialByEmail,
   getSyntheticDoctorCredentialByUserId: mocks.getSyntheticDoctorCredentialByUserId,
+  listSyntheticDoctorCredentialAccounts: mocks.listSyntheticDoctorCredentialAccounts,
   updateSyntheticDoctorPasswordByEmail: mocks.updateSyntheticDoctorPasswordByEmail,
   updateSyntheticDoctorPasswordByUserId: mocks.updateSyntheticDoctorPasswordByUserId,
 }));
@@ -102,6 +104,27 @@ describe("synthetic doctor credentials", () => {
 
     await expect(doctorAuthRouter.createCaller(context().ctx).resetPassword({ email: "cardiology-demo@lifelink.example", password: "NewSeparatePass1!", provisioningCode: provisioningCode! })).resolves.toEqual({ success: true });
     expect(mocks.updateSyntheticDoctorPasswordByEmail).toHaveBeenCalledWith("cardiology-demo@lifelink.example", "hashed-separate-password");
+  });
+
+  it("lists provisioned clinician emails only after owner authorization and never includes password hashes", async () => {
+    const provisioningCode = process.env.LIFELINK_DEMO_DOCTOR_ACCESS_CODE;
+    mocks.listSyntheticDoctorCredentialAccounts.mockResolvedValue([{ doctorId: "mock-central-cardiology-dadar", email: "cardiology@lifelink.test" }]);
+
+    const result = await doctorAuthRouter.createCaller(context().ctx).ownerAccounts({ provisioningCode: provisioningCode! });
+
+    expect(result).toEqual([{ doctorId: "mock-central-cardiology-dadar", displayName: expect.any(String), email: "cardiology@lifelink.test" }]);
+    expect(JSON.stringify(result)).not.toContain("passwordHash");
+  });
+
+  it("replaces a clinician password only with the owner provisioning code and returns the new password once", async () => {
+    const provisioningCode = process.env.LIFELINK_DEMO_DOCTOR_ACCESS_CODE;
+    mocks.updateSyntheticDoctorPasswordByEmail.mockResolvedValue(true);
+
+    const result = await doctorAuthRouter.createCaller(context().ctx).replacePassword({ email: "cardiology@lifelink.test", provisioningCode: provisioningCode! });
+
+    expect(result.email).toBe("cardiology@lifelink.test");
+    expect(result.password).toMatch(/^LL-/);
+    expect(mocks.updateSyntheticDoctorPasswordByEmail).toHaveBeenCalledWith("cardiology@lifelink.test", "hashed-separate-password");
   });
 
   it("changes only the signed doctor’s own password after current-password verification", async () => {

@@ -1241,6 +1241,13 @@ dialog.popup::backdrop {
 .workspace-entry-shell {
   width: min(100%, 1080px);
   margin: 0 auto;
+  transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out), filter 180ms var(--ease-out);
+}
+
+.workspace-entry.is-switching .workspace-entry-shell {
+  opacity: 0.7;
+  transform: translateY(-4px) scale(0.992);
+  filter: saturate(0.92);
 }
 
 .workspace-entry-header {
@@ -1290,6 +1297,7 @@ dialog.popup::backdrop {
   min-height: 390px;
   flex-direction: column;
   padding: clamp(1.35rem, 3vw, 2rem);
+  transition: transform 180ms var(--ease-out), opacity 180ms var(--ease-out);
 }
 
 .workspace-choice-topline {
@@ -1343,6 +1351,41 @@ dialog.popup::backdrop {
 
 .workspace-entry-note svg { flex: 0 0 auto; margin-top: 0.1rem; color: var(--color-primary); }
 .workspace-entry-note p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
+
+.workspace-choice-spinner {
+  animation: workspace-spinner 720ms linear infinite;
+}
+
+.workspace-switch-status {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(95, 95, 220, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 18px 38px rgba(31, 42, 104, 0.18);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  transform: translateX(-50%);
+}
+
+@keyframes workspace-spinner {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-entry-shell,
+  .workspace-choice-card { transition: none; }
+  .workspace-choice-spinner { animation: none; }
+  .workspace-entry.is-switching .workspace-entry-shell { transform: none; filter: none; }
+}
 
 @media (max-width: 720px) {
   .workspace-entry { padding-top: 5rem; }
