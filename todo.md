@@ -280,3 +280,4 @@
 - [x] Audit active user-facing UI for remaining visible demo labels or placeholder text.
 - [x] Replace only verified active placeholders while retaining controlled-directory and privacy disclosures.
 - [ ] Complete owner-controlled credential copying and independent clinician sign-in after the UI update checkpoint.
+- [x] Investigate and correct the post-publish public clinician-directory response that still displays Demo specialist labels.
