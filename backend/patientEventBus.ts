@@ -45,7 +45,10 @@ export function publishPatientEvent(event: RealtimePatientEvent) {
   patientEventBus.emit(eventChannel(event.userId), event);
 }
 
-export function subscribeToPatientEvents(userId: number, listener: (event: RealtimePatientEvent) => void) {
+export function subscribeToPatientEvents(
+  userId: number,
+  listener: (event: RealtimePatientEvent) => void
+) {
   const channel = eventChannel(userId);
   patientEventBus.on(channel, listener);
   return () => patientEventBus.off(channel, listener);
@@ -55,7 +58,10 @@ export function publishDoctorEvent(event: RealtimeDoctorEvent) {
   patientEventBus.emit(doctorEventChannel(event.doctorId), event);
 }
 
-export function subscribeToDoctorEvents(doctorId: string, listener: (event: RealtimeDoctorEvent) => void) {
+export function subscribeToDoctorEvents(
+  doctorId: string,
+  listener: (event: RealtimeDoctorEvent) => void
+) {
   const channel = doctorEventChannel(doctorId);
   patientEventBus.on(channel, listener);
   return () => patientEventBus.off(channel, listener);

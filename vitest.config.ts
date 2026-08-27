@@ -14,6 +14,11 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["backend/**/*.test.ts", "backend/**/*.spec.ts", "frontend/**/*.test.ts", "frontend/**/*.spec.ts"],
+    include: [
+      "backend/**/*.test.ts",
+      "backend/**/*.spec.ts",
+      "frontend/**/*.test.ts",
+      "frontend/**/*.spec.ts",
+    ],
   },
 });

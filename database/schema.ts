@@ -1,4 +1,13 @@
-import { foreignKey, int, mysqlEnum, mysqlTable, text, timestamp, unique, varchar } from "drizzle-orm/mysql-core";
+import {
+  foreignKey,
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  unique,
+  varchar,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -16,7 +25,9 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "doctor", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "doctor", "admin"])
+    .default("user")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -63,33 +74,38 @@ export const patientCredentials = mysqlTable("patientCredentials", {
 });
 
 /** Synthetic doctor credentials map one stable controlled directory doctor to one login identity. */
-export const syntheticDoctorCredentials = mysqlTable("syntheticDoctorCredentials", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId")
-    .notNull()
-    .unique()
-    .references(() => users.id, { onDelete: "cascade" }),
-  doctorId: varchar("doctorId", { length: 80 }).notNull().unique(),
-  email: varchar("email", { length: 320 }).notNull().unique(),
-  passwordHash: varchar("passwordHash", { length: 512 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+export const syntheticDoctorCredentials = mysqlTable(
+  "syntheticDoctorCredentials",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .unique()
+      .references(() => users.id, { onDelete: "cascade" }),
+    doctorId: varchar("doctorId", { length: 80 }).notNull().unique(),
+    email: varchar("email", { length: 320 }).notNull().unique(),
+    passwordHash: varchar("passwordHash", { length: 512 }).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  }
+);
 
 /** Provider identities are separate from native credentials and are added only after a verified provider callback. */
-export const patientProviderIdentities = mysqlTable("patientProviderIdentities", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  provider: mysqlEnum("provider", ["google"]).notNull(),
-  subject: varchar("subject", { length: 255 }).notNull(),
-  email: varchar("email", { length: 320 }).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-}, (table) => [
-  unique("provider_subject_unique").on(table.provider, table.subject),
-]);
+export const patientProviderIdentities = mysqlTable(
+  "patientProviderIdentities",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    userId: int("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    provider: mysqlEnum("provider", ["google"]).notNull(),
+    subject: varchar("subject", { length: 255 }).notNull(),
+    email: varchar("email", { length: 320 }).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  },
+  table => [unique("provider_subject_unique").on(table.provider, table.subject)]
+);
 
 /** Existing Health Passport fields; absent clinical data remains absent rather than fabricated. */
 export const patientProfiles = mysqlTable("patientProfiles", {
@@ -147,7 +163,13 @@ export const patientAppointments = mysqlTable("patientAppointments", {
   /** Patient-provided booking context, visible only to the patient and the assigned synthetic doctor. */
   reason: text("reason"),
   scheduledAt: timestamp("scheduledAt").notNull(),
-  status: mysqlEnum("status", ["Requested", "Pending", "Confirmed", "Completed", "Cancelled"])
+  status: mysqlEnum("status", [
+    "Requested",
+    "Pending",
+    "Confirmed",
+    "Completed",
+    "Cancelled",
+  ])
     .default("Requested")
     .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -161,7 +183,10 @@ export const patientPrescriptions = mysqlTable("patientPrescriptions", {
     .references(() => users.id, { onDelete: "cascade" }),
   doctorId: varchar("doctorId", { length: 80 }).notNull(),
   issuedAt: timestamp("issuedAt").defaultNow().notNull(),
-  status: mysqlEnum("status", ["UNSIGNED / CONTROLLED WORKSPACE", "SIGNED — CONTROLLED STATE"])
+  status: mysqlEnum("status", [
+    "UNSIGNED / CONTROLLED WORKSPACE",
+    "SIGNED — CONTROLLED STATE",
+  ])
     .default("UNSIGNED / CONTROLLED WORKSPACE")
     .notNull(),
   clinicalNotes: text("clinicalNotes"),
@@ -170,19 +195,23 @@ export const patientPrescriptions = mysqlTable("patientPrescriptions", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export const patientPrescriptionItems = mysqlTable("patientPrescriptionItems", {
-  id: int("id").autoincrement().primaryKey(),
-  prescriptionId: int("prescriptionId").notNull(),
-  name: varchar("name", { length: 200 }).notNull(),
-  dosage: varchar("dosage", { length: 120 }).notNull(),
-  instructions: text("instructions").notNull(),
-}, (table) => [
-  foreignKey({
-    columns: [table.prescriptionId],
-    foreignColumns: [patientPrescriptions.id],
-    name: "rx_item_prescription_fk",
-  }).onDelete("cascade"),
-]);
+export const patientPrescriptionItems = mysqlTable(
+  "patientPrescriptionItems",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    prescriptionId: int("prescriptionId").notNull(),
+    name: varchar("name", { length: 200 }).notNull(),
+    dosage: varchar("dosage", { length: 120 }).notNull(),
+    instructions: text("instructions").notNull(),
+  },
+  table => [
+    foreignKey({
+      columns: [table.prescriptionId],
+      foreignColumns: [patientPrescriptions.id],
+      name: "rx_item_prescription_fk",
+    }).onDelete("cascade"),
+  ]
+);
 
 /** Event records are server-created and patient-scoped for authenticated realtime delivery. */
 export const patientEvents = mysqlTable("patientEvents", {
@@ -218,12 +247,15 @@ export const doctorEvents = mysqlTable("doctorEvents", {
 });
 
 export type PatientCredential = typeof patientCredentials.$inferSelect;
-export type SyntheticDoctorCredential = typeof syntheticDoctorCredentials.$inferSelect;
+export type SyntheticDoctorCredential =
+  typeof syntheticDoctorCredentials.$inferSelect;
 export type PatientProfile = typeof patientProfiles.$inferSelect;
-export type PatientEmergencyContact = typeof patientEmergencyContacts.$inferSelect;
+export type PatientEmergencyContact =
+  typeof patientEmergencyContacts.$inferSelect;
 export type PatientMedicine = typeof patientMedicines.$inferSelect;
 export type PatientAppointment = typeof patientAppointments.$inferSelect;
 export type PatientPrescription = typeof patientPrescriptions.$inferSelect;
-export type PatientPrescriptionItem = typeof patientPrescriptionItems.$inferSelect;
+export type PatientPrescriptionItem =
+  typeof patientPrescriptionItems.$inferSelect;
 export type PatientEvent = typeof patientEvents.$inferSelect;
 export type DoctorEvent = typeof doctorEvents.$inferSelect;

@@ -1,1 +1,1 @@
-export const PATIENT_DASHBOARD_PATH = '/patient/dashboard';
+export const PATIENT_DASHBOARD_PATH = "/patient/dashboard";

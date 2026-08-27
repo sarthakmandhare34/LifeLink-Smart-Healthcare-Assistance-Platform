@@ -67,12 +67,8 @@
           "name": "patientAppointments_userId_users_id_fk",
           "tableFrom": "patientAppointments",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -80,9 +76,7 @@
       "compositePrimaryKeys": {
         "patientAppointments_id": {
           "name": "patientAppointments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -183,12 +177,8 @@
           "name": "patientAssessments_userId_users_id_fk",
           "tableFrom": "patientAssessments",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -196,9 +186,7 @@
       "compositePrimaryKeys": {
         "patientAssessments_id": {
           "name": "patientAssessments_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -259,12 +247,8 @@
           "name": "patientCredentials_userId_users_id_fk",
           "tableFrom": "patientCredentials",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -272,23 +256,17 @@
       "compositePrimaryKeys": {
         "patientCredentials_id": {
           "name": "patientCredentials_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "patientCredentials_userId_unique": {
           "name": "patientCredentials_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         },
         "patientCredentials_email_unique": {
           "name": "patientCredentials_email_unique",
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "checkConstraint": {}
@@ -355,12 +333,8 @@
           "name": "patientEmergencyContacts_userId_users_id_fk",
           "tableFrom": "patientEmergencyContacts",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -368,9 +342,7 @@
       "compositePrimaryKeys": {
         "patientEmergencyContacts_id": {
           "name": "patientEmergencyContacts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -422,12 +394,8 @@
           "name": "patientEvents_userId_users_id_fk",
           "tableFrom": "patientEvents",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -435,9 +403,7 @@
       "compositePrimaryKeys": {
         "patientEvents_id": {
           "name": "patientEvents_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -540,12 +506,8 @@
           "name": "patientMedicines_userId_users_id_fk",
           "tableFrom": "patientMedicines",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -553,9 +515,7 @@
       "compositePrimaryKeys": {
         "patientMedicines_id": {
           "name": "patientMedicines_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -606,12 +566,8 @@
           "name": "rx_item_prescription_fk",
           "tableFrom": "patientPrescriptionItems",
           "tableTo": "patientPrescriptions",
-          "columnsFrom": [
-            "prescriptionId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["prescriptionId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -619,9 +575,7 @@
       "compositePrimaryKeys": {
         "patientPrescriptionItems_id": {
           "name": "patientPrescriptionItems_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -705,12 +659,8 @@
           "name": "patientPrescriptions_userId_users_id_fk",
           "tableFrom": "patientPrescriptions",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -718,9 +668,7 @@
       "compositePrimaryKeys": {
         "patientPrescriptions_id": {
           "name": "patientPrescriptions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -802,12 +750,8 @@
           "name": "patientProfiles_userId_users_id_fk",
           "tableFrom": "patientProfiles",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -815,17 +759,13 @@
       "compositePrimaryKeys": {
         "patientProfiles_id": {
           "name": "patientProfiles_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "patientProfiles_userId_unique": {
           "name": "patientProfiles_userId_unique",
-          "columns": [
-            "userId"
-          ]
+          "columns": ["userId"]
         }
       },
       "checkConstraint": {}
@@ -892,12 +832,8 @@
           "name": "patientProviderIdentities_userId_users_id_fk",
           "tableFrom": "patientProviderIdentities",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -905,18 +841,13 @@
       "compositePrimaryKeys": {
         "patientProviderIdentities_id": {
           "name": "patientProviderIdentities_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "provider_subject_unique": {
           "name": "provider_subject_unique",
-          "columns": [
-            "provider",
-            "subject"
-          ]
+          "columns": ["provider", "subject"]
         }
       },
       "checkConstraint": {}
@@ -998,17 +929,13 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "checkConstraint": {}

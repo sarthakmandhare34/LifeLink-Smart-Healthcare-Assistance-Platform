@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { invokeLLM } from "./_core/llm";
 import { ENV } from "./_core/env";
 
 export const assessmentRequestInput = z.object({
@@ -55,23 +54,29 @@ const GEMINI_ASSESSMENT_RESPONSE_SCHEMA = {
   required: ["urgency", "specialty", "reason", "guidance"],
 } as const;
 
-const ASSESSMENT_SYSTEM_INSTRUCTION = "You are LifeLink's health-triage decision-support assistant. Do not diagnose, prescribe, claim certainty, or replace professional care. Return only the requested JSON. Use short, calm, non-diagnostic reasoning. If potentially urgent, choose MODERATE or EMERGENCY and direct the person to appropriate in-person care. For EMERGENCY, guidance must say to seek emergency care or contact a local emergency number now.";
+const ASSESSMENT_SYSTEM_INSTRUCTION =
+  "You are LifeLink's health-triage decision-support assistant. Do not diagnose, prescribe, claim certainty, or replace professional care. Return only the requested JSON. Use short, calm, non-diagnostic reasoning. If potentially urgent, choose MODERATE or EMERGENCY and direct the person to appropriate in-person care. For EMERGENCY, guidance must say to seek emergency care or contact a local emergency number now.";
 
 export function hasEmergencyPattern(symptoms: string) {
-  return EMERGENCY_PATTERNS.some((pattern) => pattern.test(symptoms.trim().toLowerCase()));
+  return EMERGENCY_PATTERNS.some(pattern =>
+    pattern.test(symptoms.trim().toLowerCase())
+  );
 }
 
 export function emergencyOverride(): AssessmentResult {
   return {
     urgency: "EMERGENCY",
     specialty: "Emergency Care",
-    reason: "A deterministic safety check detected symptom wording that may indicate an emergency. This tool cannot determine severity or make a diagnosis.",
-    guidance: "Seek immediate in-person emergency care or contact your local emergency number now. Do not rely on this screen for diagnosis or treatment.",
+    reason:
+      "A deterministic safety check detected symptom wording that may indicate an emergency. This tool cannot determine severity or make a diagnosis.",
+    guidance:
+      "Seek immediate in-person emergency care or contact your local emergency number now. Do not rely on this screen for diagnosis or treatment.",
   };
 }
 
 function parseModelContent(content: string | unknown[]) {
-  if (typeof content !== "string") throw new Error("Gemini returned a non-text assessment response.");
+  if (typeof content !== "string")
+    throw new Error("Gemini returned a non-text assessment response.");
   return assessmentResultSchema.parse(JSON.parse(content));
 }
 
@@ -86,69 +91,65 @@ function assessmentPrompt(input: AssessmentRequest) {
 }
 
 async function invokeConfiguredGemini(input: AssessmentRequest) {
-  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-goog-api-key": ENV.geminiApiKey,
-    },
-    body: JSON.stringify({
-      contents: [{
-        role: "user",
-        parts: [{ text: `${ASSESSMENT_SYSTEM_INSTRUCTION}\n\nPatient-provided information:\n${assessmentPrompt(input)}` }],
-      }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: GEMINI_ASSESSMENT_RESPONSE_SCHEMA,
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(ENV.geminiModel)}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-goog-api-key": ENV.geminiApiKey,
       },
-    }),
-  });
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `${ASSESSMENT_SYSTEM_INSTRUCTION}\n\nPatient-provided information:\n${assessmentPrompt(input)}`,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: GEMINI_ASSESSMENT_RESPONSE_SCHEMA,
+        },
+      }),
+    }
+  );
 
-  if (!response.ok) throw new Error("Gemini assessment request was unavailable.");
-  const payload = await response.json() as {
+  if (!response.ok)
+    throw new Error("Gemini assessment request was unavailable.");
+  const payload = (await response.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
-  const content = payload.candidates
-    ?.flatMap((candidate) => candidate.content?.parts ?? [])
-    .map((part) => part.text ?? "")
-    .join("") ?? "";
+  const content =
+    payload.candidates
+      ?.flatMap(candidate => candidate.content?.parts ?? [])
+      .map(part => part.text ?? "")
+      .join("") ?? "";
   return parseModelContent(content);
 }
 
-async function invokePlatformGeminiFallback(input: AssessmentRequest) {
-  const response = await invokeLLM({
-    model: "gemini-3-flash-preview",
-    max_tokens: 700,
-    response_format: {
-      type: "json_schema",
-      json_schema: { name: "lifelink_assessment_result", strict: true, schema: ASSESSMENT_RESPONSE_SCHEMA },
-    },
-    messages: [
-      { role: "system", content: ASSESSMENT_SYSTEM_INSTRUCTION },
-      { role: "user", content: assessmentPrompt(input) },
-    ],
-  });
-  return parseModelContent(response.choices[0]?.message.content ?? "");
-}
-
 /**
- * Server-only decision support. The configured Gemini credential is used only
- * on the backend. A deterministic red-flag override always outranks model output.
+ * Server-only decision support. The project owner's Gemini credential is used
+ * only on the backend. A deterministic red-flag override always outranks model output.
  */
-export async function analyzeAssessmentWithGemini(input: AssessmentRequest): Promise<AssessmentResult> {
+export async function analyzeAssessmentWithGemini(
+  input: AssessmentRequest
+): Promise<AssessmentResult> {
   if (hasEmergencyPattern(input.symptoms)) return emergencyOverride();
 
-  let parsed: AssessmentResult;
   if (!ENV.geminiApiKey) {
-    parsed = await invokePlatformGeminiFallback(input);
-  } else {
-    try {
-      parsed = await invokeConfiguredGemini(input);
-    } catch {
-      // Do not expose provider details to the patient. The platform route uses the same schema and remains server-only.
-      parsed = await invokePlatformGeminiFallback(input);
-    }
+    throw new Error(
+      "AI assessment is unavailable. Configure GEMINI_API_KEY on the local server before using this feature."
+    );
   }
-
-  return hasEmergencyPattern(input.symptoms) && parsed.urgency !== "EMERGENCY" ? emergencyOverride() : parsed;
+  try {
+    return await invokeConfiguredGemini(input);
+  } catch {
+    throw new Error(
+      "AI assessment is temporarily unavailable. Please try again later or seek professional care if you are concerned."
+    );
+  }
 }

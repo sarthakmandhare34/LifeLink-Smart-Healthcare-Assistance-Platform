@@ -1,0 +1,25 @@
+# Copy this file to .env before running LifeLink locally. Do not commit .env.
+
+# Required: MySQL-compatible database and a random value of at least 32 characters.
+DATABASE_URL=mysql://lifelink:change-me@127.0.0.1:3306/lifelink
+JWT_SECRET=replace-with-a-random-32-character-minimum-secret
+
+# Required for controlled clinician account provisioning and password administration.
+LIFELINK_CLINICIAN_ADMIN_CODE=replace-with-a-private-16-character-minimum-code
+
+# Optional: AI Assessment. The feature displays a safe unavailable message until configured.
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.6-flash
+RUN_GEMINI_INTEGRATION_TESTS=false
+
+# Optional: Google sign-in. It requires an HTTPS public callback origin.
+AUTH_PUBLIC_BASE_URL=http://localhost:3000
+GOOGLE_OAUTH_CLIENT_ID=
+GOOGLE_OAUTH_CLIENT_SECRET=
+
+# Optional: Google Maps. The Specialist Finder remains usable without maps.
+VITE_GOOGLE_MAPS_API_KEY=
+VITE_GOOGLE_MAP_ID=
+
+# Optional: local private upload directory. Keep it outside version control.
+LIFELINK_STORAGE_DIR=./local-data/uploads

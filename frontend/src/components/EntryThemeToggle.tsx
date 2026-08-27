@@ -1,18 +1,17 @@
-import { Moon, Sun } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
-export type EntryTheme = 'light' | 'dark';
+export type EntryTheme = "light" | "dark";
 
-export const getEntryThemeToggleCopy = (theme: EntryTheme) => (
-  theme === 'light'
-    ? { action: 'Switch to dark mode', label: 'Dark mode' }
-    : { action: 'Switch to light mode', label: 'Light mode' }
-);
+export const getEntryThemeToggleCopy = (theme: EntryTheme) =>
+  theme === "light"
+    ? { action: "Switch to dark mode", label: "Dark mode" }
+    : { action: "Switch to light mode", label: "Light mode" };
 
 export const EntryThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
   const copy = getEntryThemeToggleCopy(theme);
-  const Icon = theme === 'light' ? Moon : Sun;
+  const Icon = theme === "light" ? Moon : Sun;
 
   return (
     <button

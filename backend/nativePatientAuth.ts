@@ -1,4 +1,8 @@
-import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
+import {
+  randomBytes,
+  scrypt as scryptCallback,
+  timingSafeEqual,
+} from "node:crypto";
 import { promisify } from "node:util";
 
 const scrypt = promisify(scryptCallback);
@@ -12,7 +16,10 @@ export async function hashPatientPassword(password: string): Promise<string> {
 }
 
 /** Verify a password against the stored `salt:hash` value in constant time. */
-export async function verifyPatientPassword(password: string, storedHash: string): Promise<boolean> {
+export async function verifyPatientPassword(
+  password: string,
+  storedHash: string
+): Promise<boolean> {
   const [salt, encodedHash] = storedHash.split(":");
   if (!salt || !encodedHash) return false;
 

@@ -1,8 +1,13 @@
-import { getMockDoctorById, type MockDoctorDirectoryEntry } from "./mockDoctorDirectory";
+import {
+  getMockDoctorById,
+  type MockDoctorDirectoryEntry,
+} from "./mockDoctorDirectory";
 
 const SYNTHETIC_DOCTOR_OPEN_ID_PREFIX = "synthetic-doctor:";
 
-export function getSyntheticDoctor(doctorId: string): MockDoctorDirectoryEntry | null {
+export function getSyntheticDoctor(
+  doctorId: string
+): MockDoctorDirectoryEntry | null {
   return getMockDoctorById(doctorId);
 }
 

@@ -1,26 +1,44 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createDoctorAuthorizedPrescription, createPatientEvent, getDoctorAuthorizedPatientDetail, listDoctorAppointments, updateDoctorAppointmentStatus } from "../db";
+import {
+  createDoctorAuthorizedPrescription,
+  createPatientEvent,
+  getDoctorAuthorizedPatientDetail,
+  listDoctorAppointments,
+  updateDoctorAppointmentStatus,
+} from "../db";
 import { doctorProcedure, router } from "../_core/trpc";
-import { doctorIdFromSyntheticOpenId, doctorDisplayName, getSyntheticDoctor } from "../syntheticDoctor";
+import {
+  doctorIdFromSyntheticOpenId,
+  doctorDisplayName,
+  getSyntheticDoctor,
+} from "../syntheticDoctor";
 
 function currentDoctor(openId: string) {
   const doctorId = doctorIdFromSyntheticOpenId(openId);
   const doctor = doctorId ? getSyntheticDoctor(doctorId) : null;
   if (!doctor) {
-    throw new TRPCError({ code: "FORBIDDEN", message: "This synthetic doctor session is not authorized." });
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "This synthetic doctor session is not authorized.",
+    });
   }
   return doctor;
 }
 
-function appointmentView(appointment: Awaited<ReturnType<typeof listDoctorAppointments>>[number]) {
+function appointmentView(
+  appointment: Awaited<ReturnType<typeof listDoctorAppointments>>[number]
+) {
   return {
     id: appointment.id,
     scheduledAt: appointment.scheduledAt,
     status: appointment.status,
     reason: appointment.reason || "No booking reason was provided.",
     createdAt: appointment.createdAt,
-    patient: { id: appointment.patientId, name: appointment.patientName || "LifeLink patient" },
+    patient: {
+      id: appointment.patientId,
+      name: appointment.patientName || "LifeLink patient",
+    },
   };
 }
 
@@ -40,11 +58,20 @@ export const doctorWorkspaceRouter = router({
     const doctor = currentDoctor(ctx.user.openId);
     const appointments = await listDoctorAppointments(doctor.id);
     const now = Date.now();
-    const patients = new Set(appointments.map((appointment) => appointment.patientId));
+    const patients = new Set(
+      appointments.map(appointment => appointment.patientId)
+    );
     return {
       appointmentCount: appointments.length,
-      pendingCount: appointments.filter((appointment) => appointment.status === "Requested" || appointment.status === "Pending").length,
-      upcomingCount: appointments.filter((appointment) => appointment.scheduledAt.getTime() >= now && appointment.status !== "Cancelled").length,
+      pendingCount: appointments.filter(
+        appointment =>
+          appointment.status === "Requested" || appointment.status === "Pending"
+      ).length,
+      upcomingCount: appointments.filter(
+        appointment =>
+          appointment.scheduledAt.getTime() >= now &&
+          appointment.status !== "Cancelled"
+      ).length,
       patientCount: patients.size,
       appointments: appointments.slice(0, 5).map(appointmentView),
     };
@@ -55,14 +82,31 @@ export const doctorWorkspaceRouter = router({
       return (await listDoctorAppointments(doctor.id)).map(appointmentView);
     }),
     updateStatus: doctorProcedure
-      .input(z.object({ id: z.number().int().positive(), status: z.enum(["Confirmed", "Cancelled"]) }))
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          status: z.enum(["Confirmed", "Cancelled"]),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         const doctor = currentDoctor(ctx.user.openId);
-        const updated = await updateDoctorAppointmentStatus(doctor.id, input.id, input.status);
+        const updated = await updateDoctorAppointmentStatus(
+          doctor.id,
+          input.id,
+          input.status
+        );
         if (!updated) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Appointment was not found or is no longer awaiting a decision." });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message:
+              "Appointment was not found or is no longer awaiting a decision.",
+          });
         }
-        await createPatientEvent(updated.userId, "APPOINTMENT_UPDATED", String(input.id));
+        await createPatientEvent(
+          updated.userId,
+          "APPOINTMENT_UPDATED",
+          String(input.id)
+        );
         return { success: true } as const;
       }),
   }),
@@ -70,30 +114,74 @@ export const doctorWorkspaceRouter = router({
     const doctor = currentDoctor(ctx.user.openId);
     const appointments = await listDoctorAppointments(doctor.id);
     return Array.from(
-      new Map(appointments.map((appointment) => [appointment.patientId, { id: appointment.patientId, name: appointment.patientName || "LifeLink patient" }])).values(),
+      new Map(
+        appointments.map(appointment => [
+          appointment.patientId,
+          {
+            id: appointment.patientId,
+            name: appointment.patientName || "LifeLink patient",
+          },
+        ])
+      ).values()
     );
   }),
   patientDetail: doctorProcedure
     .input(z.object({ patientId: z.number().int().positive() }))
     .query(async ({ ctx, input }) => {
       const doctor = currentDoctor(ctx.user.openId);
-      const detail = await getDoctorAuthorizedPatientDetail(doctor.id, input.patientId);
-      if (!detail) throw new TRPCError({ code: "FORBIDDEN", message: "This patient is not assigned to the signed clinician account." });
+      const detail = await getDoctorAuthorizedPatientDetail(
+        doctor.id,
+        input.patientId
+      );
+      if (!detail)
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "This patient is not assigned to the signed clinician account.",
+        });
       return detail;
     }),
   prescriptions: router({
     create: doctorProcedure
-      .input(z.object({
-        patientId: z.number().int().positive(),
-        clinicalNotes: z.string().trim().max(4000).optional(),
-        items: z.array(z.object({ name: z.string().trim().min(1).max(200), dosage: z.string().trim().min(1).max(120), instructions: z.string().trim().min(1).max(2000) })).min(1).max(20),
-      }))
+      .input(
+        z.object({
+          patientId: z.number().int().positive(),
+          clinicalNotes: z.string().trim().max(4000).optional(),
+          items: z
+            .array(
+              z.object({
+                name: z.string().trim().min(1).max(200),
+                dosage: z.string().trim().min(1).max(120),
+                instructions: z.string().trim().min(1).max(2000),
+              })
+            )
+            .min(1)
+            .max(20),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         const doctor = currentDoctor(ctx.user.openId);
-        const prescriptionId = await createDoctorAuthorizedPrescription({ doctorId: doctor.id, patientUserId: input.patientId, clinicalNotes: input.clinicalNotes || null, items: input.items });
-        if (!prescriptionId) throw new TRPCError({ code: "FORBIDDEN", message: "A confirmed appointment assigned to this doctor is required before a prescription can be created." });
-        await createPatientEvent(input.patientId, "PRESCRIPTION_CREATED", String(prescriptionId));
-        return { id: prescriptionId, status: "UNSIGNED / CONTROLLED WORKSPACE" as const };
+        const prescriptionId = await createDoctorAuthorizedPrescription({
+          doctorId: doctor.id,
+          patientUserId: input.patientId,
+          clinicalNotes: input.clinicalNotes || null,
+          items: input.items,
+        });
+        if (!prescriptionId)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message:
+              "A confirmed appointment assigned to this doctor is required before a prescription can be created.",
+          });
+        await createPatientEvent(
+          input.patientId,
+          "PRESCRIPTION_CREATED",
+          String(prescriptionId)
+        );
+        return {
+          id: prescriptionId,
+          status: "UNSIGNED / CONTROLLED WORKSPACE" as const,
+        };
       }),
   }),
 });

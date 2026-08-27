@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { BentoGrid, BentoItem } from '../../components/layout/Bento';
-import { Badge } from '../../components/ui/Badge';
-import { Pill, Plus, Edit2, Trash2 } from 'lucide-react';
-import { trpc } from '../../lib/trpc';
+import React, { useState } from "react";
+import { Card } from "../../components/ui/Card";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { BentoGrid, BentoItem } from "../../components/layout/Bento";
+import { Badge } from "../../components/ui/Badge";
+import { Pill, Plus, Edit2, Trash2 } from "lucide-react";
+import { trpc } from "../../lib/trpc";
 
 type MedicineForm = {
   name: string;
@@ -26,23 +26,33 @@ export const MedicineCabinet = () => {
   const removeMedicine = trpc.patientMedicine.remove.useMutation();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState<MedicineForm>({ name: '', dosage: '', frequency: '', schedule: '' });
+  const [formData, setFormData] = useState<MedicineForm>({
+    name: "",
+    dosage: "",
+    frequency: "",
+    schedule: "",
+  });
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingId, setProcessingId] = useState<number | null>(null);
-  const [mutationError, setMutationError] = useState('');
+  const [mutationError, setMutationError] = useState("");
 
-  if (medicinesQuery.isLoading) return <div className="flex items-center justify-center h-full"><p className="caption">Loading medicines…</p></div>;
+  if (medicinesQuery.isLoading)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="caption">Loading medicines…</p>
+      </div>
+    );
   const activeMedicines = medicinesQuery.data ?? [];
 
   const handleOpenAdd = () => {
-    setMutationError('');
-    setFormData({ name: '', dosage: '', frequency: '', schedule: '' });
+    setMutationError("");
+    setFormData({ name: "", dosage: "", frequency: "", schedule: "" });
     setEditingId(null);
     setShowForm(true);
   };
 
   const handleOpenEdit = (med: (typeof activeMedicines)[number]) => {
-    setMutationError('');
+    setMutationError("");
     setFormData({
       name: med.name,
       dosage: med.dosage,
@@ -60,7 +70,7 @@ export const MedicineCabinet = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    setMutationError('');
+    setMutationError("");
     try {
       if (editingId) {
         await updateMedicine.mutateAsync({ id: editingId, values: formData });
@@ -71,22 +81,35 @@ export const MedicineCabinet = () => {
       await trpcUtils.patientDashboard.summary.invalidate();
       setShowForm(false);
     } catch (error: unknown) {
-      setMutationError(error instanceof Error ? error.message : 'Unable to save this medicine. Please try again.');
+      setMutationError(
+        error instanceof Error
+          ? error.message
+          : "Unable to save this medicine. Please try again."
+      );
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleRemove = async (id: number) => {
-    if (!window.confirm('Are you sure you want to remove this medication from your cabinet?')) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to remove this medication from your cabinet?"
+      )
+    )
+      return;
     setProcessingId(id);
-    setMutationError('');
+    setMutationError("");
     try {
       await removeMedicine.mutateAsync({ id });
       await trpcUtils.patientMedicine.list.invalidate();
       await trpcUtils.patientDashboard.summary.invalidate();
     } catch (error: unknown) {
-      setMutationError(error instanceof Error ? error.message : 'Unable to remove this medicine. Please try again.');
+      setMutationError(
+        error instanceof Error
+          ? error.message
+          : "Unable to remove this medicine. Please try again."
+      );
     } finally {
       setProcessingId(null);
     }
@@ -96,12 +119,24 @@ export const MedicineCabinet = () => {
     <div className="container" style={{ padding: 0 }}>
       <header className="mb-4 flex justify-between items-start">
         <div className="flex items-center gap-3">
-          <div style={{ width: 44, height: 44, borderRadius: '14px', background: 'rgba(0,27,48,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "14px",
+              background: "rgba(0,27,48,0.08)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Pill size={24} color="var(--color-primary)" />
           </div>
           <div>
             <h1 style={{ margin: 0 }}>Smart Medicine Cabinet</h1>
-            <p className="caption">Manage active medications, schedules, and stock alerts.</p>
+            <p className="caption">
+              Manage active medications, schedules, and stock alerts.
+            </p>
           </div>
         </div>
         {!showForm && (
@@ -111,34 +146,115 @@ export const MedicineCabinet = () => {
         )}
       </header>
 
-      {mutationError && <div className="alert-panel mb-4"><span className="caption">{mutationError}</span></div>}
+      {mutationError && (
+        <div className="alert-panel mb-4">
+          <span className="caption">{mutationError}</span>
+        </div>
+      )}
 
       {showForm && (
         <Card variant="glass" className="mb-4">
           <form onSubmit={handleSubmit} className="flex-col gap-3">
-            <h3 style={{ margin: 0 }}>{editingId ? 'Edit Medication Record' : 'Add New Medication'}</h3>
+            <h3 style={{ margin: 0 }}>
+              {editingId ? "Edit Medication Record" : "Add New Medication"}
+            </h3>
             <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Medicine Name</label>
-              <Input type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} required placeholder="E.g., Lisinopril, Amoxicillin..." />
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "4px",
+                  fontWeight: 600,
+                  fontSize: "var(--text-caption)",
+                }}
+              >
+                Medicine Name
+              </label>
+              <Input
+                type="text"
+                value={formData.name || ""}
+                onChange={e =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+                placeholder="E.g., Lisinopril, Amoxicillin..."
+              />
             </div>
             <div className="flex gap-3">
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Dosage</label>
-                <Input type="text" value={formData.dosage || ''} onChange={e => setFormData({...formData, dosage: e.target.value})} placeholder="e.g. 10mg" required />
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "4px",
+                    fontWeight: 600,
+                    fontSize: "var(--text-caption)",
+                  }}
+                >
+                  Dosage
+                </label>
+                <Input
+                  type="text"
+                  value={formData.dosage || ""}
+                  onChange={e =>
+                    setFormData({ ...formData, dosage: e.target.value })
+                  }
+                  placeholder="e.g. 10mg"
+                  required
+                />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Schedule</label>
-                <Input type="text" value={formData.schedule || ''} onChange={e => setFormData({...formData, schedule: e.target.value})} placeholder="e.g. Morning, Daily" required />
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "4px",
+                    fontWeight: 600,
+                    fontSize: "var(--text-caption)",
+                  }}
+                >
+                  Schedule
+                </label>
+                <Input
+                  type="text"
+                  value={formData.schedule || ""}
+                  onChange={e =>
+                    setFormData({ ...formData, schedule: e.target.value })
+                  }
+                  placeholder="e.g. Morning, Daily"
+                  required
+                />
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 600, fontSize: 'var(--text-caption)' }}>Frequency</label>
-              <Input type="text" value={formData.frequency || ''} onChange={e => setFormData({...formData, frequency: e.target.value})} placeholder="e.g. Once daily" required />
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "4px",
+                  fontWeight: 600,
+                  fontSize: "var(--text-caption)",
+                }}
+              >
+                Frequency
+              </label>
+              <Input
+                type="text"
+                value={formData.frequency || ""}
+                onChange={e =>
+                  setFormData({ ...formData, frequency: e.target.value })
+                }
+                placeholder="e.g. Once daily"
+                required
+              />
             </div>
             <div className="flex gap-2 mt-2">
-              <Button type="button" variant="outline" onClick={() => setShowForm(false)} disabled={isProcessing}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowForm(false)}
+                disabled={isProcessing}
+              >
+                Cancel
+              </Button>
               <Button type="submit" variant="primary" disabled={isProcessing}>
-                {isProcessing ? 'Processing...' : 'Save Medication'}
+                {isProcessing ? "Processing..." : "Save Medication"}
               </Button>
             </div>
           </form>
@@ -147,18 +263,18 @@ export const MedicineCabinet = () => {
 
       {/* Bento Grid layout for Medicine Cards */}
       <BentoGrid>
-        {activeMedicines.map((med) => (
+        {activeMedicines.map(med => (
           <BentoItem key={med.id} colSpan={2}>
-            <Card 
-              variant="solid" 
-              interactive 
-              style={{ 
-                height: '100%', 
-                borderLeft: '4px solid var(--color-success)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                opacity: processingId === med.id ? 0.5 : 1
+            <Card
+              variant="solid"
+              interactive
+              style={{
+                height: "100%",
+                borderLeft: "4px solid var(--color-success)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                opacity: processingId === med.id ? 0.5 : 1,
               }}
             >
               <div>
@@ -170,7 +286,14 @@ export const MedicineCabinet = () => {
                   <Badge status="success">Active</Badge>
                 </div>
 
-                <div className="flex gap-4 mt-3" style={{ background: 'var(--color-background)', padding: 'var(--spacing-2) var(--spacing-3)', borderRadius: 'var(--border-radius-sm)' }}>
+                <div
+                  className="flex gap-4 mt-3"
+                  style={{
+                    background: "var(--color-background)",
+                    padding: "var(--spacing-2) var(--spacing-3)",
+                    borderRadius: "var(--border-radius-sm)",
+                  }}
+                >
                   <div>
                     <span className="caption">Dosage</span>
                     <div style={{ fontWeight: 600 }}>{med.dosage}</div>
@@ -186,12 +309,26 @@ export const MedicineCabinet = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-4 pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
-                <Button variant="secondary" size="sm" onClick={() => handleOpenEdit(med)} disabled={processingId === med.id}>
+              <div
+                className="flex gap-2 mt-4 pt-2"
+                style={{ borderTop: "1px solid var(--color-border)" }}
+              >
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleOpenEdit(med)}
+                  disabled={processingId === med.id}
+                >
                   <Edit2 size={14} /> Edit
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => handleRemove(med.id)} disabled={processingId === med.id}>
-                  <Trash2 size={14} /> {processingId === med.id ? 'Removing...' : 'Remove'}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleRemove(med.id)}
+                  disabled={processingId === med.id}
+                >
+                  <Trash2 size={14} />{" "}
+                  {processingId === med.id ? "Removing..." : "Remove"}
                 </Button>
               </div>
             </Card>
@@ -200,8 +337,13 @@ export const MedicineCabinet = () => {
 
         {activeMedicines.length === 0 && (
           <BentoItem colSpan={4}>
-            <Card variant="glass" style={{ textAlign: 'center', padding: 'var(--spacing-6)' }}>
-              <p className="text-muted" style={{ margin: 0 }}>No active medications in cabinet.</p>
+            <Card
+              variant="glass"
+              style={{ textAlign: "center", padding: "var(--spacing-6)" }}
+            >
+              <p className="text-muted" style={{ margin: 0 }}>
+                No active medications in cabinet.
+              </p>
             </Card>
           </BentoItem>
         )}

@@ -3,7 +3,12 @@ import { trpc } from "../lib/trpc";
 
 type PatientRealtimePayload = {
   id: number;
-  type: "PROFILE_UPDATED" | "APPOINTMENT_UPDATED" | "PRESCRIPTION_CREATED" | "ASSESSMENT_COMPLETED" | "MEDICINE_UPDATED";
+  type:
+    | "PROFILE_UPDATED"
+    | "APPOINTMENT_UPDATED"
+    | "PRESCRIPTION_CREATED"
+    | "ASSESSMENT_COMPLETED"
+    | "MEDICINE_UPDATED";
   entityId: string | null;
   createdAt: string;
 };
@@ -13,7 +18,8 @@ export function usePatientRealtime(enabled: boolean) {
   const utils = trpc.useUtils();
 
   useEffect(() => {
-    if (!enabled || typeof window === "undefined" || !("EventSource" in window)) return;
+    if (!enabled || typeof window === "undefined" || !("EventSource" in window))
+      return;
 
     const source = new EventSource("/api/patient-events");
     const refreshForEvent = (type: PatientRealtimePayload["type"]) => {
@@ -39,7 +45,9 @@ export function usePatientRealtime(enabled: boolean) {
 
     const onPatientEvent = (message: Event) => {
       try {
-        const payload = JSON.parse((message as MessageEvent<string>).data) as PatientRealtimePayload;
+        const payload = JSON.parse(
+          (message as MessageEvent<string>).data
+        ) as PatientRealtimePayload;
         refreshForEvent(payload.type);
       } catch {
         // Ignore malformed stream messages; EventSource will reconnect if the transport closes.

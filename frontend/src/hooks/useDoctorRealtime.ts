@@ -13,11 +13,14 @@ export function useDoctorRealtime(enabled: boolean) {
   const utils = trpc.useUtils();
 
   useEffect(() => {
-    if (!enabled || typeof window === "undefined" || !("EventSource" in window)) return;
+    if (!enabled || typeof window === "undefined" || !("EventSource" in window))
+      return;
     const source = new EventSource("/api/doctor-events");
     const onDoctorEvent = (message: Event) => {
       try {
-        const payload = JSON.parse((message as MessageEvent<string>).data) as DoctorRealtimePayload;
+        const payload = JSON.parse(
+          (message as MessageEvent<string>).data
+        ) as DoctorRealtimePayload;
         if (payload.type === "APPOINTMENT_UPDATED") {
           void utils.doctorWorkspace.dashboard.invalidate();
           void utils.doctorWorkspace.appointments.list.invalidate();
