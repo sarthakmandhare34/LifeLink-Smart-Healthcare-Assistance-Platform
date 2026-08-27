@@ -7,19 +7,19 @@
 - [x] Inspect the current auth architecture and provider requirements for Google and Apple sign-in alongside native LifeLink accounts.
 - [x] Add prepared Google and Apple sign-in controls without removing native email/password registration and login.
 - [x] Configure required provider credentials and callback settings without exposing secrets to the browser.
-- [x] Verify successful provider callback, provider-account creation, and native-login regression paths; preserve the existing safe conflict policy for native accounts. _(Owner confirmed the first-try provider callback/dashboard flow; provider-identity and native sign-in regression coverage were previously completed.)_
+- [x] Verify successful provider callback, provider-account creation, and native-login regression paths; preserve the existing safe conflict policy for native accounts. *(Owner confirmed the first-try provider callback/dashboard flow; provider-identity and native sign-in regression coverage were previously completed.)*
 - [x] Remove Apple provider controls, routes, configuration fields, and activation requirements from the Google-only scope.
 - [x] Add the prepared Google OAuth entry point to both native login and registration pages without removing email/password flows.
 - [x] Update provider documentation and tests for the streamlined Google-only activation path.
 - [x] Register the configured LifeLink Google callback URL in the Google Cloud OAuth client to resolve the verified redirect mismatch.
-- [x] Complete one real Google consent/callback validation after the corrected redirect URI is saved. _(Owner confirmed Google sign-in works.)_
+- [x] Complete one real Google consent/callback validation after the corrected redirect URI is saved. *(Owner confirmed Google sign-in works.)*
 - [x] Resolve the reported public Google callback 404 by aligning `AUTH_PUBLIC_BASE_URL` with a deployment that serves the current LifeLink backend route.
 - [x] Resolve the new Railway 404 at the configured `lifelink-rqrpkqmn.manus.space` callback domain before resuming Google consent.
-- [x] Observe one complete public Google sign-in through consent returning to `/patient/dashboard`. _(Owner explicitly confirmed the protected patient dashboard opened.)_
-- [x] Verify the authenticated public Google session through `auth.me` or equivalent protected state after callback completion. _(Owner-confirmed protected dashboard route is the non-sensitive equivalent state; no personal data was inspected.)_
-- [x] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable. _(Permanent-origin start URL repair is deployed; owner explicitly confirmed first-try success.)_
-- [x] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try. _(Owner explicitly confirmed first-try dashboard success.)_
-- [x] Verify the protected public session after that first-attempt callback without exposing personal data. _(Owner-confirmed protected dashboard route; no personal data was inspected.)_
+- [x] Observe one complete public Google sign-in through consent returning to `/patient/dashboard`. *(Owner explicitly confirmed the protected patient dashboard opened.)*
+- [x] Verify the authenticated public Google session through `auth.me` or equivalent protected state after callback completion. *(Owner-confirmed protected dashboard route is the non-sensitive equivalent state; no personal data was inspected.)*
+- [x] Diagnose and fix the reported first-attempt Google sign-in failure so the initial authorization flow is reliable. *(Permanent-origin start URL repair is deployed; owner explicitly confirmed first-try success.)*
+- [x] Observe one full first-attempt Google sign-in after the permanent-origin start-url fix returning to `/patient/dashboard` without a second try. *(Owner explicitly confirmed first-try dashboard success.)*
+- [x] Verify the protected public session after that first-attempt callback without exposing personal data. *(Owner-confirmed protected dashboard route; no personal data was inspected.)*
 - [x] Reattach the permanent LifeLink domain to the latest deployment; it currently serves outdated provider metadata without the new Google registration start URL.
 - [x] Restore public access to the permanent LifeLink domain; it currently shows a platform permission screen instead of the application on `/login` and `/patient/specialists`.
 - [x] Require explicit registration for a new Google account, while allowing Google sign-in only for an existing registered LifeLink account.
@@ -94,7 +94,7 @@
 - [x] Upgrade the project to support database-backed persistent data.
 - [x] Inspect the upgraded full-stack structure and model the patient data to persist.
 - [x] Implement database storage and retrieval for the patient assessment workflow.
-- [x] Confirm the secure account flow can display database-backed assessment history without inserting test health records. _(Superseded by the approved native login-only scope; no external account route is exposed from the application.)_
+- [x] Confirm the secure account flow can display database-backed assessment history without inserting test health records. *(Superseded by the approved native login-only scope; no external account route is exposed from the application.)*
 - [x] Prepare and upload the supplied LifeLink logo as a deployment-safe static asset.
 - [x] Apply the supplied logo to the primary patient and clinician branding locations.
 - [x] Build and validate persistence plus visual logo rendering in the browser.
@@ -114,7 +114,7 @@
 - [x] Remove controllable Facebook, Microsoft, and Manus-branded sign-in affordances from the LifeLink UI.
 - [x] Preserve a clearly labeled LifeLink account experience without exposing third-party brand names in the app.
 - [x] Build and validate the revised patient and clinician login pages.
-- [x] Save a checkpoint and report the login-branding update. _(Consolidated into the native login-only delivery checkpoint.)_
+- [x] Save a checkpoint and report the login-branding update. *(Consolidated into the native login-only delivery checkpoint.)*
 
 ## Native Login-Only Flow
 
@@ -155,7 +155,7 @@
 - [x] Expand the clearly labeled controlled Mumbai development directory across more specialty categories and areas, and add an optional browser-only location permission flow that sorts and centers controlled map entries without storing precise location or claiming real doctors/availability.
 - [x] Redo and independently re-verify the controlled specialty and browser-only location update before assigning its rebuilt version to the permanent domain.
 - [x] Restrict the Specialist Finder free-text search to specialty names only and update its placeholder and guidance.
-- [x] Diagnose and fix the reported interactive Mumbai map loading failure while preserving controlled-directory and browser-location privacy safeguards. _(Owner confirmed the interactive map renders after the managed-proxy loader repair.)_
+- [x] Diagnose and fix the reported interactive Mumbai map loading failure while preserving controlled-directory and browser-location privacy safeguards. *(Owner confirmed the interactive map renders after the managed-proxy loader repair.)*
 - [x] Restore the permanent LifeLink domain’s HTTPS availability; it currently returns an SSL protocol error that blocks public map and OAuth verification.
 - [x] Ensure each supported station has two explicitly labeled mock development-directory entries and each rail corridor has at least three specialty categories, without claiming real clinicians or availability.
 - [x] Reconcile the uploaded LifeLink feature inventory against the implemented product and provide a security-safe inventory of configured integration purposes.
@@ -262,9 +262,9 @@
 
 ## Workspace Entry Verification and Motion
 
-- [x] Audit patient and clinician entry actions plus the provisioned clinician appointment-access verification path. _(Owner confirmed the clinician workflow opens successfully.)_
+- [x] Audit patient and clinician entry actions plus the provisioned clinician appointment-access verification path. *(Owner confirmed the clinician workflow opens successfully.)*
 - [x] Shorten the clinician card description and add a smooth reduced-motion-safe workspace-switch transition.
-- [x] Test both workspace buttons and confirm a provisioned clinician can open only assigned appointments. _(Owner confirmed the clinician workflow opens successfully.)_
+- [x] Test both workspace buttons and confirm a provisioned clinician can open only assigned appointments. *(Owner confirmed the clinician workflow opens successfully.)*
 - [x] Add regression coverage, verify the build, and save the workspace-entry update checkpoint.
 
 ## Clinician Credential Recovery
@@ -272,14 +272,14 @@
 - [x] Audit provisioned controlled clinician accounts and determine why credentials were not retained after one-time setup.
 - [x] Add an owner-only credential administration screen that lists provisioned specialist emails and supports secure password replacement.
 - [x] Verify that account emails remain owner-only and that new passwords are shown once only after owner-authorized replacement.
-- [x] Add regression coverage, validate independent clinician sign-in, and save the credential recovery checkpoint. _(Owner confirmed independent clinician access; credential security regression coverage passed.)_
+- [x] Add regression coverage, validate independent clinician sign-in, and save the credential recovery checkpoint. *(Owner confirmed independent clinician access; credential security regression coverage passed.)*
 
 ## Credential Copy and Visible Placeholder Audit
 
 - [x] Reopen the owner-only clinician account page so generated credentials can be copied securely.
 - [x] Audit active user-facing UI for remaining visible demo labels or placeholder text.
 - [x] Replace only verified active placeholders while retaining controlled-directory and privacy disclosures.
-- [x] Complete owner-controlled credential copying and independent clinician sign-in after the UI update checkpoint. _(Owner confirmed the private workflow completed successfully.)_
+- [x] Complete owner-controlled credential copying and independent clinician sign-in after the UI update checkpoint. *(Owner confirmed the private workflow completed successfully.)*
 - [x] Investigate and correct the post-publish public clinician-directory response that still displays Demo specialist labels.
 
 ## Read-Only Final Quality-Control Audit
@@ -305,8 +305,8 @@
 ## Clinician Credential Workflow Diagnosis
 
 - [x] Inspect non-sensitive runtime evidence for the reported clinician account setup or sign-in failure. No failed credential mutation was recorded; the exact failing action still requires owner confirmation.
-- [x] Correct any verified credential-flow defect without exposing owner codes or clinician credentials. _(No failed mutation was recorded; the owner-only all-account refresh provides the completed recovery path.)_
-- [x] Obtain private owner confirmation of clinician sign-in and assigned-appointment access. _(Owner confirmed the clinician workflow works.)_
+- [x] Correct any verified credential-flow defect without exposing owner codes or clinician credentials. *(No failed mutation was recorded; the owner-only all-account refresh provides the completed recovery path.)*
+- [x] Obtain private owner confirmation of clinician sign-in and assigned-appointment access. *(Owner confirmed the clinician workflow works.)*
 
 ## Portal Header Wording Refinement
 
@@ -323,43 +323,10 @@
 
 - [x] Diversify controlled specialist entries across distinct Mumbai locations while preserving Central, Harbour, and Western Line coverage.
 - [x] Replace clinician account email addresses with a professional internal account label and create a safe one-time password refresh path.
-- [x] Complete owner-only all-account credential retrieval and confirm the refreshed directory/filtering behavior without exposing credentials. _(Owner confirmed the live owner-only workflow works.)_
+- [x] Complete owner-only all-account credential retrieval and confirm the refreshed directory/filtering behavior without exposing credentials. *(Owner confirmed the live owner-only workflow works.)*
 
 ## Specialist Finder Form Refinement
 
 - [x] Improve Specialist Finder dark-mode contrast, form hierarchy, field sizing, and spacing based on the supplied screenshot.
 - [x] Preserve protected discovery filters, controlled-directory disclosure, browser-location privacy, and appointment-request behavior.
 - [x] Add regression coverage and verify the refined form on desktop and mobile before publishing.
-
-## Final Read-Only Quality-Control Audit
-
-- [x] Inspect the final LifeLink architecture, database, backend, authentication, authorization, AI, realtime, and automated evidence without modifying code or data.
-- [x] Verify final frontend routes, public deployment, maps/discovery, responsive UI, and controlled clinician workflows without creating or changing records.
-- [x] Classify all established requirements and deliver the final read-only quality-control report with exact remaining work.
-
-## Repository Organization and GitHub Synchronization
-
-- [x] Inventory every tracked file and classify it against the established frontend, backend, database, shared, configuration, and documentation boundaries.
-- [x] Verify imports, scripts, routes, and build configuration continue to use the established LifeLink structure; remove only verified obsolete material.
-- [x] Update repository documentation with the final active structure and validated command workflow.
-- [x] Run complete validation, save the reviewed repository state, and synchronize the finalized files to GitHub.
-
-## Fresh Final Read-Only Quality-Control Audit
-
-- [x] Establish the current release baseline and collect non-sensitive evidence across backend, database, frontend, security, and deployment boundaries.
-- [x] Verify public and protected route boundaries, responsive presentation, controlled directory/maps behavior, and automated validation without creating or changing records.
-- [x] Classify all established requirements and deliver the final read-only findings with exact remaining work.
-
-## Independent Local-Maintenance Conversion
-
-- [x] Inventory every Manus-specific runtime, authentication, storage, map, AI, build, and documentation dependency in the active LifeLink project.
-- [x] Define and document a secure standalone local environment with required configuration placeholders and no committed credentials.
-- [x] Replace active Manus-coupled infrastructure with local equivalents while preserving native patient authentication, database-backed data, controlled clinician access, and directory safeguards.
-- [x] Review and standardize all active project naming, grammar, wording, formatting, file ownership, and documentation.
-- [x] Run the complete standalone validation suite and prepare reproducible local setup, migration, and test instructions.
-- [x] Save the independently maintainable project state and synchronize the final files to GitHub.
-
-## Local Configuration Verification and Handover
-
-- [x] Verify local environment-variable requirements, database connection format, and startup validation without exposing secret values.
-- [x] Produce a final standalone README and a practical local-maintenance handover checklist with professional wording.

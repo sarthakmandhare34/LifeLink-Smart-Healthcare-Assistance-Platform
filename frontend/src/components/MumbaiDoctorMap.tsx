@@ -30,23 +30,12 @@ type MumbaiDoctorMapProps = {
 
 const MUMBAI_CENTER = { lat: 19.076, lng: 72.8777 };
 
-export function MumbaiDoctorMap({
-  doctors,
-  selectedDoctorId,
-  onSelectDoctor,
-  browserLocation = null,
-}: MumbaiDoctorMapProps) {
+export function MumbaiDoctorMap({ doctors, selectedDoctorId, onSelectDoctor, browserLocation = null }: MumbaiDoctorMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [mapFailed, setMapFailed] = useState(false);
   const [mapAttempt, setMapAttempt] = useState(0);
-  const markersRef = useRef<
-    Array<{
-      marker: google.maps.marker.AdvancedMarkerElement;
-      listener: google.maps.MapsEventListener;
-    }>
-  >([]);
-  const browserLocationMarkerRef =
-    useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markersRef = useRef<Array<{ marker: google.maps.marker.AdvancedMarkerElement; listener: google.maps.MapsEventListener }>>([]);
+  const browserLocationMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
 
   const onMapReady = useCallback((readyMap: google.maps.Map) => {
     setMapFailed(false);
@@ -56,7 +45,7 @@ export function MumbaiDoctorMap({
   const retryMap = useCallback(() => {
     setMap(null);
     setMapFailed(false);
-    setMapAttempt(attempt => attempt + 1);
+    setMapAttempt((attempt) => attempt + 1);
   }, []);
 
   useEffect(() => {
@@ -68,15 +57,13 @@ export function MumbaiDoctorMap({
     });
 
     const bounds = new window.google.maps.LatLngBounds();
-    markersRef.current = doctors.map(doctor => {
+    markersRef.current = doctors.map((doctor) => {
       const marker = new window.google.maps.marker.AdvancedMarkerElement({
         map,
         position: { lat: doctor.latitude, lng: doctor.longitude },
         title: `${doctor.name} — ${doctor.specialty} in ${doctor.locality}`,
       });
-      const listener = marker.addListener("click", () =>
-        onSelectDoctor(doctor.id)
-      );
+      const listener = marker.addListener("click", () => onSelectDoctor(doctor.id));
       bounds.extend({ lat: doctor.latitude, lng: doctor.longitude });
       return { marker, listener };
     });
@@ -101,14 +88,9 @@ export function MumbaiDoctorMap({
   }, [doctors, map, onSelectDoctor]);
 
   useEffect(() => {
-    const selectedDoctor = doctors.find(
-      doctor => doctor.id === selectedDoctorId
-    );
+    const selectedDoctor = doctors.find((doctor) => doctor.id === selectedDoctorId);
     if (map && selectedDoctor) {
-      map.panTo({
-        lat: selectedDoctor.latitude,
-        lng: selectedDoctor.longitude,
-      });
+      map.panTo({ lat: selectedDoctor.latitude, lng: selectedDoctor.longitude });
       map.setZoom(14);
     }
   }, [doctors, map, selectedDoctorId]);
@@ -116,31 +98,21 @@ export function MumbaiDoctorMap({
   useEffect(() => {
     if (!map || !window.google) return;
 
-    if (browserLocationMarkerRef.current)
-      browserLocationMarkerRef.current.map = null;
+    if (browserLocationMarkerRef.current) browserLocationMarkerRef.current.map = null;
     browserLocationMarkerRef.current = null;
 
     if (!browserLocation) return;
 
-    browserLocationMarkerRef.current =
-      new window.google.maps.marker.AdvancedMarkerElement({
-        map,
-        position: {
-          lat: browserLocation.latitude,
-          lng: browserLocation.longitude,
-        },
-        title:
-          "Your browser location — visible only in this map and not stored",
-      });
-    map.panTo({
-      lat: browserLocation.latitude,
-      lng: browserLocation.longitude,
+    browserLocationMarkerRef.current = new window.google.maps.marker.AdvancedMarkerElement({
+      map,
+      position: { lat: browserLocation.latitude, lng: browserLocation.longitude },
+      title: "Your browser location — visible only in this map and not stored",
     });
+    map.panTo({ lat: browserLocation.latitude, lng: browserLocation.longitude });
     map.setZoom(12);
 
     return () => {
-      if (browserLocationMarkerRef.current)
-        browserLocationMarkerRef.current.map = null;
+      if (browserLocationMarkerRef.current) browserLocationMarkerRef.current.map = null;
       browserLocationMarkerRef.current = null;
     };
   }, [browserLocation, map]);
@@ -155,18 +127,10 @@ export function MumbaiDoctorMap({
         onMapReady={onMapReady}
         onMapError={() => setMapFailed(true)}
       />
-      {mapFailed && (
-        <div className="mumbai-map-error" role="status">
-          <p>
-            The interactive map is unavailable in this session. Directory
-            filters and appointment requests remain available; no location or
-            distance is inferred.
-          </p>
-          <button type="button" className="mumbai-map-retry" onClick={retryMap}>
-            Retry interactive map
-          </button>
-        </div>
-      )}
+      {mapFailed && <div className="mumbai-map-error" role="status">
+        <p>The interactive map is unavailable in this session. Directory filters and appointment requests remain available; no location or distance is inferred.</p>
+        <button type="button" className="mumbai-map-retry" onClick={retryMap}>Retry interactive map</button>
+      </div>}
     </div>
   );
 }

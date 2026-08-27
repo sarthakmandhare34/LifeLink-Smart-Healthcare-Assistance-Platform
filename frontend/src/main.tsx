@@ -4,6 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import superjson from "superjson";
 import App from "./App.tsx";
+import { MockDataProvider } from "./context/MockDataContext.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 import "./index.css";
 import { trpc } from "./lib/trpc";
@@ -21,9 +22,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <App />
+          <MockDataProvider>
+            <App />
+          </MockDataProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </trpc.Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

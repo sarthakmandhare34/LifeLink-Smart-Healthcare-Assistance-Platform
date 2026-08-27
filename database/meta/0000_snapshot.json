@@ -99,8 +99,12 @@
           "name": "patientAssessments_userId_users_id_fk",
           "tableFrom": "patientAssessments",
           "tableTo": "users",
-          "columnsFrom": ["userId"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -108,7 +112,9 @@
       "compositePrimaryKeys": {
         "patientAssessments_id": {
           "name": "patientAssessments_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {},
@@ -191,13 +197,17 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": ["id"]
+          "columns": [
+            "id"
+          ]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": ["openId"]
+          "columns": [
+            "openId"
+          ]
         }
       },
       "checkConstraint": {}

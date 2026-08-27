@@ -41,7 +41,6 @@ lerna-debug.log*
 
 # Runtime data
 pids
-local-data/
 *.pid
 *.seed
 *.pid.lock
@@ -110,5 +109,6 @@ temp/
 # Webdev artifacts (checkpoint zips, migrations, etc.)
 .webdev/
 
-# Local editor and runtime metadata
+# Manus version file (auto-generated, not part of source)
+client/public/__manus__/version.json
 .project-config.json

@@ -3,16 +3,14 @@ import express from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { registerOAuthRoutes } from "./oauth";
+import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import {
-  registerDoctorRealtimeRoute,
-  registerPatientRealtimeRoute,
-} from "../patientRealtime";
+import { registerDoctorRealtimeRoute, registerPatientRealtimeRoute } from "../patientRealtime";
 import { registerProviderAuthRoutes } from "../providerAuth";
 import { registerPatientProfilePhotoRoute } from "../profilePhoto";
-import { registerLocalStorageRoute } from "../localStorage";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,22 +34,11 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  app.disable("x-powered-by");
-  app.use((_req, res, next) => {
-    res.set({
-      "Content-Security-Policy":
-        "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline' https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ws: wss: https://maps.googleapis.com https://*.googleapis.com;",
-      "Referrer-Policy": "same-origin",
-      "Permissions-Policy": "geolocation=(self), camera=(), microphone=()",
-      "X-Frame-Options": "SAMEORIGIN",
-      "X-Content-Type-Options": "nosniff",
-    });
-    next();
-  });
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  registerLocalStorageRoute(app);
+  registerStorageProxy(app);
+  registerOAuthRoutes(app);
   registerProviderAuthRoutes(app);
   registerPatientRealtimeRoute(app);
   registerDoctorRealtimeRoute(app);

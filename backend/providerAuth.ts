@@ -3,32 +3,18 @@ import { parse as parseCookieHeader } from "cookie";
 import type { Express, Request, Response } from "express";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { COOKIE_NAME, ONE_YEAR_MS } from "../shared/const";
-import {
-  ProviderAccountConflictError,
-  ProviderRegistrationRequiredError,
-  resolveProviderPatient,
-} from "./db";
+import { ProviderAccountConflictError, ProviderRegistrationRequiredError, resolveProviderPatient } from "./db";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { ENV } from "./_core/env";
-import { sessionAuth } from "./_core/sessionAuth";
+import { sdk } from "./_core/sdk";
 
 const PROVIDER_STATE_COOKIE = "lifelink_google_oauth_state";
 const STATE_MAX_AGE_MS = 10 * 60 * 1000;
-const GOOGLE_JWKS = createRemoteJWKSet(
-  new URL("https://www.googleapis.com/oauth2/v3/certs")
-);
+const GOOGLE_JWKS = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 
 type ProviderIntent = "sign-in" | "register";
-type StoredState = {
-  state: string;
-  nonce: string;
-  expiresAt: number;
-  intent: ProviderIntent;
-};
-type ProviderConfig = Pick<
-  typeof ENV,
-  "authPublicBaseUrl" | "googleOAuthClientId" | "googleOAuthClientSecret"
->;
+type StoredState = { state: string; nonce: string; expiresAt: number; intent: ProviderIntent };
+type ProviderConfig = Pick<typeof ENV, "authPublicBaseUrl" | "googleOAuthClientId" | "googleOAuthClientSecret">;
 
 function getPublicBaseUrl() {
   try {
@@ -39,32 +25,17 @@ function getPublicBaseUrl() {
   }
 }
 
-export function googleAvailabilityFromConfig(config: {
-  authPublicBaseUrl: string;
-  googleOAuthClientId: string;
-  googleOAuthClientSecret: string;
-}) {
+export function googleAvailabilityFromConfig(config: { authPublicBaseUrl: string; googleOAuthClientId: string; googleOAuthClientSecret: string }) {
   let hasHttpsBase = false;
   try {
     hasHttpsBase = new URL(config.authPublicBaseUrl).protocol === "https:";
-  } catch {
-    /* An empty or invalid public origin must keep Google unavailable. */
-  }
-  return (
-    hasHttpsBase &&
-    Boolean(config.googleOAuthClientId && config.googleOAuthClientSecret)
-  );
+  } catch { /* An empty or invalid public origin must keep Google unavailable. */ }
+  return hasHttpsBase && Boolean(config.googleOAuthClientId && config.googleOAuthClientSecret);
 }
 
-export function googleAuthorizationStartUrlFromConfig(
-  config: ProviderConfig,
-  intent: ProviderIntent = "sign-in"
-) {
+export function googleAuthorizationStartUrlFromConfig(config: ProviderConfig, intent: ProviderIntent = "sign-in") {
   if (!googleAvailabilityFromConfig(config)) return null;
-  const startUrl = new URL(
-    "/api/auth/google",
-    new URL(config.authPublicBaseUrl).origin
-  );
+  const startUrl = new URL("/api/auth/google", new URL(config.authPublicBaseUrl).origin);
   if (intent === "register") startUrl.searchParams.set("intent", "register");
   return startUrl.toString();
 }
@@ -73,10 +44,7 @@ export function getProviderAvailability() {
   return {
     google: googleAvailabilityFromConfig(ENV),
     googleAuthorizationStartUrl: googleAuthorizationStartUrlFromConfig(ENV),
-    googleRegistrationStartUrl: googleAuthorizationStartUrlFromConfig(
-      ENV,
-      "register"
-    ),
+    googleRegistrationStartUrl: googleAuthorizationStartUrlFromConfig(ENV, "register"),
   };
 }
 
@@ -91,41 +59,27 @@ function storeState(req: Request, res: Response, intent: ProviderIntent) {
     expiresAt: Date.now() + STATE_MAX_AGE_MS,
     intent,
   };
-  res.cookie(
-    PROVIDER_STATE_COOKIE,
-    Buffer.from(JSON.stringify(stored)).toString("base64url"),
-    {
-      ...getSessionCookieOptions(req),
-      maxAge: STATE_MAX_AGE_MS,
-    }
-  );
+  res.cookie(PROVIDER_STATE_COOKIE, Buffer.from(JSON.stringify(stored)).toString("base64url"), {
+    ...getSessionCookieOptions(req),
+    maxAge: STATE_MAX_AGE_MS,
+  });
   return stored;
 }
 
 function clearState(req: Request, res: Response) {
-  res.clearCookie(PROVIDER_STATE_COOKIE, {
-    ...getSessionCookieOptions(req),
-    maxAge: -1,
-  });
+  res.clearCookie(PROVIDER_STATE_COOKIE, { ...getSessionCookieOptions(req), maxAge: -1 });
 }
 
 function getState(req: Request, receivedState: string | undefined) {
   if (!receivedState) return null;
-  const raw = parseCookieHeader(req.headers.cookie ?? "")[
-    PROVIDER_STATE_COOKIE
-  ];
+  const raw = parseCookieHeader(req.headers.cookie ?? "")[PROVIDER_STATE_COOKIE];
   if (!raw) return null;
   try {
-    const stored = JSON.parse(
-      Buffer.from(raw, "base64url").toString("utf8")
-    ) as StoredState;
+    const stored = JSON.parse(Buffer.from(raw, "base64url").toString("utf8")) as StoredState;
     if (stored.expiresAt < Date.now()) return null;
     const expected = Buffer.from(stored.state);
     const actual = Buffer.from(receivedState);
-    return expected.length === actual.length &&
-      timingSafeEqual(expected, actual)
-      ? stored
-      : null;
+    return expected.length === actual.length && timingSafeEqual(expected, actual) ? stored : null;
   } catch {
     return null;
   }
@@ -147,48 +101,21 @@ async function exchangeGoogleCode(code: string, nonce: string) {
       grant_type: "authorization_code",
     }),
   });
-  const data = (await response.json().catch(() => null)) as {
-    id_token?: string;
-  } | null;
-  if (!response.ok || !data?.id_token)
-    throw new Error("Google token exchange failed");
+  const data = await response.json().catch(() => null) as { id_token?: string } | null;
+  if (!response.ok || !data?.id_token) throw new Error("Google token exchange failed");
   const { payload } = await jwtVerify(data.id_token, GOOGLE_JWKS, {
     issuer: ["https://accounts.google.com", "accounts.google.com"],
     audience: ENV.googleOAuthClientId,
   });
   const email = typeof payload.email === "string" ? payload.email : "";
-  if (
-    !payload.sub ||
-    !email ||
-    payload.email_verified !== true ||
-    payload.nonce !== nonce
-  )
-    throw new Error("Google identity could not be verified");
-  return {
-    provider: "google" as const,
-    subject: payload.sub,
-    email,
-    name: typeof payload.name === "string" ? payload.name : null,
-  };
+  if (!payload.sub || !email || payload.email_verified !== true || payload.nonce !== nonce) throw new Error("Google identity could not be verified");
+  return { provider: "google" as const, subject: payload.sub, email, name: typeof payload.name === "string" ? payload.name : null };
 }
 
-async function establishGoogleSession(
-  req: Request,
-  res: Response,
-  profile: Awaited<ReturnType<typeof exchangeGoogleCode>>,
-  intent: ProviderIntent
-) {
-  const user = await resolveProviderPatient(profile, {
-    allowNewProviderAccount: intent === "register",
-  });
-  const token = await sessionAuth.createSessionToken(user.openId, {
-    name: user.name || "LifeLink Patient",
-    expiresInMs: ONE_YEAR_MS,
-  });
-  res.cookie(COOKIE_NAME, token, {
-    ...getSessionCookieOptions(req),
-    maxAge: ONE_YEAR_MS,
-  });
+async function establishGoogleSession(req: Request, res: Response, profile: Awaited<ReturnType<typeof exchangeGoogleCode>>, intent: ProviderIntent) {
+  const user = await resolveProviderPatient(profile, { allowNewProviderAccount: intent === "register" });
+  const token = await sdk.createSessionToken(user.openId, { name: user.name || "LifeLink Patient", expiresInMs: ONE_YEAR_MS });
+  res.cookie(COOKIE_NAME, token, { ...getSessionCookieOptions(req), maxAge: ONE_YEAR_MS });
   res.redirect(302, "/patient/dashboard");
 }
 
@@ -197,8 +124,7 @@ function startGoogle(req: Request, res: Response) {
     res.status(503).json({ error: "Google sign-in is not configured yet." });
     return;
   }
-  const intent: ProviderIntent =
-    req.query.intent === "register" ? "register" : "sign-in";
+  const intent: ProviderIntent = req.query.intent === "register" ? "register" : "sign-in";
   const stored = storeState(req, res, intent);
   const authorizeUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   authorizeUrl.search = new URLSearchParams({
@@ -214,47 +140,25 @@ function startGoogle(req: Request, res: Response) {
 }
 
 async function finishGoogle(req: Request, res: Response) {
-  const receivedState =
-    typeof req.query.state === "string" ? req.query.state : undefined;
+  const receivedState = typeof req.query.state === "string" ? req.query.state : undefined;
   const state = getState(req, receivedState);
   clearState(req, res);
   if (!state) return redirectWithError(res, "invalid_provider_state");
-  const providerError =
-    typeof req.query.error === "string" ? req.query.error : undefined;
+  const providerError = typeof req.query.error === "string" ? req.query.error : undefined;
   const code = typeof req.query.code === "string" ? req.query.code : undefined;
-  if (providerError || !code)
-    return redirectWithError(res, "provider_sign_in_cancelled");
+  if (providerError || !code) return redirectWithError(res, "provider_sign_in_cancelled");
   try {
-    await establishGoogleSession(
-      req,
-      res,
-      await exchangeGoogleCode(code, state.nonce),
-      state.intent
-    );
+    await establishGoogleSession(req, res, await exchangeGoogleCode(code, state.nonce), state.intent);
   } catch (error) {
-    console.warn(
-      "[ProviderAuth] Google callback failed",
-      error instanceof Error ? error.name : "unknown"
-    );
-    redirectWithError(
-      res,
-      error instanceof ProviderRegistrationRequiredError
-        ? "registration_required"
-        : error instanceof ProviderAccountConflictError
-          ? "account_exists"
-          : "provider_sign_in_failed"
-    );
+    console.warn("[ProviderAuth] Google callback failed", error instanceof Error ? error.name : "unknown");
+    redirectWithError(res, error instanceof ProviderRegistrationRequiredError ? "registration_required" : error instanceof ProviderAccountConflictError ? "account_exists" : "provider_sign_in_failed");
   }
 }
 
 export function registerProviderAuthRoutes(app: Express) {
   app.get("/api/auth/google", startGoogle);
-  app.get("/api/auth/google/callback", (req, res) => {
-    void finishGoogle(req, res);
-  });
+  app.get("/api/auth/google/callback", (req, res) => { void finishGoogle(req, res); });
   app.all(["/api/auth/apple", "/api/auth/apple/*"], (_req, res) => {
-    res
-      .status(404)
-      .json({ error: "Apple sign-in is not enabled for this project." });
+    res.status(404).json({ error: "Apple sign-in is not enabled for this project." });
   });
 }

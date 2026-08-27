@@ -2,35 +2,35 @@
  * Liquid-glass design note: both patient and doctor flows use the same pearlescent
  * surface system, with page-specific content kept intact inside shared shells.
  */
-import React from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { AppShell } from "./components/layout/AppShell";
-import { DoctorAppShell } from "./components/layout/DoctorAppShell";
-import { PatientDashboard } from "./features/patient/Dashboard";
-import { HealthPassport } from "./features/patient/HealthPassport";
-import { MedicineCabinet } from "./features/patient/MedicineCabinet";
-import { PatientLogin } from "./features/patient/Login";
-import { PatientRegistration } from "./features/patient/Registration";
-import { AIAssessment } from "./features/patient/AIAssessment";
-import { SpecialistFinder } from "./features/patient/SpecialistFinder";
-import { Appointments } from "./features/patient/Appointments";
-import { Prescriptions } from "./features/patient/Prescriptions";
-import { Emergency } from "./features/patient/Emergency";
-import { Profile } from "./features/patient/Profile";
-import { Settings } from "./features/patient/Settings";
-import { DoctorLogin } from "./features/doctor/Login";
-import { DoctorSetup } from "./features/doctor/Setup";
-import { DoctorResetPassword } from "./features/doctor/ResetPassword";
-import { DoctorDashboard } from "./features/doctor/Dashboard";
-import { Patients } from "./features/doctor/Patients";
-import { DoctorAppointments } from "./features/doctor/Appointments";
-import { Consultation } from "./features/doctor/Consultation";
-import { DoctorPrescriptions } from "./features/doctor/Prescriptions";
-import { Assessments } from "./features/doctor/Assessments";
-import { DoctorProfile } from "./features/doctor/Profile";
-import { DoctorSettings } from "./features/doctor/Settings";
-import { PatientView } from "./features/doctor/PatientView";
-import { WorkspaceSelector } from "./features/entry/WorkspaceSelector";
+import React from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AppShell } from './components/layout/AppShell';
+import { DoctorAppShell } from './components/layout/DoctorAppShell';
+import { PatientDashboard } from './features/patient/Dashboard';
+import { HealthPassport } from './features/patient/HealthPassport';
+import { MedicineCabinet } from './features/patient/MedicineCabinet';
+import { PatientLogin } from './features/patient/Login';
+import { PatientRegistration } from './features/patient/Registration';
+import { AIAssessment } from './features/patient/AIAssessment';
+import { SpecialistFinder } from './features/patient/SpecialistFinder';
+import { Appointments } from './features/patient/Appointments';
+import { Prescriptions } from './features/patient/Prescriptions';
+import { Emergency } from './features/patient/Emergency';
+import { Profile } from './features/patient/Profile';
+import { Settings } from './features/patient/Settings';
+import { DoctorLogin } from './features/doctor/Login';
+import { DoctorSetup } from './features/doctor/Setup';
+import { DoctorResetPassword } from './features/doctor/ResetPassword';
+import { DoctorDashboard } from './features/doctor/Dashboard';
+import { Patients } from './features/doctor/Patients';
+import { DoctorAppointments } from './features/doctor/Appointments';
+import { Consultation } from './features/doctor/Consultation';
+import { DoctorPrescriptions } from './features/doctor/Prescriptions';
+import { Assessments } from './features/doctor/Assessments';
+import { DoctorProfile } from './features/doctor/Profile';
+import { DoctorSettings } from './features/doctor/Settings';
+import { PatientView } from './features/doctor/PatientView';
+import { WorkspaceSelector } from './features/entry/WorkspaceSelector';
 
 function App() {
   return (
@@ -64,10 +64,7 @@ function App() {
           <Route path="appointments" element={<DoctorAppointments />} />
           <Route path="consultation" element={<Consultation />} />
           <Route path="prescriptions" element={<DoctorPrescriptions />} />
-          <Route
-            path="prescriptions/create"
-            element={<DoctorPrescriptions />}
-          />
+          <Route path="prescriptions/create" element={<DoctorPrescriptions />} />
           <Route path="assessments" element={<Assessments />} />
           <Route path="profile" element={<DoctorProfile />} />
           <Route path="settings" element={<DoctorSettings />} />

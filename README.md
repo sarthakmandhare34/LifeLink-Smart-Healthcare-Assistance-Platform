@@ -1,129 +1,121 @@
-# LifeLink
+# LifeLink — Smart Healthcare Assistance Platform
 
-LifeLink is a locally maintainable, full-stack healthcare-assistance platform. It supports native patient accounts, patient-owned health records, appointment requests, medicine and prescription history, AI-assisted symptom assessment, authenticated realtime updates, a controlled Mumbai Specialist Finder, and a separate controlled clinician workspace.
+LifeLink is a full-stack patient healthcare-assistance application. It provides secure patient accounts, patient-owned health records, an AI-assisted symptom-assessment workflow with safety controls, appointment requests, medicines and prescription history, realtime patient updates, and a controlled Mumbai Specialist Finder.
 
-> **Clinical and directory boundary:** LifeLink is not a diagnosis, medical-order, emergency-dispatch, or provider-verification service. The Specialist Finder and clinician workspace use controlled synthetic records. They must never be described as real clinicians, verified identities, live availability, ratings, recommendations, or navigation guidance.
+> **Important scope boundary:** LifeLink is not a medical diagnosis service. The Specialist Finder and doctor portal are intentionally development/mock-only in this phase. They must not be represented as real clinicians, verified availability, ratings, travel times, nearby providers, or medical recommendations.
 
-## Technology
+## What Is Implemented
 
-| Layer          | Technology                                                                              |
-| -------------- | --------------------------------------------------------------------------------------- |
-| Frontend       | React 19, TypeScript, Vite, CSS, React Query, tRPC client                               |
-| Backend        | Node.js, Express, TypeScript, tRPC server, Server-Sent Events                           |
-| Database       | MySQL-compatible database, Drizzle ORM, SQL migrations                                  |
-| Authentication | Native email/password accounts, local JWT session cookies, optional direct Google OAuth |
-| AI             | Optional direct Gemini API, invoked only from the backend                               |
-| Maps           | Optional direct Google Maps JavaScript API                                              |
-| Testing        | Vitest and TypeScript validation                                                        |
+| Area | Status | Notes |
+| --- | --- | --- |
+| Patient registration and sign-in | Database-backed | Supports native email/password accounts and Google OAuth. |
+| Patient dashboard and records | Database-backed | Profiles, Health Passport details, appointments, medicines, prescriptions, and assessment history are patient-owned. |
+| AI Assessment | Server-side | Gemini runs server-side only, validates structured output, and has a deterministic emergency override plus a safe platform fallback. |
+| Realtime updates | Implemented | Patient-scoped Server-Sent Events refresh relevant data after changes. |
+| Specialist Finder | Controlled mock directory | Specialty, Mumbai rail-corridor, and station filters use controlled mock entries and reference markers only. |
+| Maps and browser location | Privacy-bounded | The managed map shows controlled markers. Location is optional, page-local, and neither stored nor transmitted. |
+| SOS actions | User-confirmed only | Users must confirm before LifeLink opens an SMS draft or the device dialer for 112. LifeLink never sends a message, places a call, or shares location automatically. |
+| Doctor portal | Mock-only | Doctor login, profiles, availability, and related dashboard views remain deliberately mocked. |
 
-## Current Features
+## Technology Stack
 
-| Area                | Current behavior                                                                                                                                     |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Patient accounts    | Registration and email/password sign-in create and authenticate database-backed patient accounts.                                                    |
-| Patient portal      | Profile, Health Passport, emergency contacts, appointments, medicines, prescriptions, and assessment history are scoped to the signed-in patient.    |
-| AI Assessment       | A deterministic emergency override is applied before optional Gemini analysis. Without a Gemini key, non-emergency assessment is safely unavailable. |
-| Realtime updates    | Patient and clinician event streams are session-bound and scoped to their assigned records.                                                          |
-| Specialist Finder   | Mumbai-only controlled directory with specialty, corridor, station, and text filters plus protected appointment-request behavior.                    |
-| Maps and location   | Optional map markers sync with controlled entries. Browser location is page-local, optional, and is never persisted by LifeLink.                     |
-| Clinician workspace | Controlled accounts can access only their assigned appointments and associated patient data, then create controlled prescription records.            |
-| Emergency actions   | User-confirmed dialer and SMS-draft actions only; LifeLink does not automatically call, message, dispatch, or share location.                        |
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, React Router, CSS liquid-glass design system |
+| Backend | Node.js, Express, tRPC, TypeScript |
+| Database | MySQL with Drizzle ORM and migrations |
+| Authentication | Native signed sessions plus Google OAuth with server-side state/nonce validation |
+| AI | Server-only Gemini integration with strict validation and fallback behavior |
+| Realtime | Authenticated Server-Sent Events |
+| Maps | Managed Google Maps proxy; no personal Maps key is embedded in the frontend |
+| Tests | Vitest, TypeScript checking, and production build validation |
 
 ## Repository Structure
 
 ```text
 lifelink/
-├── frontend/                 # Browser application: React routes, UI, styles, hooks, and client integrations
+├── frontend/                 # Browser application
 │   └── src/
-│       ├── _core/            # Browser authentication hook
-│       ├── components/       # Shared UI, self-contained branding, maps, and layout
-│       ├── context/          # Theme provider
-│       ├── features/         # Entry, patient, and controlled-clinician screens
-│       ├── hooks/            # Browser hooks, including realtime and inactivity controls
-│       ├── lib/              # Browser tRPC and utility helpers
-│       ├── App.tsx           # Route map
-│       ├── main.tsx          # React bootstrap
-│       └── index.css         # Responsive design, themes, motion, and glass surfaces
-├── backend/                  # Express/tRPC server, local sessions, local storage, and business logic
-│   ├── _core/                # Context, cookies, local session auth, runtime, and tRPC primitives
-│   ├── routers/              # Patient and controlled-clinician API routers
-│   ├── assessmentService.ts  # Server-only Gemini decision-support integration
-│   ├── db.ts                 # Database helpers and ownership predicates
-│   ├── localStorage.ts       # Private local profile-photo storage
-│   └── mockDoctorDirectory.ts# Controlled Mumbai directory source
-├── database/                 # Drizzle schema, relations, migration SQL, and migration metadata
-├── shared/                   # Cross-boundary types, constants, and Mumbai rail contracts
-├── config/                   # Non-secret local configuration templates
-├── docs/                     # Current setup, maintenance, and handover guidance
-├── scripts/                  # Optional development utilities
-├── package.json              # Commands and dependency manifest
-├── package-lock.json         # npm lockfile
-├── pnpm-lock.yaml            # pnpm lockfile
-├── tsconfig.json             # TypeScript project configuration
-├── vite.config.ts            # Vite configuration
-└── vitest.config.ts          # Test configuration
+│       ├── components/       # Reusable UI, branding, maps, layout
+│       ├── context/          # Active React context providers
+│       ├── features/         # Patient and mock-doctor screens
+│       ├── hooks/            # Browser-side hooks
+│       └── index.css         # Theme, responsive, liquid-glass, and motion rules
+├── backend/                  # Express/tRPC server application
+│   ├── routers/              # Patient feature routers
+│   ├── _core/                # Server infrastructure, sessions, storage, maps
+│   └── *.ts                  # Auth, assessment, discovery, realtime services
+├── database/                 # Drizzle schema, relations, migrations, metadata
+├── shared/                   # Cross-boundary types, constants, rail contracts
+├── scripts/                  # Maintained project utilities
+├── implementation-reports/   # Phase-by-phase implementation records
+├── package.json              # Commands and dependencies
+├── pnpm-lock.yaml            # Deployment lockfile
+├── package-lock.json         # Local npm lockfile
+└── todo.md                   # Completed implementation history and checklist
 ```
 
-## Local Setup
+## Local Development
 
-Use **one** package manager consistently in your local clone. npm is the primary documented workflow.
+### Prerequisites
+
+Install **Node.js 22 or later**, npm, and a MySQL-compatible database. Clone the repository, then install dependencies:
 
 ```bash
-git clone <your-repository-url>
-cd lifelink
+git clone https://github.com/sarthakmandhare34/LifeLink-Smart-Healthcare-Assistance-Platform.git
+cd LifeLink-Smart-Healthcare-Assistance-Platform
 npm install
-cp config/local-env.template .env
-# Edit .env securely before the next command.
-npm run db:generate
-npm run db:migrate
-npm run dev
 ```
 
-The application starts at `http://localhost:3000`. Complete configuration guidance is in [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md), and the delivery checklist is in [docs/HANDOVER_CHECKLIST.md](docs/HANDOVER_CHECKLIST.md).
+Local npm commands are supported. The managed deployment uses pnpm and its frozen `pnpm-lock.yaml`; both lockfiles are intentionally retained.
 
-## Environment Variables
+### Environment Configuration
 
-Copy `config/local-env.template` to `.env`; do not commit it. The table below describes the configuration purpose without exposing secret values.
+Create a private `.env` file for your own local environment. Do not commit it.
 
-| Variable                        | Required                         | Purpose                                                                                     |
-| ------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                  | Yes                              | MySQL-compatible application database connection string.                                    |
-| `JWT_SECRET`                    | Yes                              | Private local session-signing secret; use 32 or more random characters.                     |
-| `LIFELINK_CLINICIAN_ADMIN_CODE` | Yes for clinician administration | Private code for controlled clinician account provisioning and password administration.     |
-| `GEMINI_API_KEY`                | Optional                         | Enables server-side AI Assessment for non-emergency submissions.                            |
-| `GEMINI_MODEL` | Optional | Selects the Gemini model; defaults to the project’s verified `gemini-3.6-flash` identifier. |
-| `RUN_GEMINI_INTEGRATION_TESTS` | Optional | Set to `true` only to run direct Gemini connectivity tests with a configured key. |
-| `AUTH_PUBLIC_BASE_URL`          | Optional                         | HTTPS public origin used only for direct Google OAuth callbacks.                            |
-| `GOOGLE_OAUTH_CLIENT_ID`        | Optional                         | Direct Google OAuth client identifier.                                                      |
-| `GOOGLE_OAUTH_CLIENT_SECRET`    | Optional                         | Direct Google OAuth client secret, stored only on the server.                               |
-| `VITE_GOOGLE_MAPS_API_KEY`      | Optional                         | Browser Maps API key restricted to your approved origins.                                   |
-| `VITE_GOOGLE_MAP_ID`            | Optional                         | Google Maps Map ID for advanced map rendering.                                              |
-| `LIFELINK_STORAGE_DIR`          | Optional                         | Local path for private profile-photo files; defaults to `local-data/uploads`.               |
+| Capability | Required local configuration |
+| --- | --- |
+| Native patient records | `DATABASE_URL`, `JWT_SECRET` |
+| Direct Gemini assessment provider | `GEMINI_API_KEY` server-side only |
+| Google OAuth | Google client ID/secret and a configured HTTPS callback URL |
+| Managed maps, storage, and platform fallback | Hosting-platform configuration; never copy production credentials into source code |
 
-## Commands
+> **Security rule:** Never put database URLs, JWT secrets, Gemini keys, Google OAuth secrets, session cookies, authorization codes, or platform credentials in GitHub, frontend code, screenshots, or chat.
 
-| Command               | Purpose                                                        |
-| --------------------- | -------------------------------------------------------------- |
-| `npm run dev`         | Start the local Express and Vite development server.           |
-| `npm run check`       | Run TypeScript checking without generating files.              |
-| `npm test`            | Run the Vitest regression suite.                               |
-| `npm run build`       | Build the frontend and backend production artifacts.           |
-| `npm run start`       | Run the previously built production server.                    |
-| `npm run db:generate` | Generate a Drizzle migration after schema review.              |
-| `npm run db:migrate`  | Apply reviewed migrations to the configured database.          |
-| `npm run verify`      | Run TypeScript checking, tests, and production build together. |
+### Commands
 
-## Security and Maintenance
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local development server with file watching. |
+| `npm test` | Run the Vitest suite. |
+| `npm run check` | Run TypeScript checking. |
+| `npm run build` | Create the production frontend and server bundle. |
+| `npm run start` | Run a previously built production bundle. |
+| `npm run verify` | Run checking, tests, and production build together. |
+| `npm run db:push` | Generate and apply Drizzle migrations. Review database configuration first. |
 
-Patient identity is derived from the signed local session rather than a browser-supplied patient ID. Database helpers and clinician routes enforce patient ownership or controlled appointment assignment. Profile photos are stored locally in an ignored private directory and are served only to the owning patient through an authenticated route.
+For the managed project environment, equivalent pnpm commands are available:
 
-Never commit `.env`, database credentials, session secrets, clinician administration codes, clinician passwords, patient data, OAuth secrets, or Gemini credentials. Back up the MySQL database and private local storage before schema changes or deployments. Run `npm run verify` before every commit.
+```bash
+pnpm run check
+pnpm test
+pnpm build
+```
 
-## Documentation
+## Privacy and Safety Design
 
-| Document                                                                     | Purpose                                                                             |
-| ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md)                                   | Detailed local environment, database, OAuth, Maps, AI, and storage setup.           |
-| [docs/HANDOVER_CHECKLIST.md](docs/HANDOVER_CHECKLIST.md)                     | Final local-maintenance setup, security, testing, and operational checklist.        |
-| [config/local-env.template](config/local-env.template)                       | Safe configuration template with placeholders only.                                 |
-| [docs/archive/implementation-reports/](docs/archive/implementation-reports/) | Historical delivery reports; they are not the current implementation specification. |
+Patient ownership is enforced server-side. Patient routes derive identity from the signed session rather than trusting an identifier sent by the browser. The AI assessment is decision support only and applies deterministic emergency wording before model output can affect the result.
+
+The optional browser-location control never stores or sends precise coordinates to LifeLink. It only orders visible controlled entries and centers the current map view in the browser session. The SOS controls require a user confirmation before opening the phone’s SMS composer or dialer; users remain in control of every external action.
+
+## Responsive Interface
+
+LifeLink supports wide desktop monitors, laptops, tablets, and mobile devices. Shared layout rules adapt workspace gutters, navigation, touch targets, dialogs, grids, forms, Specialist Finder filters, and map height across display sizes. Optional visual motion respects `prefers-reduced-motion`.
+
+## Verification
+
+Before a checkpoint is saved, the project is validated with TypeScript checking, Vitest, production build, and responsive browser checks. The current test suite contains regression coverage for authentication safety, assessment validation, realtime boundaries, controlled directory filters, map loading, SOS confirmations, motion preferences, and responsive layout rules.
+
+## Development Notes
+
+The project is structured deliberately around `frontend`, `backend`, `database`, and `shared` boundaries. Browser-only code—including feature-local styles and browser authentication helpers—lives inside `frontend`; server-only credentials and integrations live inside `backend`; schema and migrations live inside `database`; and cross-boundary contracts live inside `shared`. Phase records are consolidated in `implementation-reports/`. Keep generated build output, dependency folders, logs, and private environment files out of Git.

@@ -1,5 +1,5 @@
 /**
- * Google Maps frontend integration.
+ * GOOGLE MAPS FRONTEND INTEGRATION - ESSENTIAL GUIDE
  *
  * USAGE FROM PARENT COMPONENT:
  * ======
@@ -86,9 +86,11 @@ declare global {
   }
 }
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-const MAP_ID = import.meta.env.VITE_GOOGLE_MAP_ID;
-export const GOOGLE_MAPS_SCRIPT_URL = "https://maps.googleapis.com/maps/api/js";
+const API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
+const FORGE_BASE_URL =
+  import.meta.env.VITE_FRONTEND_FORGE_API_URL ||
+  "https://forge.butterfly-effect.dev";
+const MAPS_PROXY_URL = `${FORGE_BASE_URL}/v1/maps/proxy`;
 export const MAPS_SCRIPT_CROSS_ORIGIN = "anonymous";
 
 let mapScriptPromise: Promise<void> | null = null;
@@ -96,18 +98,13 @@ let mapScriptPromise: Promise<void> | null = null;
 function loadMapScript() {
   if (window.google?.maps) return Promise.resolve();
   if (mapScriptPromise) return mapScriptPromise;
-  if (!API_KEY)
-    return Promise.reject(new Error("Google Maps is not configured."));
 
   mapScriptPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    const params = new URLSearchParams({
-      key: API_KEY,
-      v: "weekly",
-      libraries: "marker,places,geocoding,geometry",
-    });
-    script.src = `${GOOGLE_MAPS_SCRIPT_URL}?${params}`;
+    script.src = `${MAPS_PROXY_URL}/maps/api/js?key=${API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
     script.async = true;
+    // The managed proxy authorizes browser script requests by their Origin header.
+    // Anonymous CORS preserves that header without sending cookies or credentials.
     script.crossOrigin = MAPS_SCRIPT_CROSS_ORIGIN;
     script.onload = () => {
       script.remove(); // Clean up immediately
@@ -165,7 +162,7 @@ export function MapView({
       fullscreenControl: true,
       zoomControl: true,
       streetViewControl: true,
-      ...(MAP_ID ? { mapId: MAP_ID } : {}),
+      mapId: "DEMO_MAP_ID",
     });
     if (onMapReady) {
       onMapReady(map.current);

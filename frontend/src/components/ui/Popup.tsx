@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import React, { useEffect, useRef } from 'react';
+import { X } from 'lucide-react';
 
 interface PopupProps {
   isOpen: boolean;
@@ -11,14 +11,14 @@ interface PopupProps {
   closeOnBackdrop?: boolean;
 }
 
-export const Popup: React.FC<PopupProps> = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  maxWidth = "500px",
-  className = "",
-  closeOnBackdrop = true,
+export const Popup: React.FC<PopupProps> = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children, 
+  maxWidth = '500px',
+  className = '',
+  closeOnBackdrop = true
 }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [isClosing, setIsClosing] = React.useState(false);
@@ -59,12 +59,9 @@ export const Popup: React.FC<PopupProps> = ({
 
     // Check if the click was exactly on the ::backdrop (pseudo-elements register on the element itself, outside its bounds)
     const rect = dialog.getBoundingClientRect();
-    const isInDialog =
-      rect.top <= e.clientY &&
-      e.clientY <= rect.top + rect.height &&
-      rect.left <= e.clientX &&
-      e.clientX <= rect.left + rect.width;
-
+    const isInDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+      rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+    
     if (!isInDialog) {
       handleClose();
     }
@@ -73,39 +70,27 @@ export const Popup: React.FC<PopupProps> = ({
   return (
     <dialog
       ref={dialogRef}
-      className={`popup ${isClosing ? "closing" : ""} ${className}`}
+      className={`popup ${isClosing ? 'closing' : ''} ${className}`}
       style={{ maxWidth }}
       onCancel={handleCancel}
       onClick={handleBackdropClick}
       aria-labelledby="popup-title"
     >
-      <div
-        style={{ padding: "var(--spacing-5)" }}
-        onClick={e => e.stopPropagation()}
-      >
-        <div
-          className="flex justify-between items-center mb-4"
-          style={{
-            paddingBottom: "var(--spacing-3)",
-            borderBottom: "1px solid var(--color-border)",
-          }}
-        >
-          <h2
-            id="popup-title"
-            style={{ margin: 0, fontSize: "var(--text-h2)" }}
-          >
-            {title}
-          </h2>
-          <button
-            onClick={handleClose}
-            className="icon-btn"
+      <div style={{ padding: 'var(--spacing-5)' }} onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-4" style={{ paddingBottom: 'var(--spacing-3)', borderBottom: '1px solid var(--color-border)' }}>
+          <h2 id="popup-title" style={{ margin: 0, fontSize: 'var(--text-h2)' }}>{title}</h2>
+          <button 
+            onClick={handleClose} 
+            className="icon-btn" 
             aria-label="Close popup"
-            style={{ margin: "-8px" }}
+            style={{ margin: '-8px' }}
           >
             <X size={20} />
           </button>
         </div>
-        <div className="popup-content">{children}</div>
+        <div className="popup-content">
+          {children}
+        </div>
       </div>
     </dialog>
   );

@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Express } from "express";
 import { describe, expect, it, vi } from "vitest";
-import {
-  googleAuthorizationStartUrlFromConfig,
-  googleAvailabilityFromConfig,
-  registerProviderAuthRoutes,
-} from "./providerAuth";
+import { googleAuthorizationStartUrlFromConfig, googleAvailabilityFromConfig, registerProviderAuthRoutes } from "./providerAuth";
 
 const completeConfig = {
   authPublicBaseUrl: "https://lifelink.example",
@@ -15,34 +11,15 @@ const completeConfig = {
 
 describe("Google provider availability", () => {
   it("requires an HTTPS public callback origin and both Google credentials", () => {
-    expect(
-      googleAvailabilityFromConfig({
-        ...completeConfig,
-        authPublicBaseUrl: "http://localhost:3000",
-      })
-    ).toBe(false);
-    expect(
-      googleAvailabilityFromConfig({
-        ...completeConfig,
-        googleOAuthClientSecret: "",
-      })
-    ).toBe(false);
+    expect(googleAvailabilityFromConfig({ ...completeConfig, authPublicBaseUrl: "http://localhost:3000" })).toBe(false);
+    expect(googleAvailabilityFromConfig({ ...completeConfig, googleOAuthClientSecret: "" })).toBe(false);
     expect(googleAvailabilityFromConfig(completeConfig)).toBe(true);
   });
 
   it("starts authorization at the permanent public origin so its state cookie returns to the same host", () => {
-    expect(googleAuthorizationStartUrlFromConfig(completeConfig)).toBe(
-      "https://lifelink.example/api/auth/google"
-    );
-    expect(
-      googleAuthorizationStartUrlFromConfig(completeConfig, "register")
-    ).toBe("https://lifelink.example/api/auth/google?intent=register");
-    expect(
-      googleAuthorizationStartUrlFromConfig({
-        ...completeConfig,
-        authPublicBaseUrl: "http://localhost:3000",
-      })
-    ).toBeNull();
+    expect(googleAuthorizationStartUrlFromConfig(completeConfig)).toBe("https://lifelink.example/api/auth/google");
+    expect(googleAuthorizationStartUrlFromConfig(completeConfig, "register")).toBe("https://lifelink.example/api/auth/google?intent=register");
+    expect(googleAuthorizationStartUrlFromConfig({ ...completeConfig, authPublicBaseUrl: "http://localhost:3000" })).toBeNull();
   });
 
   it("accepts the configured server-only Google client credentials", async () => {
@@ -64,7 +41,7 @@ describe("Google provider availability", () => {
         grant_type: "authorization_code",
       }),
     });
-    const payload = (await response.json()) as { error?: string };
+    const payload = await response.json() as { error?: string };
     expect(payload.error).not.toBe("invalid_client");
     expect(payload.error).toBe("invalid_grant");
   }, 20_000);
@@ -72,9 +49,7 @@ describe("Google provider availability", () => {
   it("registers the Google callback route and safely rejects a callback without a bound state", () => {
     const getHandlers = new Map<string, (req: any, res: any) => void>();
     const app = {
-      get: vi.fn((path: string, handler: (req: any, res: any) => void) =>
-        getHandlers.set(path, handler)
-      ),
+      get: vi.fn((path: string, handler: (req: any, res: any) => void) => getHandlers.set(path, handler)),
       all: vi.fn(),
     } as unknown as Express;
 
@@ -88,9 +63,6 @@ describe("Google provider availability", () => {
     callback?.({ headers: {}, query: {}, protocol: "https" }, response);
 
     expect(response.clearCookie).toHaveBeenCalled();
-    expect(response.redirect).toHaveBeenCalledWith(
-      302,
-      "/login?authError=invalid_provider_state"
-    );
+    expect(response.redirect).toHaveBeenCalledWith(302, "/login?authError=invalid_provider_state");
   });
 });

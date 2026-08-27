@@ -1,4 +1,4 @@
-export type Role = "patient" | "doctor";
+export type Role = 'patient' | 'doctor';
 
 export interface User {
   id: string;
@@ -16,7 +16,7 @@ export interface EmergencyContact {
 }
 
 export interface Patient extends User {
-  role: "patient";
+  role: 'patient';
   bloodGroup: string;
   allergies: string[];
   conditions: string[];
@@ -28,19 +28,14 @@ export interface Patient extends User {
 }
 
 export interface Doctor extends User {
-  role: "doctor";
+  role: 'doctor';
   specialty: string;
   hospital: string;
   location: string;
   isVerified: boolean;
 }
 
-export type AppointmentStatus =
-  | "Requested"
-  | "Pending"
-  | "Confirmed"
-  | "Completed"
-  | "Cancelled";
+export type AppointmentStatus = 'Requested' | 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
 
 export interface Appointment {
   id: string;
@@ -70,7 +65,7 @@ export interface Prescription {
   patientId: string;
   doctorId: string;
   date: string;
-  status: "UNSIGNED / CONTROLLED WORKSPACE" | "SIGNED — CONTROLLED STATE";
+  status: 'UNSIGNED / CONTROLLED WORKSPACE' | 'SIGNED — CONTROLLED STATE';
   medicines: { name: string; dosage: string; instructions: string }[];
   clinicalNotes: string;
   integrityReference: string;
@@ -85,7 +80,7 @@ export interface Assessment {
   gender: string;
   conditions: string;
   duration: string;
-  urgency: "LOW" | "MODERATE" | "EMERGENCY";
+  urgency: 'LOW' | 'MODERATE' | 'EMERGENCY';
   reason: string;
   specialty: string;
   guidance: string;
