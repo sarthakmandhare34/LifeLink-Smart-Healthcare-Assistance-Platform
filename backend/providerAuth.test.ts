@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import type { Express } from "express";
 import { describe, expect, it, vi } from "vitest";
 import { googleAuthorizationStartUrlFromConfig, googleAvailabilityFromConfig, registerProviderAuthRoutes } from "./providerAuth";
@@ -22,7 +21,7 @@ describe("Google provider availability", () => {
     expect(googleAuthorizationStartUrlFromConfig({ ...completeConfig, authPublicBaseUrl: "http://localhost:3000" })).toBeNull();
   });
 
-  it("accepts the configured server-only Google client credentials", async () => {
+  it.skipIf(process.env.RUN_PROVIDER_AUTH_TESTS !== "true")("accepts the configured server-only Google client credentials", async () => {
     const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
     const publicBaseUrl = process.env.AUTH_PUBLIC_BASE_URL;

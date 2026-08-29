@@ -330,3 +330,10 @@
 - [x] Improve Specialist Finder dark-mode contrast, form hierarchy, field sizing, and spacing based on the supplied screenshot.
 - [x] Preserve protected discovery filters, controlled-directory disclosure, browser-location privacy, and appointment-request behavior.
 - [x] Add regression coverage and verify the refined form on desktop and mobile before publishing.
+
+## Local Development Terminal Shortcuts
+
+- [x] Add interactive `npm run dev` terminal shortcuts for browser opening, help, and server restart.
+- [x] Add regression coverage and document the new local development shortcuts.
+- [x] Re-run validation and save the verified development-workflow update.
+

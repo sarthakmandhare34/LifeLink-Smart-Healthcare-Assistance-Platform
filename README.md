@@ -86,13 +86,23 @@ Create a private `.env` file for your own local environment. Do not commit it.
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` | Start the local development server with file watching. |
+| `npm run dev` | Start the local development server with file watching and interactive shortcuts. |
 | `npm test` | Run the Vitest suite. |
 | `npm run check` | Run TypeScript checking. |
 | `npm run build` | Create the production frontend and server bundle. |
 | `npm run start` | Run a previously built production bundle. |
 | `npm run verify` | Run checking, tests, and production build together. |
 | `npm run db:push` | Generate and apply Drizzle migrations. Review database configuration first. |
+
+When `npm run dev` is running, type a shortcut followed by Enter:
+
+| Shortcut | Action |
+| --- | --- |
+| `o` | Open the local application in the default browser. |
+| `h` | Show all development shortcuts. |
+| `r` | Restart the development server. |
+| `q` | Stop the development server. |
+
 
 For the managed project environment, equivalent pnpm commands are available:
 
@@ -114,7 +124,7 @@ LifeLink supports wide desktop monitors, laptops, tablets, and mobile devices. S
 
 ## Verification
 
-Before a checkpoint is saved, the project is validated with TypeScript checking, Vitest, production build, and responsive browser checks. The current test suite contains regression coverage for authentication safety, assessment validation, realtime boundaries, controlled directory filters, map loading, SOS confirmations, motion preferences, and responsive layout rules.
+Before a checkpoint is saved, the project is validated with TypeScript checking, Vitest, production build, and responsive browser checks. The current test suite contains regression coverage for authentication safety, assessment validation, realtime boundaries, controlled directory filters, map loading, SOS confirmations, motion preferences, responsive layout rules, and the local development shortcut wrapper. The live Google credential exchange is opt-in via `RUN_PROVIDER_AUTH_TESTS=true`; ordinary local validation remains offline-capable.
 
 ## Development Notes
 
