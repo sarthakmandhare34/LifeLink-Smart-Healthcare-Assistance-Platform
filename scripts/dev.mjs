@@ -1,4 +1,5 @@
 import { exec, spawn } from "node:child_process";
+import os from "node:os";
 import process from "node:process";
 
 const PORT = Number(process.env.PORT || 3000);
@@ -14,7 +15,10 @@ export function helpText() {
     "  o + Enter  Open the local app in your browser",
     "  h + Enter  Show this help",
     "  r + Enter  Restart the development server",
+    "  u + Enter  Show local and network URLs",
+    "  c + Enter  Clear the terminal screen",
     "  q + Enter  Stop the development server",
+    "  Ctrl+C     Stop the development server",
     "",
   ].join("\n");
 }
@@ -22,6 +26,14 @@ export function helpText() {
 export function openBrowser(url = URL) {
   const opener = process.platform === "win32" ? "start" : process.platform === "darwin" ? "open" : "xdg-open";
   exec(`${opener} ${JSON.stringify(url)}`);
+}
+
+export function urlText(port = PORT) {
+  const addresses = Object.values(os.networkInterfaces())
+    .flatMap((interfaces) => interfaces ?? [])
+    .filter((network) => network.family === "IPv4" && !network.internal)
+    .map((network) => `  Network: http://${network.address}:${port}`);
+  return [`  Local:   http://localhost:${port}`, ...addresses].join("\\n");
 }
 
 function startServer() {
@@ -81,6 +93,13 @@ function handleShortcut(key) {
       openBrowser();
       break;
     case "h":
+      console.log(helpText());
+      break;
+    case "u":
+      console.log(`\\n${urlText()}\\n`);
+      break;
+    case "c":
+      console.clear();
       console.log(helpText());
       break;
     case "r":

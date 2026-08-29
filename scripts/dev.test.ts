@@ -9,7 +9,16 @@ describe("local development shortcuts", () => {
     expect(wrapper).toContain("o + Enter");
     expect(wrapper).toContain("h + Enter");
     expect(wrapper).toContain("r + Enter");
+    expect(wrapper).toContain("u + Enter");
+    expect(wrapper).toContain("c + Enter");
     expect(wrapper).toContain("q + Enter");
+    expect(wrapper).toContain("Ctrl+C");
+  });
+
+  it("prints local and network URLs and clears the terminal through shortcut handlers", () => {
+    expect(wrapper).toContain("urlText");
+    expect(wrapper).toContain("console.clear()");
+    expect(wrapper).toContain("Network:");
   });
 
   it("keeps the existing LifeLink server command intact", () => {

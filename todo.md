@@ -337,3 +337,10 @@
 - [x] Add regression coverage and document the new local development shortcuts.
 - [x] Re-run validation and save the verified development-workflow update.
 
+
+## Full Interactive Dev Server Shortcuts
+
+- [x] Add `u` URL display and `c` clear-screen controls to the local `npm run dev` wrapper while retaining `o`, `r`, `h`, `q`, and Ctrl+C behavior.
+- [x] Add regression coverage and documentation for the complete shortcut set.
+- [x] Run validation and save the verified shortcut update.
+
