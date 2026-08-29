@@ -344,3 +344,10 @@
 - [x] Add regression coverage and documentation for the complete shortcut set.
 - [x] Run validation and save the verified shortcut update.
 
+
+## Windows Dev Browser Shortcut Fix
+
+- [x] Correct the Windows `o + Enter` browser launch so it opens the default browser instead of a command window.
+- [x] Add regression coverage and verify the complete shortcut workflow after the fix.
+- [x] Save the verified Windows shortcut correction.
+

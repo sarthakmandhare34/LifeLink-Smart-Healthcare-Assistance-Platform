@@ -19,6 +19,7 @@ describe("local development shortcuts", () => {
     expect(wrapper).toContain("urlText");
     expect(wrapper).toContain("console.clear()");
     expect(wrapper).toContain("Network:");
+    expect(wrapper).toContain("start \"\" ${JSON.stringify(url)}");
   });
 
   it("keeps the existing LifeLink server command intact", () => {

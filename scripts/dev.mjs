@@ -24,7 +24,11 @@ export function helpText() {
 }
 
 export function openBrowser(url = URL) {
-  const opener = process.platform === "win32" ? "start" : process.platform === "darwin" ? "open" : "xdg-open";
+  if (process.platform === "win32") {
+    exec(`start "" ${JSON.stringify(url)}`);
+    return;
+  }
+  const opener = process.platform === "darwin" ? "open" : "xdg-open";
   exec(`${opener} ${JSON.stringify(url)}`);
 }
 
