@@ -91,6 +91,15 @@ describe("doctor workspace authorization", () => {
     expect(mocks.createPatientEvent).toHaveBeenCalledWith(9, "APPOINTMENT_UPDATED", "22");
   });
 
+  it("allows a confirmed appointment to be marked completed through the signed clinician workspace", async () => {
+    mocks.updateDoctorAppointmentStatus.mockResolvedValue({ userId: 9, status: "Completed" });
+
+    await expect(doctorWorkspaceRouter.createCaller(context("doctor")).appointments.updateStatus({ id: 22, status: "Completed" })).resolves.toEqual({ success: true });
+
+    expect(mocks.updateDoctorAppointmentStatus).toHaveBeenCalledWith("mock-central-cardiology-csmt", 22, "Completed");
+    expect(mocks.createPatientEvent).toHaveBeenCalledWith(9, "APPOINTMENT_UPDATED", "22");
+  });
+
   it("returns the minimum patient detail only through the signed doctor’s assigned appointment relationship", async () => {
     mocks.getDoctorAuthorizedPatientDetail.mockResolvedValue({ patient: { id: 9, name: "Patient record", bloodGroup: "Not recorded", allergies: [], conditions: [] }, appointments: [], medicines: [], assessments: [{ id: 3, symptoms: "Persistent cough", duration: "3 days", urgency: "MODERATE", reason: "Patient-provided context", specialty: "Pulmonology", guidance: "Seek review", createdAt: new Date() }] });
 

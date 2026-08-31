@@ -632,7 +632,7 @@ export async function listDoctorAppointments(doctorId: string) {
 export async function updateDoctorAppointmentStatus(
   doctorId: string,
   appointmentId: number,
-  status: "Confirmed" | "Cancelled",
+  status: "Confirmed" | "Cancelled" | "Completed",
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
@@ -642,13 +642,18 @@ export async function updateDoctorAppointmentStatus(
     .where(and(eq(patientAppointments.id, appointmentId), eq(patientAppointments.doctorId, doctorId)))
     .limit(1);
   const appointment = rows[0];
-  if (!appointment || (appointment.status !== "Requested" && appointment.status !== "Pending")) return null;
+  if (!appointment) return null;
+  if (status === "Completed") {
+    if (appointment.status !== "Confirmed") return null;
+  } else if (appointment.status !== "Requested" && appointment.status !== "Pending" && appointment.status !== "Confirmed") {
+    return null;
+  }
 
   await db
     .update(patientAppointments)
     .set({ status })
     .where(and(eq(patientAppointments.id, appointmentId), eq(patientAppointments.doctorId, doctorId)));
-  return { userId: appointment.userId };
+  return { userId: appointment.userId, status };
 }
 
 /** Returns only the minimum clinical profile and medicine data for a patient with an appointment assigned to this doctor. */

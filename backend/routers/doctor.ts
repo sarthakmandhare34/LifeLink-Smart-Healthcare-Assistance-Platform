@@ -55,12 +55,12 @@ export const doctorWorkspaceRouter = router({
       return (await listDoctorAppointments(doctor.id)).map(appointmentView);
     }),
     updateStatus: doctorProcedure
-      .input(z.object({ id: z.number().int().positive(), status: z.enum(["Confirmed", "Cancelled"]) }))
+      .input(z.object({ id: z.number().int().positive(), status: z.enum(["Confirmed", "Cancelled", "Completed"]) }))
       .mutation(async ({ ctx, input }) => {
         const doctor = currentDoctor(ctx.user.openId);
         const updated = await updateDoctorAppointmentStatus(doctor.id, input.id, input.status);
         if (!updated) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Appointment was not found or is no longer awaiting a decision." });
+          throw new TRPCError({ code: "NOT_FOUND", message: "Appointment was not found or the requested status transition is not allowed." });
         }
         await createPatientEvent(updated.userId, "APPOINTMENT_UPDATED", String(input.id));
         return { success: true } as const;

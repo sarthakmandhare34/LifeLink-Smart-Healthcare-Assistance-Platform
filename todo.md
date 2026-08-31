@@ -351,3 +351,16 @@
 - [x] Add regression coverage and verify the complete shortcut workflow after the fix.
 - [x] Save the verified Windows shortcut correction.
 
+
+## Uploaded ZIP Reconciliation
+
+- [x] Inspect the uploaded LifeLink ZIP structure, dependencies, source snapshot, and documentation without executing archive contents.
+- [x] Compare the archive with the active project and identify only compatible updates.
+- [x] Apply safe archive updates, validate the result, and document what was adopted or retained.
+
+
+- [x] Merge the compatible archive improvement allowing confirmed clinician appointments to be marked Completed with server-side transition validation.
+- [x] Add the archive’s local `db:studio` command without changing deployment lockfile behavior.
+- [x] Update README to accurately describe the functional controlled clinician workspace and full local shortcut set.
+- [x] Add regression coverage for the archive-derived completion transition and run the full verify gate.
+- [x] Produce the final ZIP reconciliation report, preserving the active project’s newer local-maintenance behavior and excluding archive secrets/artifacts.

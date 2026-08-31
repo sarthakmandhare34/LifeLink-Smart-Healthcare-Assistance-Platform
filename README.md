@@ -2,7 +2,7 @@
 
 LifeLink is a full-stack patient healthcare-assistance application. It provides secure patient accounts, patient-owned health records, an AI-assisted symptom-assessment workflow with safety controls, appointment requests, medicines and prescription history, realtime patient updates, and a controlled Mumbai Specialist Finder.
 
-> **Important scope boundary:** LifeLink is not a medical diagnosis service. The Specialist Finder and doctor portal are intentionally development/mock-only in this phase. They must not be represented as real clinicians, verified availability, ratings, travel times, nearby providers, or medical recommendations.
+> **Important scope boundary:** LifeLink is not a medical diagnosis service. The Specialist Finder uses a controlled synthetic Mumbai directory, and the clinician workspace is limited to those synthetic accounts. These entries must not be represented as real clinicians, verified availability, ratings, travel times, nearby providers, or medical recommendations.
 
 ## What Is Implemented
 
@@ -15,7 +15,7 @@ LifeLink is a full-stack patient healthcare-assistance application. It provides 
 | Specialist Finder | Controlled mock directory | Specialty, Mumbai rail-corridor, and station filters use controlled mock entries and reference markers only. |
 | Maps and browser location | Privacy-bounded | The managed map shows controlled markers. Location is optional, page-local, and neither stored nor transmitted. |
 | SOS actions | User-confirmed only | Users must confirm before LifeLink opens an SMS draft or the device dialer for 112. LifeLink never sends a message, places a call, or shares location automatically. |
-| Doctor portal | Mock-only | Doctor login, profiles, availability, and related dashboard views remain deliberately mocked. |
+| Clinician workspace | Database-backed controlled directory | Synthetic clinician login, appointment review, patient-context access, status updates, and prescription authoring are available only for controlled directory accounts. |
 
 ## Technology Stack
 
@@ -38,7 +38,7 @@ lifelink/
 │   └── src/
 │       ├── components/       # Reusable UI, branding, maps, layout
 │       ├── context/          # Active React context providers
-│       ├── features/         # Patient and mock-doctor screens
+│       ├── features/         # Patient and controlled-clinician screens
 │       ├── hooks/            # Browser-side hooks
 │       └── index.css         # Theme, responsive, liquid-glass, and motion rules
 ├── backend/                  # Express/tRPC server application
@@ -93,6 +93,7 @@ Create a private `.env` file for your own local environment. Do not commit it.
 | `npm run start` | Run a previously built production bundle. |
 | `npm run verify` | Run checking, tests, and production build together. |
 | `npm run db:push` | Generate and apply Drizzle migrations. Review database configuration first. |
+| `npm run db:studio` | Open Drizzle Studio using the configured local database. |
 
 When `npm run dev` is running, type a shortcut followed by Enter:
 
@@ -101,8 +102,9 @@ When `npm run dev` is running, type a shortcut followed by Enter:
 | `o` | Open the local application in the default browser. |
 | `h` | Show all development shortcuts. |
 | `r` | Restart the development server. |
-| `q` | Stop the development server. |
-
+| `u` | Show the local and network URLs. |
+| `c` | Clear the terminal screen. |
+| `q` | Stop the server. |
 
 For the managed project environment, equivalent pnpm commands are available:
 
